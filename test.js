@@ -24,6 +24,5 @@ function hejfarvel() {
   }
 }
 
-hejfarvel()
 
-kage
+hejfarvel()
