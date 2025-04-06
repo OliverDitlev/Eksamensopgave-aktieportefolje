@@ -5,15 +5,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>PortofolioTracker</title>
     <link rel="stylesheet" href="/css/menu.css">
-    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="/css/style.css">
 </head>
 <body>
-    <div class="menucontainer">
         <!-- aside class bruges da dette ikke er direkte involveret i sidens indhold -->
         <aside class="menu">
             <% include partials/menu %>
         </aside>
+        <main>
+            <%- body %>
+        </main>
 
-    </div>
 </body>
 </html>
