@@ -13,16 +13,17 @@ app.get('/',(req, res) => {
     res.render('dashboard');
 });
 
-app.get('/loginpage', (req,res) => {
-    res.render('search')
-})
 
 app.get('/accounts', (req,res) => {
-    res.render('search')
+    res.render('accounts')
 })
 
 app.get('/portofolios', (req,res) => {
-    res.render('search')
+    res.render('portofolios')
+})
+
+app.get('/loginpage', (req,res) => {
+    res.render('loginpage')
 })
 
 app.listen(port, () =>{
