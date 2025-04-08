@@ -22,10 +22,6 @@ app.get('/portofolios', (req,res) => {
     res.render('portofolios')
 })
 
-app.get('/loginpage', (req,res) => {
-    res.render('loginpage')
-})
-
 app.listen(port, () =>{
     console.log(`Server listening on port:${port} `)
 })

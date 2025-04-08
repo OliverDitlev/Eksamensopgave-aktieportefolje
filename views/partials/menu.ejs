@@ -1,5 +1,43 @@
+
 <div id="menu" class="menu">
-    <a href="/" class="MenuLink">Dashboard</a>
-    <a href="/accounts" class="MenuLink">Accounts</a>
-    <a href="/portfolios" class="MenuLink">Portfolios</a>
+    <button href="javascript:void(0)" id= "menubtn" class="menubtn" onclick="changeMenu()">&lt;</button>
+
+    <a href="/" class="menuLink">
+        <span class="symbol">&#127968</span>
+        <span id="menuDashboard" class="menuText">Dashboard</span>
+        </a>
+    <a href="/accounts" class="menuLink">
+        <span class="symbol">&#128202</span> 
+        <span id="menuAccounts" class="menuText">Accounts</span>
+    </a>
+    <a href="/portofolios" class="menuLink">
+        <span class="symbol">&#128193</span>
+        <span id="menuPortofolios" class="menuText">Portofolios</span>
+    </a>
 </div>
+<script>
+
+let menuOpen = true; 
+function changeMenu(){
+    if(menuOpen){
+    document.getElementById("menu").style.width = "5%"
+    document.getElementById("main").style.marginLeft = "6%"
+    document.getElementById("menubtn").style.marginLeft = "45px"
+
+    document.getElementById("menuDashboard").innerHTML = ""
+    document.getElementById("menuAccounts").innerHTML = ""
+    document.getElementById("menuPortofolios").innerHTML = ""
+    document.getElementById("menubtn").innerHTML = ">";
+    }else{
+    document.getElementById("menu").style.width = "20%"
+    document.getElementById("main").style.marginLeft = "22%"
+    document.getElementById("menubtn").style.marginLeft = "235px"
+
+    document.getElementById("menuDashboard").innerHTML = "Dashboard"
+    document.getElementById("menuAccounts").innerHTML = "Accounts"
+    document.getElementById("menuPortofolios").innerHTML = "Portofolios"
+    document.getElementById("menubtn").innerHTML = "<"
+    }
+menuOpen = !menuOpen 
+}
+</script>
