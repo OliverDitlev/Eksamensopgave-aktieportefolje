@@ -19,25 +19,21 @@
 
 let menuOpen = true; 
 function changeMenu(){
-    if(menuOpen){
-    document.getElementById("menu").style.width = "5%"
-    document.getElementById("main").style.marginLeft = "6%"
-    document.getElementById("menubtn").style.marginLeft = "45px"
+    document.getElementById("menu").classList.toggle("closed");
+    document.getElementById("main").classList.toggle("closed");
+    document.getElementById("menubtn").classList.toggle("closed");
 
-    document.getElementById("menuDashboard").innerHTML = ""
-    document.getElementById("menuAccounts").innerHTML = ""
-    document.getElementById("menuPortofolios").innerHTML = ""
-    document.getElementById("menubtn").innerHTML = ">";
-    }else{
-    document.getElementById("menu").style.width = "20%"
-    document.getElementById("main").style.marginLeft = "22%"
-    document.getElementById("menubtn").style.marginLeft = "235px"
+    document.querySelectorAll(".menuText").forEach(el => {
+        el.classList.toggle("closed");
+    });
 
-    document.getElementById("menuDashboard").innerHTML = "Dashboard"
-    document.getElementById("menuAccounts").innerHTML = "Accounts"
-    document.getElementById("menuPortofolios").innerHTML = "Portofolios"
-    document.getElementById("menubtn").innerHTML = "<"
+    if(!menuOpen){
+        document.getElementById("menubtn").innerHTML = "<"
+    } else {
+        document.getElementById("menubtn").innerHTML = ">"
     }
-menuOpen = !menuOpen 
+
+    menuOpen = !menuOpen;
 }
+
 </script>

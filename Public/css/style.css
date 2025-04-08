@@ -15,7 +15,7 @@ body{
     top: 0;
     left: 0;
     overflow-x: hidden;
-    padding-top: 60px;
+    padding-top: 50px;
 
 }
 .menu a{
@@ -24,7 +24,6 @@ body{
     font-size: 25px;
     color:gray;
     display: block;
-    transition: 0.2s;
     border-left:5px ;
 
 }
@@ -51,5 +50,18 @@ body{
     background-color: rgb(150, 150, 150);
 }
 
+.menubtn.closed{
+    margin-Left: 45px
+}
+.menu.closed{
+    width: 5%;
+}
+
+.main.closed{
+    margin-left: 6%;
+}
+.menuText.closed{
+ display: none;
+}
 
 
