@@ -1,6 +1,8 @@
 
 <div id="menu" class="menu">
-    <img src="public/billederprog/Stortbillede.png" alt="Skal gemmes på database">
+
+    <img src="billederprog/Stortbillede.png" alt="Skal gemmes på database" id="PTLogo" >
+
     <button href="javascript:void(0)" id= "menubtn" class="menubtn" onclick="changeMenu()">&lt;</button>
 
     <a href="/" class="menuLink">
@@ -19,6 +21,7 @@
 <script>
 
 let menuOpen = true; 
+let logo = document.getElementById('PTLogo')
 function changeMenu(){
     document.getElementById("menu").classList.toggle("closed");
     document.getElementById("main").classList.toggle("closed");
@@ -30,8 +33,12 @@ function changeMenu(){
 
     if(!menuOpen){
         document.getElementById("menubtn").innerHTML = "<"
+        logo.src = "billederprog/Stortbillede.png"
+        logo.style.width = "250px"
     } else {
         document.getElementById("menubtn").innerHTML = ">"
+        logo.src = "billederprog/Lillebillede.png"
+        logo.style.width = "80px"
     }
 
     menuOpen = !menuOpen;

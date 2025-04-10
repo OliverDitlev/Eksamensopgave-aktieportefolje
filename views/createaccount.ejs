@@ -8,19 +8,21 @@
     <%- include('partials/menu') %>
 
     <link rel="stylesheet" href="/css/style.css">
+ 
 </head>
 <body id="main" class="main">
     <div class ="loginpage">
-    <h1>Login</h1>
-    <h4>Dont have an account yet? <br><a href="createaccount" id = "create account"> create one here</a> </h4>
+    <h1>Create account</h1>
+    <input type="text" class="halfsizeinput" id="firstname" placeholder="First name"> 
+    <input type="text" class="halfsizeinput" id="lastname" placeholder="Last name">
+
     <input type="email" class="inputbruger" id="Mailbox" placeholder="E-mail">
     <br>
     <input type="Password" class="inputbruger" id="Passwordbox" placeholder="Password">
+
     <br>
-    
-    <a href="createaccount" id="forgettenpassword">Forgetten password?</a>
-    <br>
-    <button id = "loginbtn">LOGIN</button>
+    <button id = "loginbtn">Create account</button>
     </div>
+ 
 </body>
 </html>

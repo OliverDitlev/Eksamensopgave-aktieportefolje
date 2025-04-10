@@ -3,17 +3,18 @@ body{
 }
 .main{
     margin-left: 22%;
-    color: aqua;
+    color: rgb(255, 255, 255);
 }
 /* herunder er styling brugt til menu*/
 .menu{
     height: 100%;
-    width: 20%;
+    width: 220px;
+    max-width: 220px;
     position: fixed;
     background-color: rgb(41, 41, 41);
     z-index: 1;
     top: 0;
-    left: 0;
+    Left: 0;
     overflow-x: hidden;
     padding-top: 50px;
     transition: 0.3s;
@@ -35,8 +36,8 @@ body{
 
 .menubtn{
     position: fixed;
-    top: 50px;
-    left: 19.3%;
+    top: 60px;
+    Left: 210px;
     z-index: 9999;
     color: white;
     background-color: rgb(114, 114, 114);
@@ -62,10 +63,84 @@ body{
 }
 
 .main.closed{
-    margin-left: 6%;
+    margin-left: 10%;
 }
 .menuText.closed{
  display: none;
 }
 
+img{
+    margin-top: -30px;
+    margin-left: -15px;
+    width: 250px;
+    height: 70px;
+    transition: 0.3s;
+}
+.loginpage{
+    position: fixed;
+    top: 100px;
+    right: 30%;
+    width: 350px;
+    padding: 30px;
+    z-index: 10;
+    padding: 20px;
+    background-color: rgb(0, 0, 0);
+    font-size: 20px;
+    border-radius: 200px;
+}
+.inputbruger{
+    width: 100%;
+    padding: 14px;
+    border: 3px;
+    margin-top: 25px;
+    font-size: 20px;
+    background-color: rgb(82, 82, 82);
+    box-sizing: border-box;
+    margin-bottom: 5px;
+    border-radius: 200px;
+}
+.loginpage a{
+    color: rgb(255, 255, 255);
+    margin-left: 2px;
+}
+.loginpage h1{
+    margin-left: 2px;
+}
+.loginpage p{
+    margin-left: 2px;
+}
+
+#loginbtn{
+    width: 350px;
+    height: 40px;
+    margin-top: 15px;
+    font-size: 25px;
+    background-color: rgb(47, 190, 54);
+    border: 5px;
+    border-radius: 70px;
+}
+
+#createaccount{
+    width: 350px;
+    height: 40px;
+    margin-top: 10px;
+    font-size: 25px;
+}
+#forgettenpassword{
+    font-size: 18px;
+    margin-top: 20px;
+    margin-left: 10px;
+}
+
+.halfsizeinput{
+        width: 49%;
+        padding: 14px;
+        border: 3px;
+        margin-top: 25px;
+        font-size: 20px;
+        background-color: rgb(82, 82, 82);
+        box-sizing: border-box;
+        margin-bottom: 5px;
+        border-radius: 200px;
+}
 

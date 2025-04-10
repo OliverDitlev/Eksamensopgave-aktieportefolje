@@ -15,10 +15,14 @@ app.get('/',(req, res) => {
 
 app.get('/accounts', (req,res) => {
     res.render('accounts')
-})
+});
 
 app.get('/portofolios', (req,res) => {
     res.render('portofolios')
+});
+
+app.get('/createaccount', (req,res) => {
+    res.render('createaccount')
 })
 
 app.listen(port, () =>{
