@@ -16,9 +16,11 @@ body{
     left: 0;
     overflow-x: hidden;
     padding-top: 50px;
+    transition: 0.3s;
 
 }
 .menu a{
+    
     padding: 20px;
     text-decoration: none;
     font-size: 25px;
@@ -34,7 +36,7 @@ body{
 .menubtn{
     position: fixed;
     top: 50px;
-    margin-left: 235px;
+    left: 19.3%;
     z-index: 9999;
     color: white;
     background-color: rgb(114, 114, 114);
@@ -44,14 +46,16 @@ body{
     font-size: 25px;
     border: none;
     opacity: 0.8;
+    transition: left 0.3s;
 
 }
 .menubtn:hover{
     background-color: rgb(150, 150, 150);
 }
-
+/*viser hvordan vi håndtere en lukket menu*/
 .menubtn.closed{
-    margin-Left: 45px
+    Left: 4%
+    
 }
 .menu.closed{
     width: 5%;
