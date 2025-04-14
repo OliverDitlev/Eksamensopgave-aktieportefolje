@@ -11,18 +11,22 @@
  
 </head>
 <body id="main" class="main">
+    <form action="/createaccount" method="POST">
     <div class ="loginpage">
     <h1>Create account</h1>
-    <input type="text" class="halfsizeinput" id="firstname" placeholder="First name"> 
-    <input type="text" class="halfsizeinput" id="lastname" placeholder="Last name">
 
-    <input type="email" class="inputbruger" id="Mailbox" placeholder="E-mail">
-    <br>
-    <input type="Password" class="inputbruger" id="Passwordbox" placeholder="Password">
+    <input type="text" class="halfsizeinput" name="firstname" placeholder="First name"> 
+    <input type="text" class="halfsizeinput" name="lastname" placeholder="Last name">
 
+    <input type="email" class="inputbruger" name="email" placeholder="E-mail">
     <br>
-    <button id = "loginbtn">Create account</button>
+    <input type="password" class="inputbruger" name="password" placeholder="Password">
+    <br>
+    <input type="password" class="inputbruger" name="repeatpassword" placeholder="Repeat Password">
+    <br>
+    <button type="submit" id = "loginbtn" >Create account</button>
+
     </div>
- 
+    </form>
 </body>
 </html>
