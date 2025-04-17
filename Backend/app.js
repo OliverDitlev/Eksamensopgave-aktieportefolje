@@ -1,8 +1,6 @@
 const express = require('express');
 const path = require('path');
-const{body, validationResult} = require('express-validator');
-const { passwordConfig } = require('../Database/config');
-const { createDatabaseConnection } = require('../Database/database');
+const{body, validationResult} = require('express-validator')
 const app = express();
 const port = 3000;
 
@@ -13,10 +11,10 @@ app.use(express.urlencoded({extended: true}));
 app.use(express.json());
 
 //opretter en global forbindel til database
-let db;
+let db
 
 createDatabaseConnection(passwordConfig).then((instance => {
-  db = database;
+  db = instance
 }))
 
 app.get('/',(req, res) => {
@@ -74,10 +72,7 @@ body('repeatpassword')
 
     if (!errors.isEmpty()) {
 
-      return res.render('createaccount',{
-        errors: errors.array(),
-        oldInput: req.body
-      })
+      return res.status(400).json({ errors: errors.array() });
     }
 
 const { firstname, lastname, email, password } = req.body;
@@ -88,6 +83,7 @@ const userId = db.insertUser({
   email,
   password,
 });
+
 
 console.log(`Ny bruger:`,req.body);
 res.redirect('/');
