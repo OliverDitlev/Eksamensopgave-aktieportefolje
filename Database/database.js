@@ -79,7 +79,17 @@ let database = null;
     const result = await request.query(query);
     return result.recordset[0].user_id;
   }
+
+  async getUserByEmail(email) {
+    const[rows] = await connection.execute(
+      'select * from [dbo].[userAdministration] where email = ?',
+      [email]
+    )
+    return rows[0]
+  }
 }
+
+
 
 
 
@@ -92,7 +102,7 @@ const createDatabaseConnection = async (passwordConfig) => {
 
 module.exports = {
     Database,
-    createDatabaseConnection
+    createDatabaseConnection,
 };
   
 const { passwordConfig } = require('./config') 

@@ -13,10 +13,10 @@ app.use(express.urlencoded({extended: true}));
 app.use(express.json());
 
 //opretter en global forbindel til database
-let db
+let db;
 
 createDatabaseConnection(passwordConfig).then((instance => {
-  db = instance
+  db = database;
 }))
 
 app.get('/',(req, res) => {
@@ -27,8 +27,10 @@ app.get('/accounts', (req,res) => {
     res.render('accounts');
 });
 
-app.get('/portofolios', (req,res) => {
-    res.render('portofolios');
+app.get('/login', (req,res) => {
+  res.render('login', {
+  errorCollected: [],
+  });
 });
 
 app.get('/createaccount', (req,res) => {
@@ -38,7 +40,9 @@ app.get('/createaccount', (req,res) => {
     });
 });
 
-
+app.get('/portofolios', (req,res) => {
+    res.render('portofolios');
+});
 app.post('/createaccount', [
 // valider Input fra brugere med brug af express-validator
 
@@ -88,10 +92,42 @@ const userId = db.insertUser({
   password,
 });
 
-
 console.log(`Ny bruger:`,req.body);
 res.redirect('/');
 });
+
+//metode for at brugeren logger ind
+
+
+const user = [
+  {email:'', password:''}
+]
+
+app.post('/login',[
+  body('email').isEmail().withMessage('Please enter an Email'),
+  body('password').notEmpty().withMessage('Please enter password')
+], async (req, res) => {
+  const errors = validationResult(req)
+
+  if(!errors.isEmpty()){
+    return res.render('login', {
+      errorlist: errors.array()
+    })
+  }
+  let {email, password} = req.body;
+
+  let user = await db.getUserByEmail(email);
+
+  if(user && user.password == password){
+    res.redirect('/')
+  } else {
+    return res.render('login', {
+      errorlist:[{msg: 'Passord or Email is incorret'}]
+    })
+  }
+}
+
+)
 
 app.listen(port, () =>{
     console.log(`Server listening on port:${port} `)
