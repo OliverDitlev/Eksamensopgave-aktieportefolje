@@ -32,7 +32,10 @@ app.get('/portofolios', (req,res) => {
 });
 
 app.get('/createaccount', (req,res) => {
-    res.render('createaccount');
+    res.render('createaccount', {
+      errors: [],
+      oldInput:{}
+    });
 });
 
 
