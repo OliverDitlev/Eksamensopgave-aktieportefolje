@@ -60,8 +60,11 @@ let database = null;
 
     this.executeQuery(query)
       .then(() => {
-        console.log("Table created");
+        console.log("Table created or already exists.");
       })
+      .catch((err) => {
+        console.error(`Error creating table: ${err}`);
+      });
   }
   async insertUser({ firstname, lastname, email, password }) {
     const query = `

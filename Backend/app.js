@@ -34,10 +34,7 @@ app.get('/login', (req,res) => {
 });
 
 app.get('/createaccount', (req,res) => {
-    res.render('createaccount', {
-      errors: [],
-      oldInput:{}
-    });
+    res.render('createaccount');
 });
 
 app.get('/portofolios', (req,res) => {
