@@ -1,6 +1,8 @@
 const express = require('express');
 const path = require('path');
-const{body, validationResult} = require('express-validator')
+const{body, validationResult} = require('express-validator');
+const { passwordConfig } = require('../Database/config');
+const { createDatabaseConnection } = require('../Database/database');
 const app = express();
 const port = 3000;
 
@@ -25,19 +27,18 @@ app.get('/accounts', (req,res) => {
     res.render('accounts');
 });
 
-app.get('/login', (req,res) => {
-  res.render('login', {
-  errorCollected: [],
-  });
-});
-
-app.get('/createaccount', (req,res) => {
-    res.render('createaccount');
-});
-
 app.get('/portofolios', (req,res) => {
     res.render('portofolios');
 });
+
+app.get('/createaccount', (req,res) => {
+    res.render('createaccount', {
+      errors: [],
+      oldInput:{}
+    });
+});
+
+
 app.post('/createaccount', [
 // valider Input fra brugere med brug af express-validator
 
@@ -72,7 +73,10 @@ body('repeatpassword')
 
     if (!errors.isEmpty()) {
 
-      return res.status(400).json({ errors: errors.array() });
+      return res.render('createaccount',{
+        errors: errors.array(),
+        oldInput: req.body
+      })
     }
 
 const { firstname, lastname, email, password } = req.body;
@@ -88,39 +92,6 @@ const userId = db.insertUser({
 console.log(`Ny bruger:`,req.body);
 res.redirect('/');
 });
-
-//metode for at brugeren logger ind
-
-
-const user = [
-  {email:'', password:''}
-]
-
-app.post('/login',[
-  body('email').isEmail().withMessage('Please enter an Email'),
-  body('password').notEmpty().withMessage('Please enter password')
-], async (req, res) => {
-  const errors = validationResult(req)
-
-  if(!errors.isEmpty()){
-    return res.render('login', {
-      errorlist: errors.array()
-    })
-  }
-  let {email, password} = req.body;
-
-  let user = await db.getUserByEmail(email);
-
-  if(user && user.password == password){
-    res.redirect('/')
-  } else {
-    return res.render('login', {
-      errorlist:[{msg: 'Passord or Email is incorret'}]
-    })
-  }
-}
-
-)
 
 app.listen(port, () =>{
     console.log(`Server listening on port:${port} `)

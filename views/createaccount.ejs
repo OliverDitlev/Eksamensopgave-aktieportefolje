@@ -15,21 +15,32 @@
     <div class ="loginpage">
     <h1>Create account</h1>
 
-    <input type="text" class="halfsizeinput" name="firstname" placeholder="First name"> 
-    <input type="text" class="halfsizeinput" name="lastname" placeholder="Last name">
+    <input type="text" class="halfsizeinput" name="firstname" placeholder="First name" value="<%= oldInput.firstname || '' %>"> 
+    <% if(errors && errors.firstname) { %>
+    <span class="wrongInput"><%= errors.firstname.msg  %></span>
+    <% } %>
 
-    <input type="email" class="inputbruger" name="email" placeholder="E-mail">
+    <input type="text" class="halfsizeinput" name="lastname" placeholder="Last name" value="<%= oldInput.lastname || '' %>">
+    <% if(errors && errors.lastname) { %>
+        <span class="wrongInput"><%= errors.lastname.msg  %></span>
+        <% } %>
+
+    <input type="email" class="inputbruger" name="email" placeholder="E-mail" value="<%= oldInput.email || '' %>">
+    <% if(errors && errors.email) { %>
+        <span class="wrongInput"><%= errors.email.msg  %></span>
+        <% } %>
     <br>
     <input type="password" class="inputbruger" name="password" placeholder="Password">
     <br>
     <input type="password" class="inputbruger" name="repeatpassword" placeholder="Repeat Password">
     <br>
     <button type="submit" id = "loginbtn" >Create account</button>
-<<<<<<< HEAD
-
-=======
+    <% if(errors){ %>
+        <script>
+            alert(`<%= errors.map(err => err.msg).join('\\n')%>`)
+        </script>
+    <% } %>
         
->>>>>>> parent of 81a4e2b (CA)
     </div>
     </form>
 </body>
