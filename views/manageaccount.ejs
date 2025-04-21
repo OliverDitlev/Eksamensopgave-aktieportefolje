@@ -30,6 +30,7 @@
     <input type="text" name="lastname" class="halfsizeinput" id="lastname" value="<%= oldInput?.lastname ||user.lastname %>" required>
     
     <input type="email" name="email" class="inputbruger" id="email" value="<%= oldInput?.email||user.email %>" required>
+    
     <div id="changepassword">
     <input type="password" name="password" class="inputbruger" id="password" placeholder="New Password" >
     <input type="password" name="repeatpassword" class="inputbruger" id="repeatpassword" placeholder="Repeat new password" >
@@ -37,7 +38,7 @@
     <button type="submit" id="changeinfobtn" class="greenbtn">Change Info</button>
     </form>
     <form action="/temp" method="post">
-        <button type="submit" id = "deleteAccountbtn" >Delete Account</button>
+        <button type="submit" id = "deleteAccountbtn" >Deactivate Account</button>
     </form>
 
    

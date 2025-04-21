@@ -30,6 +30,7 @@ createDatabaseConnection(passwordConfig).then((instance => {
   db = instance
 }))
 
+// funktion som videresender en bruger som ikke er logget ind til login-siden
 function authLogin(req, res, next){
   if(req.session.user){
     next()
@@ -128,7 +129,7 @@ const userId = db.insertUser({
 res.redirect('/');
 });
 
-app.post('/login', [
+app.post('/accounts', [
   body('email')
   .trim()
   .notEmpty(). withMessage('Email required'),
@@ -155,7 +156,7 @@ try{
       oldInput: req.body
     });
   }
-
+//gemmer brugeren info under sessionen
     req.session.user = 
       {
         user_id: user.user_id,
@@ -185,12 +186,14 @@ body('email')
 .isEmail().withMessage('A valid email is required'),
 
 body('password')
+.optional({checkFalsy: true})
 .trim()
 .isLength({ min: 8 }).withMessage('Password must be at least 8 characters long')
 .matches(/[A-Z]/).withMessage('Password must contain at least one uppercase letter')
 .matches(/[a-z]/).withMessage('Password must contain at least one lowercase letter'),,
 
 body('repeatpassword')
+.optional({checkFalsy: true})
 .trim()
 .custom((value, { req }) => {
   if (value !== req.body.password) {
@@ -214,21 +217,28 @@ body('repeatpassword')
   }
   const {firstname, lastname, email, password} = req.body
 
-  try{
-    await db.poolConnection.request()
-    .input('firstname', sql.VarChar, firstname)
-    .input('lastname', sql.VarChar, lastname)
-    .input('email', sql.VarChar, email)
-    .input('password', sql.VarChar, password)
-    .input('user_id', sql.UniqueIdentifier, req.session.user.user_id)
-    .query(`
-    update userAdministration
-    set firstname = @firstname,
-       lastname = @lastname,
-       email = @email,
-       password = @password
-    where user_id = @user_id
-    `)
+  try {
+    const request = db.poolConnection.request()
+      .input('firstname', sql.VarChar, firstname)
+      .input('lastname', sql.VarChar, lastname)
+      .input('email', sql.VarChar, email)
+      .input('user_id', sql.UniqueIdentifier, req.session.user.user_id);
+  
+    let query = `
+      UPDATE userAdministration
+      SET firstname = @firstname,
+          lastname = @lastname,
+          email = @email`;
+  
+    if (password && password.trim() == '') {
+      request.input('password', sql.VarChar, password); // husk input
+      query += `,
+          password = @password`;
+    }
+  
+    query += ` WHERE user_id = @user_id`;
+  
+    await request.query(query);
 
     req.session.user = {
        ...req.session.user,
@@ -239,6 +249,7 @@ body('repeatpassword')
   
       };
     req.session.tempData = null;
+    
 
   }catch(err){
     console.error('Error with login', err)
