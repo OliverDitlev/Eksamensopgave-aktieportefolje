@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PortofolioTracker</title>
+    
+    <%- include('partials/menu') %>
+
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body id="main" class="main">
+    
+    <div class="loginpage">
+    <h2> Change your info</h2>
+
+    <p><strong>&#128100;</strong>User created at: <%= user.created%></p>
+        
+    <% if (errors && errors.length > 0) { %>
+        
+            <script>
+                alert("<%= errors.map(e => e.msg).join('\\n') %>");
+            </script>
+      <% } %>
+    
+<form action="/changeInfo" method="POST">
+    
+
+    <input type="text" name="firstname" class="halfsizeinput" id="firstname" value="<%= oldInput?.firstname || user.firstname %>" required> 
+    <input type="text" name="lastname" class="halfsizeinput" id="lastname" value="<%= oldInput?.lastname ||user.lastname %>" required>
+    
+    <input type="email" name="email" class="inputbruger" id="email" value="<%= oldInput?.email||user.email %>" required>
+    <div id="changepassword">
+    <input type="password" name="password" class="inputbruger" id="password" placeholder="New Password" >
+    <input type="password" name="repeatpassword" class="inputbruger" id="repeatpassword" placeholder="Repeat new password" >
+    </div>
+    <button type="submit" id="changeinfobtn" class="greenbtn">Change Info</button>
+    </form>
+    <form action="/temp" method="post">
+        <button type="submit" id = "deleteAccountbtn" >Delete Account</button>
+    </form>
+
+   
+    
+    </div>
+</body>
+</html>

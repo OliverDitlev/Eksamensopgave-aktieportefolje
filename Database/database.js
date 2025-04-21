@@ -79,6 +79,21 @@ let database = null;
     const result = await request.query(query);
     return result.recordset[0].user_id;
   }
+
+  async findUserEmailAndPassword(email, password){
+    const query = `
+    Select user_id, firstname, lastname, email, password, created 
+    From userAdministration 
+    Where email = @email and password = @password
+   `
+   const request = this.poolConnection.request();
+   request.input('email', sql.VarChar, email);
+   request.input('password', sql.VarChar, password);
+
+   const result = await request.query(query);
+   return result.recordset[0]
+  }
+
 }
 
 

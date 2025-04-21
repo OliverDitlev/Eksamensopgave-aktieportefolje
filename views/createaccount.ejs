@@ -11,37 +11,28 @@
  
 </head>
 <body id="main" class="main">
-    <form action="/createaccount" method="POST">
-    <div class ="loginpage">
-    <h1>Create account</h1>
-
-    <input type="text" class="halfsizeinput" name="firstname" placeholder="First name" value="<%= oldInput.firstname || '' %>"> 
-    <% if(errors && errors.firstname) { %>
-    <span class="wrongInput"><%= errors.firstname.msg  %></span>
-    <% } %>
-
-    <input type="text" class="halfsizeinput" name="lastname" placeholder="Last name" value="<%= oldInput.lastname || '' %>">
-    <% if(errors && errors.lastname) { %>
-        <span class="wrongInput"><%= errors.lastname.msg  %></span>
-        <% } %>
-
-    <input type="email" class="inputbruger" name="email" placeholder="E-mail" value="<%= oldInput.email || '' %>">
-    <% if(errors && errors.email) { %>
-        <span class="wrongInput"><%= errors.email.msg  %></span>
-        <% } %>
-    <br>
-    <input type="password" class="inputbruger" name="password" placeholder="Password">
-    <br>
-    <input type="password" class="inputbruger" name="repeatpassword" placeholder="Repeat Password">
-    <br>
-    <button type="submit" id = "loginbtn" >Create account</button>
-    <% if(errors){ %>
+    <div class="loginpage">
+      <h2>Create Account</h2>
+  
+      <% if (errors && errors.length > 0) { %>
         <script>
-            alert(`<%= errors.map(err => err.msg).join('\\n')%>`)
+            alert("<%= errors.map(e => e.msg).join('\\n') %>");
         </script>
-    <% } %>
-        
+      <% } %>
+  
+      <form action="/createaccount" method="POST">
+        <input type="text" name="firstname" class="halfsizeinput" id="firstname" placeholder="First name" value="<%= oldInput?.firstname || '' %>" required>
+  
+        <input type="text" name="lastname" class="halfsizeinput" id="lastname" placeholder="Last name" value="<%= oldInput?.lastname || '' %>" required>
+  
+        <input type="email" name="email" class="inputbruger" id="email" placeholder="E-mail" value="<%= oldInput?.email || '' %>" required>
+  
+        <input type="password" name="password" class="inputbruger" id="password" placeholder="Password" required>
+  
+        <input type="password" name="repeatpassword" class="inputbruger" id="repeatpassword" placeholder="Repeat Password" required>
+  
+        <button type="submit" id="loginbtn" class="greenbtn">Create Account</button>
+      </form>
     </div>
-    </form>
-</body>
+  </body>
 </html>
