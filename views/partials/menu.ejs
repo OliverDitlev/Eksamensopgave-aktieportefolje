@@ -1,7 +1,7 @@
 
 <div id="menu" class="menu">
 
-    <img src="billederprog/Stortbillede.png" alt="Skal gemmes på database" id="PTLogo" >
+    <img src="billederprog/Stortbillede.png" alt="Logo" id="PTLogo" >
 
     <button href="javascript:void(0)" id= "menubtn" class="menubtn" onclick="changeMenu()">&lt;</button>
 
@@ -17,6 +17,10 @@
         <span class="symbol">&#128193</span>
         <span id="menuPortofolios" class="menuText">Portofolios</span>
     </a>
+
+    <form action="/logout" method="get">
+     <button id="logoutbtn">LOGOUT</button>
+    </form>
 </div>
 <script>
 
@@ -26,10 +30,13 @@ function changeMenu(){
     document.getElementById("menu").classList.toggle("closed");
     document.getElementById("main").classList.toggle("closed");
     document.getElementById("menubtn").classList.toggle("closed");
+    document.getElementById("logoutbtn").classList.toggle("closed")
 
     document.querySelectorAll(".menuText").forEach(el => {
         el.classList.toggle("closed");
     });
+
+    
 
     if(!menuOpen){
         document.getElementById("menubtn").innerHTML = "<"
@@ -40,8 +47,8 @@ function changeMenu(){
         logo.src = "billederprog/Lillebillede.png"
         logo.style.width = "80px"
     }
-
     menuOpen = !menuOpen;
+    
 }
 
 </script>

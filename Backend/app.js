@@ -6,6 +6,7 @@ const session = require('express-session')
 const methodOverride = require('method-override');
 const { passwordConfig } = require('../Database/config');
 const { createDatabaseConnection } = require('../Database/database');
+const { console } = require('inspector');
 const app = express();
 const port = 3000;
 
@@ -251,6 +252,16 @@ body('repeatpassword')
 
 
 })
+
+app.get('/logout', (req, res) =>{
+  req.session.destroy(err =>{
+    if(err){
+      console.error('Error with logout', err);
+      return res.status(500).send('could not logout');
+    }
+    res.redirect('/accounts')
+    })
+  })
 
 
 app.listen(port, () =>{

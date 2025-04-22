@@ -22,7 +22,7 @@ body{
     left: 0;
     overflow-x: hidden;
     padding-top: 50px;
-    transition: 0.3s;
+    transition:  0.3s;
     font-family: 'inter', sans-serif;
 
 }
@@ -52,19 +52,22 @@ body{
     font-size: 25px;
     border: none;
     opacity: 0.8;
-    transition: left 0.3s;
-
+    transition: 0.3s;
+    cursor: pointer;
 }
 .menubtn:hover{
     background-color: rgb(150, 150, 150);
+    cursor: pointer;
 }
 /*viser hvordan vi håndtere en lukket menu*/
 .menubtn.closed{
-    left: 4%
+    left: 4%;
+    cursor: pointer;
     
 }
 .menu.closed{
     width: 5%;
+    
 }
 
 .main.closed{
@@ -125,6 +128,7 @@ img{
     background-color: rgb(47, 190, 54);
     border: 5px;
     border-radius: 70px;
+    cursor: pointer;
 }
 
 #deleteAccountbtn{
@@ -135,6 +139,7 @@ img{
     background-color: red;
     border: 5px;
     border-radius: 70px;
+    cursor: pointer;
 }
 #createaccount{
     width: 350px;
@@ -170,4 +175,22 @@ img{
     margin-left: -20px;
     margin-top: -15px;
     margin-top: -15px;
+}
+#logoutbtn{
+    width: 100%;
+    /* rgb(41, 41, 41)*/
+    padding: 15px;
+    background-color: rgb(41, 41, 41);
+    color:  rgb(114, 114, 114);
+    border: none;
+    font-weight: bold;
+    cursor: pointer;
+    transition: 0.3s;
+    margin-top: 280px;
+}
+#logoutbtn:hover{
+    color: white;
+}
+#logoutbtn.closed{
+    display: none;
 }
