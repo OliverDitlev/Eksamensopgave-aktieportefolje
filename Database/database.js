@@ -60,7 +60,7 @@ let database = null;
 
     this.executeQuery(query)
       .then(() => {
-        console.log("Table created");
+        console.log("Table created ");
       })
   }
   async insertUser({ firstname, lastname, email, password }) {
