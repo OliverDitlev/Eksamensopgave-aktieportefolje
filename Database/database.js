@@ -94,6 +94,32 @@ let database = null;
    return result.recordset[0]
   }
 
+  async changeInfo(user_id, firstname, lastname, email, password) {
+    const request = this.poolConnection.request()
+      request.input('firstname', sql.VarChar, firstname)
+      request.input('lastname', sql.VarChar, lastname)
+      request.input('email', sql.VarChar, email)
+      request.input('user_id', sql.UniqueIdentifier, user_id);
+
+      let query = `
+            UPDATE userAdministration
+            SET firstname = @firstname,
+                lastname = @lastname,
+                email = @email`;
+        
+          if (password && password.trim() == '') {
+            request.input('password', sql.VarChar, password); 
+            query += `,
+                password = @password`;
+          }
+        
+          query += ` WHERE user_id = @user_id`
+
+         const result = await request.query(query);
+         return result.rowsAffected[0]
+    
+  }
+
 }
 
 
@@ -110,4 +136,5 @@ module.exports = {
     createDatabaseConnection
 };
   
-const { passwordConfig } = require('./config') 
+const { passwordConfig } = require('./config');const { request } = require('express');
+ 

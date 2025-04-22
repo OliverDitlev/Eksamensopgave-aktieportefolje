@@ -14,15 +14,17 @@
     <div class="loginpage">
     <h2> Change your info</h2>
 
-    <p><strong>&#128100;</strong>User created at: <%= user.created%></p>
-        
+        <div class="errorList">
     <% if (errors && errors.length > 0) { %>
         
-            <script>
-                alert("<%= errors.map(e => e.msg).join('\\n') %>");
-            </script>
+          <ul class="error-list">
+            <% errors.forEach(error => { %>
+              <li><%= error.msg %></li>
+            <% }) %>
+          </ul>
+        
       <% } %>
-    
+    </div>
 <form action="/changeInfo" method="POST">
     
 

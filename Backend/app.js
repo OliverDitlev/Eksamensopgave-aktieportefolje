@@ -1,7 +1,7 @@
 const express = require('express');
 const path = require('path');
-const sql = require('mssql');
-const{body, validationResult} = require('express-validator');
+const sqconstl = require('mssql');
+const { body, validationResult } = require('express-validator');
 const session = require('express-session')
 const methodOverride = require('method-override');
 const { passwordConfig } = require('../Database/config');
@@ -49,7 +49,10 @@ app.get('/accounts', (req, res) => {
   if (req.session.user) {
     return res.redirect('/manageaccount');
   }
-  res.render('accounts');
+  res.render('accounts', {
+    errors: [],
+    oldInput: {}
+  });
 });
 
 app.get('/portofolios', authLogin, (req, res) => {
@@ -73,7 +76,6 @@ app.get('/manageaccount', authLogin, (req, res) => {
      oldInput:{}
      });
 });
-
 
 app.post('/createaccount', [
 // valider Input fra brugere med brug af express-validator
@@ -138,21 +140,26 @@ app.post('/accounts', [
   .notEmpty().withMessage('Password required')
 ], async (req, res) =>{
   const errors = validationResult(req);
+  //bruges til opsamle fejl fra både vallidator og db
+  const errorList = errors.array()
 
   if(!errors.isEmpty()){
       return res.render('accounts',{
-        errors: errors.array(),
+        errors: errors.errorList,
         oldInput: req.body
       })
     }
-
+    
 const{email, password} = req.body;
 try{
   const user = await db.findUserEmailAndPassword(email, password)
 
   if(!user){
+    errorList.push({ msg: 'Wrong Email or password' });
+   
     return res.status(401).render('accounts',{
-      errors: [{msg:'Wrong Email or password'}],
+      
+      errors: errorList,
       oldInput: req.body
     });
   }
@@ -167,7 +174,7 @@ try{
         created: user.created
       }
     
-  
+      console.log(errorList)
     res.redirect('/')
 }catch(err){
   console.error('Error with login', err)
@@ -217,28 +224,11 @@ body('repeatpassword')
   }
   const {firstname, lastname, email, password} = req.body
 
-  try {
-    const request = db.poolConnection.request()
-      .input('firstname', sql.VarChar, firstname)
-      .input('lastname', sql.VarChar, lastname)
-      .input('email', sql.VarChar, email)
-      .input('user_id', sql.UniqueIdentifier, req.session.user.user_id);
-  
-    let query = `
-      UPDATE userAdministration
-      SET firstname = @firstname,
-          lastname = @lastname,
-          email = @email`;
-  
-    if (password && password.trim() == '') {
-      request.input('password', sql.VarChar, password); // husk input
-      query += `,
-          password = @password`;
-    }
-  
-    query += ` WHERE user_id = @user_id`;
-  
-    await request.query(query);
+  try {  
+    console.log('session:', req.session);
+    console.log('user:', req.session.user);
+
+    await db.changeInfo(req.session.user.user_id, firstname, lastname, email, password)
 
     req.session.user = {
        ...req.session.user,
@@ -249,7 +239,9 @@ body('repeatpassword')
   
       };
     req.session.tempData = null;
-    
+    console.log('user:', req.session.user);
+
+    res.redirect('/');
 
   }catch(err){
     console.error('Error with login', err)
@@ -257,7 +249,7 @@ body('repeatpassword')
   }
 
 
-res.redirect('/')
+
 })
 
 

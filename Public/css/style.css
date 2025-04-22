@@ -1,10 +1,15 @@
 body{
-    background-color: rgb(0, 0, 0);
+    background-color: black;
 }
 .main{
-    margin-left: 22%;
+    padding-left: 220px;
+    transition: 0.3s;
     color: rgb(255, 255, 255);
+    font-family: 'inter', sans-serif;
+    font-weight: 400;
+    
 }
+
 /* herunder er styling brugt til menu*/
 .menu{
     height: 100%;
@@ -14,18 +19,18 @@ body{
     background-color: rgb(41, 41, 41);
     z-index: 1;
     top: 0;
-    Left: 0;
+    left: 0;
     overflow-x: hidden;
     padding-top: 50px;
     transition: 0.3s;
+    font-family: 'inter', sans-serif;
 
 }
 .menu a{
-    
     padding: 20px;
     text-decoration: none;
     font-size: 25px;
-    color:gray;
+    color: #84837E;
     display: block;
     border-left:5px ;
 
@@ -37,7 +42,7 @@ body{
 .menubtn{
     position: fixed;
     top: 60px;
-    Left: 210px;
+    left: 210px;
     z-index: 9999;
     color: white;
     background-color: rgb(114, 114, 114);
@@ -55,7 +60,7 @@ body{
 }
 /*viser hvordan vi håndtere en lukket menu*/
 .menubtn.closed{
-    Left: 4%
+    left: 4%
     
 }
 .menu.closed{
@@ -63,7 +68,7 @@ body{
 }
 
 .main.closed{
-    margin-left: 10%;
+    padding-left: 220px;
 }
 .menuText.closed{
  display: none;
@@ -78,7 +83,7 @@ img{
 }
 .loginpage{
     position: fixed;
-    top: 30px;
+    top: 40px;
     right: 30%;
     width: 350px;
     padding: 30px;
@@ -94,7 +99,7 @@ img{
     width: 100%;
     padding: 14px;
     border: 3px;
-    margin-top: 25px;
+    margin-top: 12px;
     font-size: 20px;
     background-color: rgb(82, 82, 82);
     box-sizing: border-box;
@@ -157,4 +162,12 @@ img{
 
 .errorBox{
     font-size: 0px;
+}
+
+.errorList{
+    color: red;
+    font-size:14px;
+    margin-left: -20px;
+    margin-top: -15px;
+    margin-top: -15px;
 }

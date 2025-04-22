@@ -13,12 +13,18 @@
 <body id="main" class="main">
     <div class="loginpage">
       <h2>Create Account</h2>
-  
-      <% if (errors && errors.length > 0) { %>
-        <script>
-            alert("<%= errors.map(e => e.msg).join('\\n') %>");
-        </script>
-      <% } %>
+      
+            <div class="errorList">
+        <% if (errors && errors.length > 0) { %>
+            
+              <ul class="error-list">
+                <% errors.forEach(error => { %>
+                  <li><%= error.msg %></li>
+                <% }) %>
+              </ul>
+            
+          <% } %>
+        </div>
   
       <form action="/createaccount" method="POST">
         <input type="text" name="firstname" class="halfsizeinput" id="firstname" placeholder="First name" value="<%= oldInput?.firstname || '' %>" required>

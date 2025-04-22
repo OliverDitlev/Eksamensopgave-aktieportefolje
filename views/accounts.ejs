@@ -14,7 +14,17 @@
     <div class ="loginpage">
     <h1>Login</h1>
     <h4>Dont have an account yet? <br><a href="createaccount" id = "create account"> create one here</a> </h4>
-
+    <div class="errorList">
+        <% if (errors && errors.length > 0) { %>
+            
+              <ul class="error-list">
+                <% errors.forEach(error => { %>
+                  <li><%= error.msg %></li>
+                <% }) %>
+              </ul>
+            
+          <% } %>
+        </div>
     <form action="/accounts" method="POST">
     <input type="email" name="email" class="inputbruger" id="Mailbox" placeholder=" E-mail " >
     <br>
