@@ -3,18 +3,23 @@ const {body, validationResult} = require('express-validator')
 
 const router = express.Router()
 
-function authLogin(req, res, next){
-    if(req.session.user){
-      next()
-    } else {
-      res.redirect('/accounts')
-    }
-  }
+
+function reqLogin(req, res, next){
+  if(!req.session.user){
+    return res.redirect('/accounts')
+  } 
+    next()
+}
+
+function reqActive(req, res, next){
+  if(!req.session.user.active){
+    return res.redirect('/disabledaccount')
+  } 
+    next()
+}
 
 router.post('/createaccount', [
 // valider Input fra brugere med brug af express-validator
-
-
 body('firstname')
 .notEmpty().withMessage('First name is required'),
 
@@ -35,7 +40,7 @@ body('repeatpassword')
 
 .custom((value, { req }) => {
 
-    const db = req.app.locals.db
+    
 
   if (value !== req.body.password) {
     throw new Error('Passwords do not match');
@@ -43,7 +48,8 @@ body('repeatpassword')
   return true;
 })
 
-], (req, res) => {
+], async (req, res) => {
+    const db = req.app.locals.db;
 
     const errors = validationResult(req);
 
@@ -76,6 +82,7 @@ router.post('/accounts', [
   body('password')
   .trim()
   .notEmpty().withMessage('Password required')
+
 ], async (req, res) =>{
   const errors = validationResult(req);
   const db = req.app.locals.db
@@ -110,7 +117,8 @@ try{
         lastname: user.lastname,
         email: user.email, 
         password: user.password,
-        created: user.created
+        created: user.created,
+        active: user.active
       }
     
       console.log(errorList)
@@ -143,13 +151,13 @@ body('repeatpassword')
 .trim()
 .custom((value, { req }) => {
     
-    const db = req.app.locals.db
   if (value !== req.body.password) {
     throw new Error('Passwords do not match');
   }
   return true;
 })
 ], async(req, res)=>{
+  const db = req.app.locals.db
   const errors = validationResult(req);
 
   if(!req.session.user){
@@ -189,9 +197,33 @@ body('repeatpassword')
     res.status(500).send('server error')
   }
 
-
-
 })
+
+router.post('/activateaccount',async (req, res) =>{
+  const db = req.app.locals.db;
+  await db.activateUser(req.session.user.user_id)
+    
+  req.session.destroy(err =>{
+    if(err){
+      console.error('Error with logout', err);
+      return res.status(500).send('could not logout');
+    }
+    res.redirect('/')
+    })
+  })
+
+router.post('/disabledaccount', async(req, res)=>{
+  const db = req.app.locals.db;
+  await db.deactivateUser(req.session.user.user_id)
+    
+  req.session.destroy(err =>{
+    if(err){
+      console.error('Error with logout', err);
+      return res.status(500).send('could not logout');
+    }
+    res.redirect('/accounts')
+    })
+  })
 
 router.get('/logout', (req, res) =>{
     

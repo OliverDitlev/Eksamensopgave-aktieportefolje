@@ -53,7 +53,8 @@ let database = null;
         [lastname] VARCHAR(50) NOT NULL,
         [email] VARCHAR(50) NOT NULL UNIQUE,
         [password] VARCHAR(100) NOT NULL,
-        [created_at] DATETIME DEFAULT GETDATE()
+        [created] DATETIME DEFAULT GETDATE(),
+        [active] BIT NOT NULL DEFAULT 1
       )
     END
   `;
@@ -82,7 +83,7 @@ let database = null;
 
   async findUserEmailAndPassword(email, password){
     const query = `
-    Select user_id, firstname, lastname, email, password, created 
+    Select user_id, firstname, lastname, email, password, created, active
     From userAdministration 
     Where email = @email and password = @password
    `
@@ -120,10 +121,25 @@ let database = null;
     
   }
 
+async deactivateUser(user_id){
+  const request = this.poolConnection.request()
+  request.input('user_id', sql.UniqueIdentifier, user_id)
+  const query = 'UPDATE userAdministration SET active = 0 WHERE user_id = @user_id'
+  
+  const result = await request.query(query);
+  return result.rowsAffected[0]
+  
 }
-
-
-
+async activateUser(user_id){
+  const request = this.poolConnection.request()
+  request.input('user_id', sql.UniqueIdentifier, user_id)
+  const query = 'UPDATE userAdministration SET active = 1 WHERE user_id = @user_id'
+  
+  const result = await request.query(query);
+  return result.rowsAffected[0]
+  
+}
+}
 const createDatabaseConnection = async (passwordConfig) => {
   database = new Database(passwordConfig);
   await database.connect();
@@ -136,5 +152,6 @@ module.exports = {
     createDatabaseConnection
 };
   
-const { passwordConfig } = require('./config');const { request } = require('express');
+const { passwordConfig } = require('./config');
+const { request } = require('express');
  

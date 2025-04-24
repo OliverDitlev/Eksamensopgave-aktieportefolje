@@ -194,3 +194,7 @@ img{
 #logoutbtn.closed{
     display: none;
 }
+
+.activateaccountbtn{
+    position: center;
+}

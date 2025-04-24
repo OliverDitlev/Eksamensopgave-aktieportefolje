@@ -1,18 +1,24 @@
 const express = require('express');
 const path = require('path');
-const sqconstl = require('mssql');
+//const sqconstl = require('mssql');
 const session = require('express-session')
 const methodOverride = require('method-override');
+
+
 const { passwordConfig } = require('../Database/config');
 const { createDatabaseConnection } = require('../Database/database');
-const { console } = require('inspector');
+const accountsroutes = require('./Routes/accountroutes')
+
+
 const app = express();
 const port = 3000;
-const accountsroutes = require('./Routes/accountroutes')
+
 
 app.set('view engine', 'ejs')
 app.set('views', path.join(__dirname, '../views'));
 app.use(express.static(path.join(__dirname, '../public')));
+
+
 app.use(express.urlencoded({extended: true}));
 app.use(express.json());
 app.use(methodOverride('_method'));
@@ -23,10 +29,8 @@ app.use(session({
 }))
 
 
-
 //opretter en global forbindel til database
 let db;
-
 createDatabaseConnection(passwordConfig).then((instance => {
   db = instance
   app.locals.db = db;
@@ -35,21 +39,25 @@ createDatabaseConnection(passwordConfig).then((instance => {
 }))
 
 // funktion som videresender en bruger som ikke er logget ind til login-siden
-function authLogin(req, res, next){
-  if(req.session.user){
+function reqLogin(req, res, next){
+  if(!req.session.user){
+    return res.redirect('/accounts')
+  } 
     next()
-  } else {
-    res.redirect('/accounts')
-  }
 }
 
+function reqActive(req, res, next){
+  if(!req.session.user.active){
+    return res.redirect('/disabledaccount')
+  } 
+    next()
+}
 
-
-app.get('/', authLogin, (req, res) => {
+app.get('/', reqLogin, reqActive, (req, res) => {
   res.render('dashboard', { user: req.session.user });
 });
 
-app.get('/accounts', (req, res) => {
+app.get('/accounts',(req, res) => {
   if (req.session.user) {
     return res.redirect('/manageaccount');
   }
@@ -59,7 +67,7 @@ app.get('/accounts', (req, res) => {
   });
 });
 
-app.get('/portofolios', authLogin, (req, res) => {
+app.get('/portofolios', reqLogin, reqActive, (req, res) => {
   res.render('portofolios', { user: req.session.user });
 });
 
@@ -73,7 +81,7 @@ app.get('/createaccount', (req, res) => {
   });
 });
 
-app.get('/manageaccount', authLogin, (req, res) => {
+app.get('/manageaccount', reqLogin, reqActive, (req, res) => {
   res.render('manageaccount', {
      user: req.session.user,
      errors:[],
@@ -81,7 +89,11 @@ app.get('/manageaccount', authLogin, (req, res) => {
      });
 });
 
-
+app.get('/disabledaccount', reqLogin,(req,res)=>{
+  res.render('disabledaccount',{
+    user: req.session.user
+  });
+});
 
 app.listen(port, () =>{
     console.log(`Server listening on port:${port} `)
