@@ -6,22 +6,20 @@
     <title>PortofolioTracker</title>
     
     <%- include('partials/menu') %>
+    <script src ="https://cdn.jsdelivr.net/npm/echarts@5.5.0/dist/echarts.min.js"></script>
+    <script>
+        const accounts = <%- JSON.stringify(accounts.map(a => ({ balance: a.balance, currency: a.currency }))) %>;
+      </script>
 
     <link rel="stylesheet" href="/css/style.css">
  
 </head>
 
 <body id="main" class="main">
+    <h1 class = "accounth1">Choose account</h1>
 <button id = "openformbtn">Add account</button>
     <div id = "popupform" class="popup hidden">
-        <div id = "insideform">
-        <% if (errors.length) { %>
-            <ul class="error-list">
-              <% errors.forEach(e=>{ %><li><%= e.msg %></li><% }) %>
-            </ul>
-          <% } %>
-
-       
+        <div id = "insideform">       
             <span id="closeformbtn">X</span>
 
             <h2>Create account</h2>
@@ -51,27 +49,65 @@
         </form>
         </div>
     </div>
-    <table>
-        <tr>
+
+    <!--her vises samlet tabel over kontoer-->
+    <table class="accounttable">
+        <tr class="thtable">
             <th>Name</th>
             <th>Bank</th>
-            <th>Currency</th>
             <th>Balance</th>
+            <th>Last 24h</th>
+            <th>Last week</th>
+            
             
         </tr>
         
             <% accounts.forEach(value => { %>
         <tr>   
+        
             <td><%= value.name %></td> 
             <td><%= value.bank %></td>
-            <td><%= value.balance %></td>
-            <td><%= value.currency %></td>
-            
+            <td><%= value.balance %> <%= value.currency %></td>
+            <td>+2%</td>
+            <td>+5%</td>
+
+            <td>
+            <button class="accountbtn">Change balance</button>
+            <button class="accountbtn" id="deleteaccount">Delete account</button>
+            </td>
+    
         </tr>
             <%})%>
     </table>
+    <!--her vises samlet beløb af valuta-->
+    <table class="halfaccounttable">
+        <tr class="totalbalance">
+            <th> Total balance</th>
+        </tr>
+            <td> 
+                <% 
+                let totalDKK = 0;
+                let totalUSD = 0;
+                accounts.forEach(acc => { 
+                  if (acc.currency === 'DKK') totalDKK += acc.balance;
+                  if (acc.currency === 'USD') totalUSD += acc.balance;
+                });
+                %>
+                
+                <tr>
+                  <td class="samletbalance"><%= totalDKK.toFixed(2) %> DKK</td>
+                </tr>
+                <tr>
+                  <td class="samletbalance"><%= totalUSD.toFixed(2) %> USD</td>
+                </tr>
+        </td>
+    </table>
 
-
+          <div id="chartinUSDandDKK" 
+          data-sumDKK="<%= totalDKK %>"
+          data-sumUSD="<%= totalUSD %>"
+          style="width:480px;height:320px;"></div>
+   
 
     <script>
         let formopen = false
@@ -90,8 +126,35 @@
         }
         openformbtn.addEventListener('click', formpopup)
         closeformbtn.addEventListener('click', formpopup)
-        
-        
+
+        window.addEventListener('click', temp => {
+        if (temp.target === popupform) formpopup();
+        });
+
+     const chartDiv = echarts.init(document.getElementById('chartinUSDandDKK'))
+      
+
+          const sumDKK = Number(chartDiv.dataset.sumDKK);
+          const sumUSD = Number(chartDiv.dataset.sumUSD);
+
+        const option = {
+        series: [
+    {
+      type: 'pie',
+      radius: '50%',
+      data: [
+        {
+          value: sumDKK,
+          name: 'DKK'
+        },
+        {
+          value: sumUSD,
+          name: 'USD'
+        },
+      ],
+    }]
+};
+chart.setOption(option)
     </script>
   </body>
 </html>

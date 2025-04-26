@@ -177,7 +177,6 @@ img{
 }
 #logoutbtn{
     width: 100%;
-    /* rgb(41, 41, 41)*/
     padding: 15px;
     background-color: rgb(41, 41, 41);
     color:  rgb(114, 114, 114);
@@ -200,11 +199,15 @@ img{
 
 .popup{
     position: fixed;
-    top: 0; left: 0; right: 0; bottom: 0;
+    top: 0; 
+    left: 0; 
+    right: 0; 
+    bottom: 0;
     background-color: black;
     display: flex;
     justify-content: center;
     align-items: center;
+    
 }
 
 .popup.hidden{
@@ -228,7 +231,6 @@ img{
     cursor: pointer;
     color: black;
     font-weight: bold;
-
   }
   .popup form {
     display: flex;
@@ -240,8 +242,6 @@ img{
   border: none;
   border-radius: 5px;
   width: 100%;
-  
- 
 }
 #ledgerform select {
     padding: 10px;
@@ -259,3 +259,101 @@ img{
     border-radius: 70px;
     cursor: pointer;
   } 
+
+  #openformbtn{
+    padding: 1px 10px;
+    border: none;
+    border-radius: 5px;
+    background-color: rgb(71, 71, 71);
+    color: white;
+    cursor: pointer;
+    font-size: 20px;
+    width: 140px; 
+    height: 50px; 
+    position: absolute;
+    right: 100px;
+    top: 20px;
+  }
+
+  .accounttable{
+    margin: 10px auto;
+    margin-top: 3%;
+    background-color: rgb(71, 71, 71);
+    padding: 0px;
+    width: 90%;
+    min-height: 325px;
+    max-height: 325px;
+    overflow-y: auto;
+    border-radius: 10px;
+    font-family: 'Inter', sans-serif;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .accounttable th{
+    background-color: rgb(92, 92, 92);
+    padding: 20px;
+    top: 0;
+    margin-top: 50%;
+    z-index: 1;
+  }
+  .accounttable.hidden{
+    display: none;
+  }
+  .accounttable td{
+    padding: 10px;
+    text-align: center;
+    border-bottom: 1px solid black;
+    color: rgb(255, 255, 255);
+  }
+
+  .accountbtn {
+    padding: 1px 10px;
+    margin: 1px;
+    border: none;
+    border-radius: 5px;
+    background-color: rgb(122, 18, 192);
+    color: white;
+    cursor: pointer;
+    font-size: 20px;
+    width: 140px; 
+    height: 50px; ;
+  }
+   #deleteaccount{
+    background-color: rgb(252, 90, 90);
+  }
+  .accounth1{
+    margin-left: 50px;
+    margin-top: 25px;
+  }
+
+   .halfaccounttable{
+    margin-top: 30px;
+    margin-left: 50px;
+    background-color: rgb(71, 71, 71);
+    padding: 0px;
+    width: 40%;
+    height: 200px;
+    overflow-y: auto;
+    border-radius: 10px;
+    font-family: 'Inter', sans-serif;
+    display: flex;
+    flex-direction: column;
+    font-size: 30px;
+  }
+  .halfaccounttable th {
+    font-size: 20px;
+    color: white; 
+    padding: 5px
+  }
+  .samletbalance{
+    font-size: large;
+    padding-left: 20px;
+    padding-top: 30px;
+  }
+
+  #chartinUSDandDKK{
+    width: 600px;
+    height:400px;
+  }
