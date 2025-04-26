@@ -1,10 +1,9 @@
 const express = require('express');
 const path = require('path');
-//const sqconstl = require('mssql');
 const session = require('express-session')
 const methodOverride = require('method-override');
 
-const { getStockData } = require('./stockData');
+const { getStockData } = require('./api');
 const { passwordConfig } = require('../Database/config');
 const { createDatabaseConnection } = require('../Database/database');
 const accountsroutes = require('./Routes/accountroutes')
@@ -36,7 +35,7 @@ let db;
 createDatabaseConnection(passwordConfig).then((instance => {
   db = instance
   app.locals.db = db;
-  
+
   //await db.ensureLedgerTable()
   app.use('/', accountsroutes)
   app.use('/', ledgerRoutes)
@@ -84,14 +83,6 @@ app.get('/createaccount', (req, res) => {
 
 app.get('/manageaccount', reqLogin, reqActive, (req, res) => {
   res.render('manageaccount', {
-     user: req.session.user,
-     errors:[],
-     oldInput:{}
-     });
-});
-
-app.get('/accounts', reqLogin, reqActive, (req, res) => {
-  res.render('accounts', {
      user: req.session.user,
      errors:[],
      oldInput:{}

@@ -24,7 +24,6 @@ body{
     padding-top: 50px;
     transition:  0.3s;
     font-family: 'inter', sans-serif;
-
 }
 .menu a{
     padding: 20px;
@@ -198,3 +197,65 @@ img{
 .activateaccountbtn{
     position: center;
 }
+
+.popup{
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background-color: black;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.popup.hidden{
+    display: none;
+}
+#insideform {
+    background: rgb(71, 71, 71);
+    padding: 0px 50px 35px 35px ;
+    border-radius: 10px;
+    width: 300px;
+    position: relative;
+    font-family: 'inter', sans-serif;
+  }
+  #closeformbtn{
+    position: absolute; 
+    right: 15px;
+    top: 15px;
+    font-weight: bolder;
+  }
+  #closeformbtn:hover{
+    cursor: pointer;
+    color: black;
+    font-weight: bold;
+
+  }
+  .popup form {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+#ledgerform input {
+  padding: 10px;
+  border: none;
+  border-radius: 5px;
+  width: 100%;
+  
+ 
+}
+#ledgerform select {
+    padding: 10px;
+    border: none;
+    border-radius: 5px;
+    width: 106%;
+  }
+ 
+  #ledgerform button{
+    width: 106%;
+    height: 40px;
+    margin-top: 5px;
+    font-size: 20px;
+    border: none;
+    border-radius: 70px;
+    cursor: pointer;
+  } 

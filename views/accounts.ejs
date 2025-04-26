@@ -12,31 +12,86 @@
 </head>
 
 <body id="main" class="main">
-<button id = "openform">Add account</button>
-    <div id = "popupForm" class="popup">
-        <h2>Add ledger</h2>
+<button id = "openformbtn">Add account</button>
+    <div id = "popupform" class="popup hidden">
+        <div id = "insideform">
+        <% if (errors.length) { %>
+            <ul class="error-list">
+              <% errors.forEach(e=>{ %><li><%= e.msg %></li><% }) %>
+            </ul>
+          <% } %>
 
-        <form action="/accounts" method="post">
+       
+            <span id="closeformbtn">X</span>
 
-            <label for="name">Account name</label>
-            <input type="text" name="name" required>
+            <h2>Create account</h2>
+            <form action="/accounts" method="post" id = "ledgerform">
+                <label for="name">Account name</label>
+                <input type="text" name="name" required>
+                
 
-            <label for="bank">Bank</label>
-            <select name="bank" id="choseBank">
-                <option value="text">Nordea</option>
-                <option value="text">Danske Bank</option>
+                <label for="bank">Bank</label>
+                <select name="bank">
+                    <option value="Nordea">Nordea</option>
+                    <option value="Danske Bank">Danske Bank</option>
+                </select>
+
+                <label for="balance"> Starting balance </label>
+                <input type="number" name = "balance" required>
+               
+
+                <label for="currency">Currency</label>
+                <select name="currency" id="choseCurrency">
+                    <option value="DKK">DKK</option>
+                    <option value="USD">USD</option>
             </select>
-
-            <label for="balance"> Starting balance</label>
-            <input type="number" name = "balance">
-            <button type="submit">Open account</button>
-        
-            <label for="currency">Currency</label>
-            <select name="currency" id="choseCurrency">
-                <option value="DKK">DKK</option>
-                <option value="USD">USD</option>
-            </select>
+                
+            <button type="submit" >Open account</button>
+            
         </form>
+        </div>
     </div>
+    <table>
+        <tr>
+            <th>Name</th>
+            <th>Bank</th>
+            <th>Currency</th>
+            <th>Balance</th>
+            
+        </tr>
+        
+            <% accounts.forEach(value => { %>
+        <tr>   
+            <td><%= value.name %></td> 
+            <td><%= value.bank %></td>
+            <td><%= value.balance %></td>
+            <td><%= value.currency %></td>
+            
+        </tr>
+            <%})%>
+    </table>
+
+
+
+    <script>
+        let formopen = false
+
+        const closeformbtn = document.getElementById('closeformbtn')
+        const openformbtn = document.getElementById('openformbtn')
+        const popupform = document.getElementById('popupform')
+
+        function formpopup(){
+            if(formopen){
+                popupform.classList.add('hidden')
+            } else {
+                popupform.classList.remove('hidden')
+            }
+            formopen = !formopen
+        }
+        openformbtn.addEventListener('click', formpopup)
+        closeformbtn.addEventListener('click', formpopup)
+        
+        
+    </script>
   </body>
 </html>

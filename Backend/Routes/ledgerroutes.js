@@ -9,7 +9,11 @@ router.get('/accounts', async(req,res) => {
     const user_id = req.session.user.user_id
 
     const accounts = await db.findLedgerByUser(user_id)
-    res.render('accounts', {user: req.session.user, accounts})
+    res.render('accounts', {
+        user: req.session.user, 
+        accounts, 
+        errors: []
+     })
 })
 
 router.post('/accounts', [
