@@ -64,6 +64,7 @@ let database = null;
         console.log("Table created ");
       })
   }
+
   async insertUser({ firstname, lastname, email, password }) {
     const query = `
       INSERT INTO userAdministration (firstname, lastname, email, password)
@@ -138,19 +139,82 @@ async activateUser(user_id){
   const result = await request.query(query);
   return result.rowsAffected[0]
   
+}  
+
+async createLedger() {
+    const query = `
+     IF NOT EXISTS (
+      SELECT * FROM INFORMATION_SCHEMA.TABLES 
+      WHERE TABLE_NAME = 'userledger'
+    )
+      BEGIN 
+        CREATE TABLE [dbo].[userledger](
+        [account_id] UNIQUEIDENTIFIER PRIMARY KEY DEFAULT NEWID(),
+        [user_id] UNIQUEIDENTIFIER NOT NULL REFERENCES userAdministration(user_id),
+        [name] VARCHAR(50)NOT NULL,
+        [bank] VARCHAR(50) NOT NULL,
+        [currency] CHAR(3) NOT NULL CHECK(currency IN('DKK','USD')),
+        [balance] DECIMAL(12,2) NOT NULL,
+        [ledger_created] DATETIME DEFAULT GETDATE(),
+        [ledger_Active] BIT NOT NULL DEFAULT 1
+        )
+      END
+    `;
+    this.executeQuery(query)
+    .then(() => {
+      console.log("Ledger created ");
+    })
+  }
+
+
+async findLedgerByUser(user_id) {
+  const query = `
+  SELECT *
+  FROM userledger
+  WHERE user_id = @user_id
+  `;
+  const request = await this.poolConnection
+  .request()
+  .input('user_id', sql.UniqueIdentifier, user_id)
+  .query(query)
+  return request.recordset
+  }
+
+
+async insertLedger(user_id, name, bank, currency, balance){
+  const query = `
+  INSERT INTO userledger(user_id, name, bank, currency, balance)
+  OUTPUT INSERTED.* 
+  VALUES (@user_id, @name, @bank, @currency, @balance) 
+  `;
+  const request = await this.poolConnection
+  .request()
+  .input('user_id', sql.UniqueIdentifier, user_id)
+  .input('name', sql.VarChar, name)
+  .input('bank', sql.VarChar, bank)
+  .input('currency', sql.Char, currency)
+  .input('balance', sql.Decimal, balance)
+  .query(query)
+  return request.recordset[0]
 }
+
 }
+
+
 const createDatabaseConnection = async (passwordConfig) => {
   database = new Database(passwordConfig);
   await database.connect();
   await database.createTable();
+  await database.createLedger();
   return database;
 };
 
 module.exports = {
     Database,
     createDatabaseConnection
-};
+
+  };
+
   
 const { passwordConfig } = require('./config');
 const { request } = require('express');

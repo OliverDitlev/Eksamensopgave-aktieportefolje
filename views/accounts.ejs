@@ -8,34 +8,35 @@
     <%- include('partials/menu') %>
 
     <link rel="stylesheet" href="/css/style.css">
+ 
 </head>
+
 <body id="main" class="main">
+<button id = "openform">Add account</button>
+    <div id = "popupForm" class="popup">
+        <h2>Add ledger</h2>
 
-    <div class ="loginpage">
-    <h1>Login</h1>
-    <h4>Dont have an account yet? <br><a href="createaccount" id = "create account"> create one here</a> </h4>
-    <div class="errorList">
-        <% if (errors && errors.length > 0) { %>
-            
-              <ul class="error-list">
-                <% errors.forEach(error => { %>
-                  <li><%= error.msg %></li>
-                <% }) %>
-              </ul>
-            
-          <% } %>
-        </div>
-    <form action="/accounts" method="POST">
-    <input type="email" name="email" class="inputbruger" id="Mailbox" placeholder=" E-mail " >
-    <br>
+        <form action="/accounts" method="post">
 
-    <input type="Password" name ="password"class="inputbruger" id="Passwordbox" placeholder="Password">
-    <br>
-    
-    <a href="createaccount" id="forgettenpassword">Forgetten password?</a>
-    <br>
-    <button id = "loginbtn" class="greenbtn">LOGIN</button>
+            <label for="name">Account name</label>
+            <input type="text" name="name" required>
+
+            <label for="bank">Bank</label>
+            <select name="bank" id="choseBank">
+                <option value="text">Nordea</option>
+                <option value="text">Danske Bank</option>
+            </select>
+
+            <label for="balance"> Starting balance</label>
+            <input type="number" name = "balance">
+            <button type="submit">Open account</button>
+        
+            <label for="currency">Currency</label>
+            <select name="currency" id="choseCurrency">
+                <option value="DKK">DKK</option>
+                <option value="USD">USD</option>
+            </select>
+        </form>
     </div>
-    </form>
-</body>
+  </body>
 </html>

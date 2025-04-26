@@ -6,7 +6,7 @@ const router = express.Router()
 
 function reqLogin(req, res, next){
   if(!req.session.user){
-    return res.redirect('/accounts')
+    return res.redirect('/login')
   } 
     next()
 }
@@ -75,7 +75,7 @@ const userId = db.insertUser({
 res.redirect('/');
 });
 
-router.post('/accounts', [
+router.post('/login', [
   body('email')
   .trim()
   .notEmpty(). withMessage('Email required'),
@@ -90,7 +90,7 @@ router.post('/accounts', [
   const errorList = errors.array()
 
   if(!errors.isEmpty()){
-      return res.render('accounts',{
+      return res.render('login',{
         errors: errors.errorList,
         oldInput: req.body
       })
@@ -103,7 +103,7 @@ try{
   if(!user){
     errorList.push({ msg: 'Wrong Email or password' });
    
-    return res.status(401).render('accounts',{
+    return res.status(401).render('login',{
       
       errors: errorList,
       oldInput: req.body
@@ -161,7 +161,7 @@ body('repeatpassword')
   const errors = validationResult(req);
 
   if(!req.session.user){
-    return res.redirect('/accounts')
+    return res.redirect('/login')
   }
   if (!errors.isEmpty()) {
     return res.render('manageaccount', {
@@ -187,7 +187,7 @@ body('repeatpassword')
        password 
   
       };
-    req.session.tempData = null;
+    req.session.tempData = null; //nødvendig?**
     console.log('user:', req.session.user);
 
     res.redirect('/');
@@ -221,7 +221,7 @@ router.post('/disabledaccount', async(req, res)=>{
       console.error('Error with logout', err);
       return res.status(500).send('could not logout');
     }
-    res.redirect('/accounts')
+    res.redirect('/login')
     })
   })
 
@@ -233,7 +233,7 @@ router.get('/logout', (req, res) =>{
       console.error('Error with logout', err);
       return res.status(500).send('could not logout');
     }
-    res.redirect('/accounts')
+    res.redirect('/login')
     })
   })
 

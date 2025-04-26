@@ -186,7 +186,7 @@ img{
     font-weight: bold;
     cursor: pointer;
     transition: 0.3s;
-    margin-top: 280px;
+    margin-top: 200px;
 }
 #logoutbtn:hover{
     color: white;

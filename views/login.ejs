@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PortofolioTracker</title>
+    
+    <%- include('partials/menu') %>
+
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body id="main" class="main">
+
+    <div class ="loginpage">
+    <h1>Login</h1>
+    <h4>Dont have an account yet? <br><a href="createaccount" id = "create account"> create one here</a> </h4>
+    <div class="errorList">
+        <% if (errors && errors.length > 0) { %>
+            
+              <ul class="error-list">
+                <% errors.forEach(error => { %>
+                  <li><%= error.msg %></li>
+                <% }) %>
+              </ul>
+            
+          <% } %>
+        </div>
+    <form action="/login" method="POST">
+    <input type="email" name="email" class="inputbruger" id="Mailbox" placeholder=" E-mail " >
+    <br>
+
+    <input type="Password" name ="password"class="inputbruger" id="Passwordbox" placeholder="Password">
+    <br>
+    
+    <a href="createaccount" id="forgettenpassword">Forgetten password?</a>
+    <br>
+    <button id = "loginbtn" class="greenbtn">LOGIN</button>
+    </div>
+    </form>
+</body>
+</html>

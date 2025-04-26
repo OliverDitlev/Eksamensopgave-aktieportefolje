@@ -8,6 +8,7 @@ const methodOverride = require('method-override');
 const { passwordConfig } = require('../Database/config');
 const { createDatabaseConnection } = require('../Database/database');
 const accountsroutes = require('./Routes/accountroutes')
+const ledgerRoutes = require('./Routes/ledgerroutes')
 
 
 const app = express();
@@ -34,14 +35,16 @@ let db;
 createDatabaseConnection(passwordConfig).then((instance => {
   db = instance
   app.locals.db = db;
-
+  
+  //await db.ensureLedgerTable()
   app.use('/', accountsroutes)
+  app.use('/', ledgerRoutes)
 }))
 
 // funktion som videresender en bruger som ikke er logget ind til login-siden
 function reqLogin(req, res, next){
   if(!req.session.user){
-    return res.redirect('/accounts')
+    return res.redirect('/login')
   } 
     next()
 }
@@ -57,11 +60,11 @@ app.get('/', reqLogin, reqActive, (req, res) => {
   res.render('dashboard', { user: req.session.user });
 });
 
-app.get('/accounts',(req, res) => {
+app.get('/login',(req, res) => {
   if (req.session.user) {
     return res.redirect('/manageaccount');
   }
-  res.render('accounts', {
+  res.render('login', {
     errors: [],
     oldInput: {}
   });
@@ -72,9 +75,6 @@ app.get('/portofolios', reqLogin, reqActive, (req, res) => {
 });
 
 app.get('/createaccount', (req, res) => {
-  if (req.session.user) {
-    return res.redirect('/accounts');
-  }
   res.render('createaccount', {
     errors: [],
     oldInput: {}
@@ -83,6 +83,14 @@ app.get('/createaccount', (req, res) => {
 
 app.get('/manageaccount', reqLogin, reqActive, (req, res) => {
   res.render('manageaccount', {
+     user: req.session.user,
+     errors:[],
+     oldInput:{}
+     });
+});
+
+app.get('/accounts', reqLogin, reqActive, (req, res) => {
+  res.render('accounts', {
      user: req.session.user,
      errors:[],
      oldInput:{}
