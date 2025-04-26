@@ -4,7 +4,7 @@ const path = require('path');
 const session = require('express-session')
 const methodOverride = require('method-override');
 
-
+const { getStockData } = require('./stockData');
 const { passwordConfig } = require('../Database/config');
 const { createDatabaseConnection } = require('../Database/database');
 const accountsroutes = require('./Routes/accountroutes')
@@ -13,6 +13,7 @@ const ledgerRoutes = require('./Routes/ledgerroutes')
 
 const app = express();
 const port = 3000;
+require('dotenv').config();
 
 
 app.set('view engine', 'ejs')
