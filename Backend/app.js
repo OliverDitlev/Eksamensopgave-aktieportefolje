@@ -108,7 +108,7 @@ app.get('/disabledaccount', reqLogin,(req,res)=>{
     user: req.session.user
   });
 });
-
+/*
 async function testDbConnection() {
   try {
     await database.connect(); // Sørg for, at du har oprettet forbindelse
@@ -119,6 +119,7 @@ async function testDbConnection() {
   }
 }
 testDbConnection();
+*/
 
 app.listen(port, () =>{
     console.log(`Server listening on port:${port} `)
