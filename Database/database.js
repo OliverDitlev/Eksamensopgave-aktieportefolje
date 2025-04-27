@@ -270,11 +270,11 @@ async findPortfoliosByUser(user_id) {
     const request = await this.poolConnection.request();
     request.input('user_id', sql.UniqueIdentifier, user_id);
     const result = await request.query(query);
-    console.log('Database query result:', result); // Log resultatet fra databasen
-    return result.recordset; // Sørg for at returnere korrekt
+    console.log('Database query result:', result); 
+    return result.recordset; 
   } catch (err) {
-    console.error('Error in findPortfoliosByUser:', err); // Log fejl
-    throw err; // Kast fejlen videre
+    console.error('Error in findPortfoliosByUser:', err); 
+    throw err; 
   }
 }
 
@@ -299,10 +299,8 @@ async deletePortfolio(portfolioID) {
   request.input('portfolioID', sql.UniqueIdentifier, portfolioID);
   
   const result = await request.query(query);
-  return result.rowsAffected[0] > 0; // true hvis noget blev slettet
+  return result.rowsAffected[0] > 0; 
 }
-
-
 }
 
 
