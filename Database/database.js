@@ -198,6 +198,7 @@ async insertLedger(user_id, name, bank, currency, balance){
   return request.recordset[0]
 }
 
+
 async deleteLedger(account_id){
   const result = await this.poolConnection
   .request()
@@ -206,6 +207,31 @@ async deleteLedger(account_id){
 
   return result.rowsAffected[0]
 }
+
+async deactivateLedger(account_id){
+  const result = await this.poolConnection
+  .request()
+  .input('account_id', sql.UniqueIdentifier, account_id)
+  .query(`
+    UPDATE userledger
+    SET ledger_active = 0
+    WHERE account_id = @account_id
+    `)
+    return result.rowsAffected[0]
+}
+
+async activateLedger(account_id){
+  const result = await this.poolConnection
+  .request()
+  .input('account_id', sql.UniqueIdentifier, account_id)
+  .query(`
+    UPDATE userledger
+    SET ledger_active = 1
+    WHERE account_id = @account_id
+    `)
+    return result.rowsAffected[0]
+}
+
 
 async changeBalance(account_id, amount, action) {
   let query;

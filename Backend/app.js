@@ -26,7 +26,10 @@ app.use(methodOverride('_method'));
 app.use(session({
   secret: 'tester',
   resave: false,
-  saveUninitialized: true
+  saveUninitialized: true,
+  cookie:{
+    secure: false
+  }
 }))
 
 
@@ -94,8 +97,6 @@ app.get('/disabledaccount', reqLogin,(req,res)=>{
     user: req.session.user
   });
 });
-
-
 
 app.listen(port, () =>{
     console.log(`Server listening on port:${port} `)

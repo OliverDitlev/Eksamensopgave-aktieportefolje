@@ -91,7 +91,7 @@
             <th>Bank</th>
             <th>Balance</th>
             <th>Last 24h</th>
-            <th>Last week</th>
+            <th>Active</th>
         </tr>
       
 
@@ -101,17 +101,27 @@
             <td><%= value.bank %></td>
             <td><%= value.balance %> <%= value.currency %></td>
             <td>+2%</td>
-            <td>+5%</td>
-
+            <td><%= value.ledger_Active ? 'Active' : 'Closed' %></td>
             <td>
-            <button class="" id="choseaccount">Chose Account</button>
-            <button class="accountbtn" id="changebalance"  data-accountid ="<%= value.account_id%>">Change balance</button>
-            <button class="accountbtn" id="deletebtn" data-accountid ="<%= value.account_id%>">Delete account</button>
+            <button class="accountbtn" id="choseaccount">Chose Account</button>
+
+            <% if(value.ledger_Active){ %>
+            <button class="accountbtn" id="changebalancebtn"  data-accountid ="<%= value.account_id %>">Change balance</button>
+            <% } %>
+  
+            <% if (value.ledger_Active) { %>
+              <button class="accountbtn toggleAccountBtn" data-accountid="<%= value.account_id %>" data-action="deactivate">Close account</button>
+            <% } else { %>
+            <button class="accountbtn toggleAccountBtn" data-accountid="<%= value.account_id %>" data-action="activate">Reopen account</button> 
+            <% } %>
+
+            <button class="accountbtn" id="deletebtn" data-accountid ="<%= value.account_id %>">Delete account</button>
             </td>
         </tr>
             <%})%>
     </table>
     <!--her vises samlet beløb af valuta-->
+    <div class="accountsdash">
     <table class="halfaccounttable">
         <tr class="totalbalance">
             <th> Total balance</th>
@@ -129,11 +139,10 @@
         </td>
     </table>
 
-          <div id="chartinUSDandDKK"
-          data-sumdkk="<%= totalDKK %>"
-          data-sumusd="<%= totalUSD %>" 
-          data-sumgbp = "<%= totalGBP%>"
-          style="width:480px;height:320px;"></div>
-
+        <div class="chartaccount" id="chartinUSDandDKK"
+        data-sumdkk="<%= totalDKK %>"
+        data-sumusd="<%= totalUSD %>" 
+        data-sumgbp = "<%= totalGBP%>"></div>
+  </div>
   </body>
 </html>

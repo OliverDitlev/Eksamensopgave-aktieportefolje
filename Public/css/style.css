@@ -302,10 +302,11 @@ img{
     display: none;
   }
   .accounttable td{
-    padding: 10px;
+    padding: 0px;
     text-align: center;
     border-bottom: 1px solid black;
     color: rgb(255, 255, 255);
+    
   }
   .accountbtn {
     padding: 1px 10px;
@@ -315,7 +316,7 @@ img{
     background-color: rgb(122, 18, 192);
     color: white;
     cursor: pointer;
-    font-size: 20px;
+    font-size: 10px;
     width: 100px; 
     height: 50px; ;
   }
@@ -334,7 +335,7 @@ img{
     margin-left: 50px;
     background-color: rgb(71, 71, 71);
     padding: 0px;
-    width: 40%;
+    width: 43%;
     height: 200px;
     overflow-y: auto;
     border-radius: 10px;
@@ -384,6 +385,7 @@ img{
       width: 300px;
       position: relative;
       font-family: 'inter', sans-serif;
+      z-index: auto;
     }
 
     #closebalancebtn{
@@ -391,4 +393,23 @@ img{
       right: 15px;
       top: 15px;
       font-weight: bolder;
+    }
+
+    #chartinUSDandDKK{
+      margin-top: 30px;
+      margin-left: 40px;
+      background-color: rgb(71, 71, 71);
+      width: 43%;
+      padding: 0px;
+      height: 200px;
+      border-radius: 10px;
+      font-family: 'Inter', sans-serif;
+      font-size: 30px;
+      
+    }
+    .accountsdash.hidden{
+      display: none;
+    }
+    .accountsdash{
+      display: flex;
     }

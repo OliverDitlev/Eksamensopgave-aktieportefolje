@@ -3,8 +3,22 @@ const {body, validationResult} = require('express-validator')
 
 const router = express.Router()
 
+function reqLogin(req, res, next){
+  if(!req.session.user){
+    return res.redirect('/login')
+  } 
+    next()
+}
+
+function reqActive(req, res, next){
+  if(!req.session.user.active){
+    return res.redirect('/disabledaccount')
+  } 
+    next()
+}
+
 //henter brugerens kontoer/ledger
-router.get('/accounts', async(req,res) => {
+router.get('/accounts', reqLogin, reqActive, async(req,res) => {
     const db = req.app.locals.db;
     const user_id = req.session.user.user_id
 
@@ -57,6 +71,23 @@ router.delete('/deleteaccount', async (req, res) =>{
         res.status(500).send('Server error');
       }
 })
+    /* Virker ikke.
+router.post('/activateaccount', async(req, res) =>{
+  const db = req.app.locals.db
+  //const {} = req.body;
+  console.log('test')
+  await db.activateLedger(req.session.user.user_id);
+  res.sendStatus(200);
+})
+*/
+router.post('/deactivateaccount', async(req, res) =>{
+  const db = req.app.locals.db
+  const {accountID} = req.body;
+
+  await db.deactivateLedger(accountID);
+  res.sendStatus(200)
+})
+
 
 router.post('/changebalance', async (req, res) => {
     const db = req.app.locals.db
