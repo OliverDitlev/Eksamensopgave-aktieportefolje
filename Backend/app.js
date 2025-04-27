@@ -5,10 +5,10 @@ const methodOverride = require('method-override');
 
 const { getStockData } = require('./api');
 const { passwordConfig } = require('../Database/config');
-const { createDatabaseConnection } = require('../Database/database');
+const { database, createDatabaseConnection } = require('../Database/database');
 const accountsroutes = require('./Routes/accountroutes')
 const ledgerRoutes = require('./Routes/ledgerroutes')
-
+const portfolioroutes = require('./Routes/portfolioroutes')
 
 const app = express();
 const port = 3000;
@@ -30,7 +30,7 @@ app.use(session({
 }))
 
 
-//opretter en global forbindel til database
+//opretter en global forbindelse til database
 let db;
 createDatabaseConnection(passwordConfig).then((instance => {
   db = instance
@@ -39,6 +39,7 @@ createDatabaseConnection(passwordConfig).then((instance => {
   //await db.ensureLedgerTable()
   app.use('/', accountsroutes)
   app.use('/', ledgerRoutes)
+  app.use('/', portfolioroutes)
 }))
 
 // funktion som videresender en bruger som ikke er logget ind til login-siden
@@ -70,8 +71,16 @@ app.get('/login',(req, res) => {
   });
 });
 
-app.get('/portofolios', reqLogin, reqActive, (req, res) => {
-  res.render('portofolios', { user: req.session.user });
+app.get('/portfolios', reqLogin, reqActive, async (req, res) => {
+  try {
+    const user_id = req.user_id; // Sørg for at have user_id (måske fra session eller token)
+    const portfolios = await db.findPortfoliosByUser(user_id); // Hent portfolios fra database
+    res.render('portfolios', { portfolios }); // Send portfolios til viewet
+  } catch (err) {
+    console.error('Error fetching portfolios:', err);
+    res.status(500).send('Internal Server Error');
+  }
+  //res.render('portfolios', { user: req.session.user });
 });
 
 app.get('/createaccount', (req, res) => {
@@ -95,7 +104,16 @@ app.get('/disabledaccount', reqLogin,(req,res)=>{
   });
 });
 
-
+async function testDbConnection() {
+  try {
+    await database.connect(); // Sørg for, at du har oprettet forbindelse
+    const testResult = await database.executeQuery('SELECT 1');
+    console.log('Database test result:', testResult);
+  } catch (err) {
+    console.error('Error with database connection or query:', err);
+  }
+}
+testDbConnection();
 
 app.listen(port, () =>{
     console.log(`Server listening on port:${port} `)

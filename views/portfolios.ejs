@@ -30,6 +30,17 @@
                 </tr>
             </thead>
             <tbody>
+                <% if (portfolios && portfolios.length > 0) { %>
+                    <% portfolios.forEach(function(portfolio) { %>
+                        <tr>
+                            <td><%= portfolio.name %></td>
+                            <td><%= portfolio.createdAt.toLocaleDateString() %></td>
+                        </tr>
+                    <% }); %>
+                <% } else { %>
+                    <tr><td colspan="2">No portfolios found.</td></tr>
+                <% } %>
+                
                 <% portfolios.forEach(function(portfolio) { %>
                     <tr>
                         <td><%= portfolio.name %></td>
