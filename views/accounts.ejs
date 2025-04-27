@@ -6,17 +6,27 @@
     <title>PortofolioTracker</title>
     
     <%- include('partials/menu') %>
-    <script src ="https://cdn.jsdelivr.net/npm/echarts@5.5.0/dist/echarts.min.js"></script>
-    <script>
-        const accounts = <%- JSON.stringify(accounts.map(a => ({ balance: a.balance, currency: a.currency }))) %>;
-      </script>
+    <script src ="https://cdn.jsdelivr.net/npm/echarts@5.6.0/dist/echarts.min.js"></script>
+    <script src="/js/accounts.js" defer></script>
 
     <link rel="stylesheet" href="/css/style.css">
  
 </head>
 
 <body id="main" class="main">
-    <h1 class = "accounth1">Choose account</h1>
+  <% 
+  let totalDKK = 0;
+  let totalUSD = 0;
+  let totalGBP = 0;
+  accounts.forEach(acc => { 
+    if (acc.currency === 'DKK') totalDKK += acc.balance;
+    if (acc.currency === 'USD') totalUSD += acc.balance;
+    if (acc.currency === 'GBP') totalGBP += acc.balance;
+  });
+  %>
+
+  <h1 class = "accounth1">Choose account</h1>
+
 <button id = "openformbtn">Add account</button>
     <div id = "popupform" class="popup hidden">
         <div id = "insideform">       
@@ -42,12 +52,36 @@
                 <select name="currency" id="choseCurrency">
                     <option value="DKK">DKK</option>
                     <option value="USD">USD</option>
+                    <option value="GBP">GBP</option>
             </select>
                 
-            <button type="submit" >Open account</button>
+            <button type="submit">Open account</button>
             
         </form>
         </div>
+    </div>
+
+
+    <div class="popup hidden" id="balancepopup">
+      <div id="divbalancepopup">
+        <span id="closebalancebtn">X</span>
+        <h2>Change balance</h2>
+
+        <form action="changebalance" method="post" id="formbalance">
+          <label for="action">Choose action</label>
+          <select name="action">
+            <option value="Deposit">Deposit</option>
+            <option value="Withdraw">Withdraw</option>
+          </select>
+
+          <label for="amount">Amount:</label>
+          <input type="number" name= "amount">
+
+          <input type="hidden" id="accountIdHidden" name="accountId">
+          <button type ="submit">Submit Balance</button>
+
+        </form>
+      </div>
     </div>
 
     <!--her vises samlet tabel over kontoer-->
@@ -58,13 +92,11 @@
             <th>Balance</th>
             <th>Last 24h</th>
             <th>Last week</th>
-            
-            
         </tr>
-        
+      
+
             <% accounts.forEach(value => { %>
         <tr>   
-        
             <td><%= value.name %></td> 
             <td><%= value.bank %></td>
             <td><%= value.balance %> <%= value.currency %></td>
@@ -72,10 +104,10 @@
             <td>+5%</td>
 
             <td>
-            <button class="accountbtn">Change balance</button>
-            <button class="accountbtn" id="deleteaccount">Delete account</button>
+            <button class="" id="choseaccount">Chose Account</button>
+            <button class="accountbtn" id="changebalance"  data-accountid ="<%= value.account_id%>">Change balance</button>
+            <button class="accountbtn" id="deletebtn" data-accountid ="<%= value.account_id%>">Delete account</button>
             </td>
-    
         </tr>
             <%})%>
     </table>
@@ -85,76 +117,23 @@
             <th> Total balance</th>
         </tr>
             <td> 
-                <% 
-                let totalDKK = 0;
-                let totalUSD = 0;
-                accounts.forEach(acc => { 
-                  if (acc.currency === 'DKK') totalDKK += acc.balance;
-                  if (acc.currency === 'USD') totalUSD += acc.balance;
-                });
-                %>
-                
                 <tr>
-                  <td class="samletbalance"><%= totalDKK.toFixed(2) %> DKK</td>
+                  <td class="samletbalance"><%= totalDKK.toFixed() %> DKK</td>
                 </tr>
                 <tr>
-                  <td class="samletbalance"><%= totalUSD.toFixed(2) %> USD</td>
+                  <td class="samletbalance"><%= totalUSD.toFixed() %> USD</td>
+                </tr>
+                <tr>
+                  <td class="samletbalance"><%= totalGBP.toFixed() %> GBP</td>
                 </tr>
         </td>
     </table>
 
-          <div id="chartinUSDandDKK" 
-          data-sumDKK="<%= totalDKK %>"
-          data-sumUSD="<%= totalUSD %>"
+          <div id="chartinUSDandDKK"
+          data-sumdkk="<%= totalDKK %>"
+          data-sumusd="<%= totalUSD %>" 
+          data-sumgbp = "<%= totalGBP%>"
           style="width:480px;height:320px;"></div>
-   
 
-    <script>
-        let formopen = false
-
-        const closeformbtn = document.getElementById('closeformbtn')
-        const openformbtn = document.getElementById('openformbtn')
-        const popupform = document.getElementById('popupform')
-
-        function formpopup(){
-            if(formopen){
-                popupform.classList.add('hidden')
-            } else {
-                popupform.classList.remove('hidden')
-            }
-            formopen = !formopen
-        }
-        openformbtn.addEventListener('click', formpopup)
-        closeformbtn.addEventListener('click', formpopup)
-
-        window.addEventListener('click', temp => {
-        if (temp.target === popupform) formpopup();
-        });
-
-     const chartDiv = echarts.init(document.getElementById('chartinUSDandDKK'))
-      
-
-          const sumDKK = Number(chartDiv.dataset.sumDKK);
-          const sumUSD = Number(chartDiv.dataset.sumUSD);
-
-        const option = {
-        series: [
-    {
-      type: 'pie',
-      radius: '50%',
-      data: [
-        {
-          value: sumDKK,
-          name: 'DKK'
-        },
-        {
-          value: sumUSD,
-          name: 'USD'
-        },
-      ],
-    }]
-};
-chart.setOption(option)
-    </script>
   </body>
 </html>
