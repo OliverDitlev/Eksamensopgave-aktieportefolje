@@ -259,6 +259,50 @@ async changeBalance(account_id, amount, action) {
   return result.rowsAffected[0]
 }
 
+async findPortfoliosByUser(user_id) {
+  try {
+    const query = `
+      SELECT *
+      FROM portfolios
+      WHERE user_id = @user_id
+      ORDER BY created_at DESC
+    `;
+    const request = await this.poolConnection.request();
+    request.input('user_id', sql.UniqueIdentifier, user_id);
+    const result = await request.query(query);
+    console.log('Database query result:', result); // Log resultatet fra databasen
+    return result.recordset; // Sørg for at returnere korrekt
+  } catch (err) {
+    console.error('Error in findPortfoliosByUser:', err); // Log fejl
+    throw err; // Kast fejlen videre
+  }
+}
+
+async insertPortfolio(user_id, name) {
+  const query = `
+      INSERT INTO portfolios (user_id, name, created_at)
+      VALUES (@user_id, @name, GETDATE())
+  `;
+  const request = this.poolConnection.request();
+  request.input('user_id', sql.UniqueIdentifier, user_id);
+  request.input('name', sql.VarChar, name);
+  
+  await request.query(query);
+}
+
+async deletePortfolio(portfolioID) {
+  const query = `
+      DELETE FROM portfolios
+      WHERE portfolio_id = @portfolioID
+  `;
+  const request = this.poolConnection.request();
+  request.input('portfolioID', sql.UniqueIdentifier, portfolioID);
+  
+  const result = await request.query(query);
+  return result.rowsAffected[0] > 0; // true hvis noget blev slettet
+}
+
+
 }
 
 
@@ -272,8 +316,7 @@ const createDatabaseConnection = async (passwordConfig) => {
 
 module.exports = {
     Database,
-    createDatabaseConnection
-
+    createDatabaseConnection,
   };
 
   
