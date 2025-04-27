@@ -40,4 +40,35 @@ router.post('/accounts', [
     res.redirect('/accounts')
 })
 
+router.delete('/deleteaccount', async (req, res) =>{
+    const db = req.app.locals.db;
+    const {accountID} = req.body
+
+    try {
+        const deleted = await db.deleteLedger(accountID); 
+  
+        if (!deleted) {
+          return res.status(404).send('Account not found');
+        }
+  
+        res.sendStatus(204); 
+      } catch (err) {
+        console.error('Error deleting:', err);
+        res.status(500).send('Server error');
+      }
+})
+
+router.post('/changebalance', async (req, res) => {
+    const db = req.app.locals.db
+    const { accountId, amount, action } = req.body;
+  
+    try {
+      await db.changeBalance(accountId, parseFloat(amount), action);
+      res.redirect('/accounts'); 
+    } catch (err) {
+      console.error('Error updating balance:', err);
+      res.status(500).send('Failed to update balance');
+    }
+  });
+
 module.exports = router

@@ -153,7 +153,7 @@ async createLedger() {
         [user_id] UNIQUEIDENTIFIER NOT NULL REFERENCES userAdministration(user_id),
         [name] VARCHAR(50)NOT NULL,
         [bank] VARCHAR(50) NOT NULL,
-        [currency] CHAR(3) NOT NULL CHECK(currency IN('DKK','USD')),
+        [currency] CHAR(3) NOT NULL CHECK(currency IN('DKK','USD','GBP')),
         [balance] DECIMAL(12,2) NOT NULL,
         [ledger_created] DATETIME DEFAULT GETDATE(),
         [ledger_Active] BIT NOT NULL DEFAULT 1
@@ -192,10 +192,45 @@ async insertLedger(user_id, name, bank, currency, balance){
   .input('user_id', sql.UniqueIdentifier, user_id)
   .input('name', sql.VarChar, name)
   .input('bank', sql.VarChar, bank)
-  .input('currency', sql.Char, currency)
+  .input('currency', sql.Char(3), currency)
   .input('balance', sql.Decimal, balance)
   .query(query)
   return request.recordset[0]
+}
+
+async deleteLedger(account_id){
+  const result = await this.poolConnection
+  .request()
+  .input('account_id', sql.UniqueIdentifier, account_id)
+  .query('DELETE FROM [dbo].[userledger] WHERE account_id = @account_id')
+
+  return result.rowsAffected[0]
+}
+
+async changeBalance(account_id, amount, action) {
+  let query;
+
+  if(action === 'Deposit'){
+    query = `
+    UPDATE userledger
+    SET balance = balance + @amount
+    WHERE account_id = @account_id
+    `
+  }else{
+      query = `
+      UPDATE userledger
+      SET balance = balance - @amount
+      WHERE account_id = @account_id
+      `      
+    }
+  
+  const request =this.poolConnection.request()
+  request.input('account_id', sql.UniqueIdentifier, account_id)
+  request.input('amount', sql.Decimal(15, 0), amount)
+
+  const result = await request.query(query);
+
+  return result.rowsAffected[0]
 }
 
 }
