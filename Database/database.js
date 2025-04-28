@@ -131,6 +131,7 @@ async deactivateUser(user_id){
   return result.rowsAffected[0]
   
 }
+
 async activateUser(user_id){
   const request = this.poolConnection.request()
   request.input('user_id', sql.UniqueIdentifier, user_id)
@@ -154,7 +155,7 @@ async createLedger() {
         [name] VARCHAR(50)NOT NULL,
         [bank] VARCHAR(50) NOT NULL,
         [currency] CHAR(3) NOT NULL CHECK(currency IN('DKK','USD','GBP')),
-        [balance] DECIMAL(12,2) NOT NULL,
+        [balance] DECIMAL(12,1) NOT NULL,
         [ledger_created] DATETIME DEFAULT GETDATE(),
         [ledger_Active] BIT NOT NULL DEFAULT 1
         )
@@ -164,8 +165,7 @@ async createLedger() {
     .then(() => {
       console.log("Ledger created ");
     })
-  }
-
+}
 
 async findLedgerByUser(user_id) {
   const query = `
@@ -178,8 +178,7 @@ async findLedgerByUser(user_id) {
   .input('user_id', sql.UniqueIdentifier, user_id)
   .query(query)
   return request.recordset
-  }
-
+}
 
 async insertLedger(user_id, name, bank, currency, balance){
   const query = `
@@ -197,7 +196,6 @@ async insertLedger(user_id, name, bank, currency, balance){
   .query(query)
   return request.recordset[0]
 }
-
 
 async deleteLedger(account_id){
   const result = await this.poolConnection
@@ -232,6 +230,29 @@ async activateLedger(account_id){
     return result.rowsAffected[0]
 }
 
+async createTransactions(){
+  const query = `
+      IF NOT EXISTS (
+      SELECT * FROM INFORMATION_SCHEMA.TABLES 
+      WHERE TABLE_NAME = 'ledgertransactions'
+    )
+    BEGIN
+      CREATE TABLE [dbo].[ledgertransactions] (
+      [transaction_id] UNIQUEIDENTIFIER PRIMARY KEY DEFAULT NEWID(),
+      [account_id] UNIQUEIDENTIFIER NOT NULL REFERENCES userledger(account_id),
+      [action] VARCHAR(15) NOT NULL CHECK(action IN('Deposit', 'Withdraw')),
+      [amount] DECIMAL(12,1),
+      [transaction_time] DATETIME DEFAULT GETDATE()
+    )
+    END
+  `
+  this.executeQuery(query)
+  .then(() => {
+    console.log("Transactions created ");
+  })
+  
+  
+}
 
 async changeBalance(account_id, amount, action) {
   let query;
@@ -259,18 +280,31 @@ async changeBalance(account_id, amount, action) {
   return result.rowsAffected[0]
 }
 
+async addTransaction(accountId, amount, action){
+  const pool = await sql.connect();
+
+  if(action === 'Deposit'){
+    await pool.request()
+    .input('accountId', sql.UniqueIdentifier, accountId)
+    .input('amount', sql.Decimal(12,1), amount)
+    .input('action', sql.VarChar(10), action)
+    .query(`
+      INSERT INTO ledgertransactions (account_id, amount, action)
+      VALUES(@accountId, @amount, @action)
+      `)
+  } 
+}
+
 async findPortfoliosByUser(user_id) {
   try {
     const query = `
       SELECT *
       FROM portfolios
       WHERE user_id = @user_id
-      ORDER BY created_at DESC
     `;
     const request = await this.poolConnection.request();
     request.input('user_id', sql.UniqueIdentifier, user_id);
     const result = await request.query(query);
-    console.log('Database query result:', result); 
     return result.recordset; 
   } catch (err) {
     console.error('Error in findPortfoliosByUser:', err); 
@@ -309,6 +343,7 @@ const createDatabaseConnection = async (passwordConfig) => {
   await database.connect();
   await database.createTable();
   await database.createLedger();
+  await database.createTransactions();
   return database;
 };
 

@@ -1,415 +1,283 @@
-body{
-    background-color: black;
+body {
+  background: black;
+  font-family: 'Inter', sans-serif;
 }
-.main{
-    padding-left: 220px;
-    transition: 0.3s;
-    color: rgb(255, 255, 255);
-    font-family: 'inter', sans-serif;
-    font-weight: 400;
-    
+.main {
+  padding-left: 220px;
+  transition: 0.3s;
+  color: #fff;
+  font-weight: 400;
 }
-
-/* herunder er styling brugt til menu*/
-.menu{
-    height: 100%;
-    width: 220px;
-    max-width: 220px;
-    position: fixed;
-    background-color: rgb(41, 41, 41);
-    z-index: 1;
-    top: 0;
-    left: 0;
-    overflow-x: hidden;
-    padding-top: 50px;
-    transition:  0.3s;
-    font-family: 'inter', sans-serif;
+.menu {
+  height: 100%;
+  width: 220px;
+  position: fixed;
+  background: #292929;
+  z-index: 1;
+  top: 0;
+  left: 0;
+  overflow-x: hidden;
+  padding-top: 50px;
+  transition: 0.3s;
 }
-.menu a{
-    padding: 20px;
-    text-decoration: none;
-    font-size: 25px;
-    color: #84837E;
-    display: block;
-    border-left:5px ;
-
+.menu a {
+  padding: 20px;
+  text-decoration: none;
+  font-size: 25px;
+  color: #84837E;
+  display: block;
 }
-.menu a:hover{
-    color: white;
+.menu a:hover {
+  color: #fff;
 }
-
-.menubtn{
-    position: fixed;
-    top: 60px;
-    left: 210px;
-    z-index: 9999;
-    color: white;
-    background-color: rgb(114, 114, 114);
-    border-radius: 45%;
-    width: 38px;
-    height:38px ;
-    font-size: 25px;
-    border: none;
-    opacity: 0.8;
-    transition: 0.3s;
-    cursor: pointer;
+.menubtn {
+  position: fixed;
+  top: 60px;
+  left: 210px;
+  z-index: 9999;
+  color: #fff;
+  background: #727272;
+  border-radius: 45%;
+  width: 38px;
+  height: 38px;
+  font-size: 25px;
+  border: none;
+  opacity: 0.8;
+  transition: 0.3s;
+  cursor: pointer;
 }
-.menubtn:hover{
-    background-color: rgb(150, 150, 150);
-    cursor: pointer;
+.menubtn:hover {
+  background: #969696;
 }
-/*viser hvordan vi håndtere en lukket menu*/
-.menubtn.closed{
-    left: 4%;
-    cursor: pointer;
-    
+.menubtn.closed {
+  left: 4%;
 }
-.menu.closed{
-    width: 5%;
-    
+.menu.closed {
+  width: 5%;
 }
-
-.main.closed{
-    padding-left: 220px;
+.menuText.closed, #logoutbtn.closed {
+  display: none;
 }
-.menuText.closed{
- display: none;
+img {
+  margin: -30px 0 0 -15px;
+  width: 250px;
+  height: 70px;
+  transition: 0.3s;
 }
-
-img{
-    margin-top: -30px;
-    margin-left: -15px;
-    width: 250px;
-    height: 70px;
-    transition: 0.3s;
+.loginpage {
+  position: fixed;
+  top: 40px;
+  right: 30%;
+  width: 350px;
+  padding: 20px;
+  background: #000;
+  font-size: 20px;
+  border-radius: 200px;
+  height: 2000px;
+  z-index: 10;
 }
-.loginpage{
-    position: fixed;
-    top: 40px;
-    right: 30%;
-    width: 350px;
-    padding: 30px;
-    z-index: 10;
-    padding: 20px;
-    background-color: rgb(0, 0, 0);
-    font-size: 20px;
-    border-radius: 200px;
-    height: 2000px;
-   
+.inputbruger, .halfsizeinput {
+  width: 100%;
+  padding: 14px;
+  margin: 12px 0 5px;
+  font-size: 20px;
+  background: #525252;
+  border: none;
+  border-radius: 200px;
+  box-sizing: border-box;
 }
-.inputbruger{
-    width: 100%;
-    padding: 14px;
-    border: 3px;
-    margin-top: 12px;
-    font-size: 20px;
-    background-color: rgb(82, 82, 82);
-    box-sizing: border-box;
-    margin-bottom: 5px;
-    border-radius: 200px;
+.halfsizeinput {
+  width: 49%;
 }
-.loginpage a{
-    color: rgb(255, 255, 255);
-    margin-left: 2px;
+.loginpage a, .loginpage h1, .loginpage p {
+  margin-left: 2px;
+  color: #fff;
 }
-.loginpage h1{
-    margin-left: 2px;
+.greenbtn, #deleteAccountbtn {
+  width: 350px;
+  height: 40px;
+  margin-top: 15px;
+  font-size: 25px;
+  border: none;
+  border-radius: 70px;
+  cursor: pointer;
 }
-.loginpage p{
-    margin-left: 2px;
+.greenbtn {
+  background: #2fbe36;
 }
-
-.greenbtn{
-    width: 350px;
-    height: 40px;
-    margin-top: 15px;
-    font-size: 25px;
-    background-color: rgb(47, 190, 54);
-    border: 5px;
-    border-radius: 70px;
-    cursor: pointer;
+#deleteAccountbtn {
+  background: red;
 }
-
-#deleteAccountbtn{
-    width: 350px;
-    height: 40px;
-    margin-top: 15px;
-    font-size: 25px;
-    background-color: red;
-    border: 5px;
-    border-radius: 70px;
-    cursor: pointer;
+#createaccount {
+  width: 350px;
+  height: 40px;
+  margin-top: 10px;
+  font-size: 25px;
 }
-#createaccount{
-    width: 350px;
-    height: 40px;
-    margin-top: 10px;
-    font-size: 25px;
+#forgettenpassword {
+  font-size: 18px;
+  margin: 20px 0 0 10px;
 }
-#forgettenpassword{
-    font-size: 18px;
-    margin-top: 20px;
-    margin-left: 10px;
+.errorBox {
+  font-size: 0;
 }
-
-.halfsizeinput{
-        width: 49%;
-        padding: 14px;
-        border: 3px;
-        margin-top: 10px;
-        font-size: 20px;
-        background-color: rgb(82, 82, 82);
-        box-sizing: border-box;
-        margin-bottom: 5px;
-        border-radius: 200px;
+.errorList {
+  color: red;
+  font-size: 14px;
+  margin: -15px 0 0 -20px;
 }
-
-.errorBox{
-    font-size: 0px;
+#logoutbtn {
+  width: 100%;
+  padding: 15px;
+  background: #292929;
+  color: #727272;
+  font-weight: bold;
+  border: none;
+  cursor: pointer;
+  transition: 0.3s;
+  margin-top: 200px;
 }
-
-.errorList{
-    color: red;
-    font-size:14px;
-    margin-left: -20px;
-    margin-top: -15px;
-    margin-top: -15px;
+#logoutbtn:hover {
+  color: #fff;
 }
-#logoutbtn{
-    width: 100%;
-    padding: 15px;
-    background-color: rgb(41, 41, 41);
-    color:  rgb(114, 114, 114);
-    border: none;
-    font-weight: bold;
-    cursor: pointer;
-    transition: 0.3s;
-    margin-top: 200px;
+.activateaccountbtn {
+  position: center;
 }
-#logoutbtn:hover{
-    color: white;
+.popup {
+  position: fixed;
+  margin-left: 200px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
-#logoutbtn.closed{
-    display: none;
+.popup.hidden, .accounttable.hidden, .accountsdash.hidden {
+  display: none;
 }
-
-.activateaccountbtn{
-    position: center;
+#insideform, #divbalancepopup {
+  background: #000000;
+  padding: 0 50px 35px 35px;
+  border-radius: 10px solid white;
+  width: 300px;
+  position: relative;
 }
-
-.popup{
-    position: fixed;
-    top: 0; 
-    left: 0; 
-    right: 0; 
-    bottom: 0;
-    background-color: black;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    
+#closeformbtn, #closebalancebtn {
+  position: absolute;
+  right: 15px;
+  top: 15px;
+  font-weight: bolder;
 }
-
-.popup.hidden{
-    display: none;
+#closeformbtn:hover, #closebalancebtn:hover {
+  cursor: pointer;
+  color: black;
+  font-weight: bold;
 }
-#insideform {
-    background: rgb(71, 71, 71);
-    padding: 0px 50px 35px 35px ;
-    border-radius: 10px;
-    width: 300px;
-    position: relative;
-    font-family: 'inter', sans-serif;
-  }
-  #closeformbtn{
-    position: absolute; 
-    right: 15px;
-    top: 15px;
-    font-weight: bolder;
-  }
-  #closeformbtn:hover{
-    cursor: pointer;
-    color: black;
-    font-weight: bold;
-  }
-  .popup form {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-  }
-#ledgerform input {
+.popup form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+#ledgerform input, #formbalance input {
   padding: 10px;
   border: none;
   border-radius: 5px;
   width: 100%;
 }
-#ledgerform select {
-    padding: 10px;
-    border: none;
-    border-radius: 5px;
-    width: 106%;
-  }
- 
-  #ledgerform button{
-    width: 106%;
-    height: 40px;
-    margin-top: 5px;
-    font-size: 20px;
-    border: none;
-    border-radius: 70px;
-    cursor: pointer;
-  } 
-
-  #openformbtn{
-    padding: 1px 10px;
-    border: none;
-    border-radius: 5px;
-    background-color: rgb(71, 71, 71);
-    color: white;
-    cursor: pointer;
-    font-size: 20px;
-    width: 140px; 
-    height: 50px; 
-    position: absolute;
-    right: 100px;
-    top: 20px;
-  }
-
-  .accounttable{
-    margin: 10px auto;
-    margin-top: 3%;
-    background-color: rgb(71, 71, 71);
-    padding: 0px;
-    width: 90%;
-    min-height: 325px;
-    max-height: 325px;
-    overflow-y: auto;
-    border-radius: 10px;
-    font-family: 'Inter', sans-serif;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-  }
-
-  .accounttable th{
-    background-color: rgb(92, 92, 92);
-    padding: 20px;
-    top: 0;
-    margin-top: 50%;
-    z-index: 1;
-  }
-  .accounttable.hidden{
-    display: none;
-  }
-  .accounttable td{
-    padding: 0px;
-    text-align: center;
-    border-bottom: 1px solid black;
-    color: rgb(255, 255, 255);
-    
-  }
-  .accountbtn {
-    padding: 1px 10px;
-    margin: 1px;
-    border: none;
-    border-radius: 5px;
-    background-color: rgb(122, 18, 192);
-    color: white;
-    cursor: pointer;
-    font-size: 10px;
-    width: 100px; 
-    height: 50px; ;
-  }
-   #deletebtn{
-    background-color: red;
-  }
-  #choseaccount{
-    background-color: green;
-  }
-  .accounth1{
-    margin-left: 50px;
-    margin-top: 25px;
-  }
-   .halfaccounttable{
-    margin-top: 30px;
-    margin-left: 50px;
-    background-color: rgb(71, 71, 71);
-    padding: 0px;
-    width: 43%;
-    height: 200px;
-    overflow-y: auto;
-    border-radius: 10px;
-    font-family: 'Inter', sans-serif;
-    display: flex;
-    flex-direction: column;
-    font-size: 30px;
-  }
-  .halfaccounttable th {
-    font-size: 20px;
-    color: white; 
-    padding: 5px
-  }
-  .samletbalance{
-    font-size: large;
-    padding-left: 20px;
-    padding-top: 20px;
-  }
-
-  #formbalance input {
-    padding: 10px;
-    border: none;
-    border-radius: 5px;
-    width: 100%;
-  }
-  #formbalance select {
-      padding: 10px;
-      border: none;
-      border-radius: 5px;
-      width: 106%;
-    }
-   
-    #formbalance button{
-      width: 106%;
-      height: 40px;
-      margin-top: 5px;
-      font-size: 20px;
-      border: none;
-      border-radius: 70px;
-      cursor: pointer;
-    } 
-
-    #divbalancepopup{
-      background: rgb(71, 71, 71);
-      padding: 0px 50px 35px 35px ;
-      border-radius: 10px;
-      width: 300px;
-      position: relative;
-      font-family: 'inter', sans-serif;
-      z-index: auto;
-    }
-
-    #closebalancebtn{
-      position: absolute; 
-      right: 15px;
-      top: 15px;
-      font-weight: bolder;
-    }
-
-    #chartinUSDandDKK{
-      margin-top: 30px;
-      margin-left: 40px;
-      background-color: rgb(71, 71, 71);
-      width: 43%;
-      padding: 0px;
-      height: 200px;
-      border-radius: 10px;
-      font-family: 'Inter', sans-serif;
-      font-size: 30px;
-      
-    }
-    .accountsdash.hidden{
-      display: none;
-    }
-    .accountsdash{
-      display: flex;
-    }
+#ledgerform select, #formbalance select {
+  padding: 10px;
+  border: none;
+  border-radius: 5px;
+  width: 106%;
+}
+#ledgerform button, #formbalance button {
+  width: 106%;
+  height: 40px;
+  margin-top: 5px;
+  font-size: 20px;
+  border: none;
+  border-radius: 70px;
+  cursor: pointer;
+}
+#openformbtn {
+  padding: 1px 10px;
+  border: none;
+  border-radius: 5px;
+  background: #474747;
+  color: #fff;
+  cursor: pointer;
+  font-size: 20px;
+  width: 140px;
+  height: 50px;
+  position: absolute;
+  right: 100px;
+  top: 20px;
+}
+.accounttable, .halfaccounttable {
+  margin: 30px auto 0 50px;
+  background: #474747;
+  border-radius: 10px;
+  font-family: 'Inter', sans-serif;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+}
+.accounttable {
+  width: 90%;
+  min-height: 325px;
+  max-height: 325px;
+}
+.halfaccounttable {
+  width: 43%;
+  height: 200px;
+  font-size: 30px;
+}
+.accounttable th, .halfaccounttable th {
+  background: #5c5c5c;
+  padding: 20px;
+  font-size: 15px;
+  color: white;
+}
+.accounttable td {
+  padding: 0;
+  text-align: center;
+  border-bottom: 1px solid black;
+  color: #fff;
+}
+.accountbtn, #deletebtn, #choseaccount {
+  padding: 1px 10px;
+  margin: 1px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 10px;
+  width: 100px;
+  height: 50px;
+}
+.accountbtn {
+  background: #7a12c0;
+  color: #fff;
+}
+#deletebtn {
+  background: red;
+}
+#choseaccount {
+  background: green;
+}
+.accounth1 {
+  margin: 25px 0 0 50px;
+}
+.samletbalance {
+  font-size: large;
+  padding: 20px 0 0 20px;
+}
+#chartinUSDandDKK {
+  margin: 30px 0 0 40px;
+  background: #474747;
+  width: 43%;
+  height: 200px;
+  border-radius: 10px;
+  font-family: 'Inter', sans-serif;
+  font-size: 30px;
+}
+.accountsdash {
+  display: flex;
+}

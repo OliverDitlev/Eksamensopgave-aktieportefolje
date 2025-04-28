@@ -78,14 +78,14 @@ app.get('/login',(req, res) => {
 
 app.get('/portfolios', reqLogin, reqActive, async (req, res) => {
   try {
-    const user_id = req.user_id; // Sørg for at have user_id (måske fra session eller token)
-    const portfolios = await db.findPortfoliosByUser(user_id); // Hent portfolios fra database
-    res.render('portfolios', { portfolios }); // Send portfolios til viewet
+    const user_id = req.user_id; 
+    const portfolios = await db.findPortfoliosByUser(user_id); 
+    res.render('portfolios', { portfolios }); 
   } catch (err) {
     console.error('Error fetching portfolios:', err);
     res.status(500).send('Internal Server Error');
   }
-  //res.render('portfolios', { user: req.session.user });
+  res.render('portfolios', { user: req.session.user });
 });
 
 app.get('/createaccount', (req, res) => {
