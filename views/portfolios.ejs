@@ -6,7 +6,6 @@
     <title>PortofolioTracker</title>
 
     <%- include('partials/menu') %>
-    
     <link rel="stylesheet" href="/css/style.css">
 </head>
 <body id="main" class="main">
@@ -18,10 +17,8 @@
 
     <h1 class="accounth1">Mine Porteføljer</h1>
 
-    <!-- Knap til at oprette en ny portefølje -->
     <button id="openformbtn" onclick="openCreatePortfolio()">Opret Portefølje</button>
 
-    <!-- Oversigt over eksisterende porteføljer -->
     <div class="accounttable">
         <table>
             <thead>
@@ -35,30 +32,44 @@
                 </tr>
             </thead>
             <tbody>
+                <% if (portfolios && portfolios.length > 0) { %>
                     <% portfolios.forEach(function(portfolio) { %>
                         <tr>
                             <td><%= portfolio.name %></td>
-                            <td><%= portfolio.created_at.toLocaleDateString() %></td>
-                            <td>0 DKK</td> 
-                            <td>0 DKK</td> 
-                            <td>0 DKK</td> 
+                            <td><%= new Date(portfolio.created_at).toLocaleDateString() %></td>
+                            <td><%= portfolio.totalAcquisitionPrice?.toFixed(2) || "0.00" %> DKK</td>
+                            <td><%= portfolio.totalExpectedValue?.toFixed(2) || "0.00" %> DKK</td>
+                            <td><%= portfolio.totalUnrealizedProfitLoss?.toFixed(2) || "0.00" %> DKK</td>
                             <td>
-                                <a href="/portfolios/<%= portfolio.portfolio_id %>">Se detaljer</a>
+                                <a class="accountbtn" href="/portfolios/<%= portfolio.portfolio_id %>">Se detaljer</a>
                             </td>
                         </tr>
                     <% }); %>
+                <% } else { %>
+                    <tr><td colspan="6">Ingen porteføljer fundet.</td></tr>
+                <% } %>
             </tbody>
         </table>
     </div>
-    
-    <!-- Popup til oprettelse af portefølje -->
+
+    <!-- Opret portefølje popup -->
     <div id="createPortfolioPopup" class="popup hidden">
         <div id="insideform">
             <span id="closeformbtn" onclick="closeCreatePortfolio()">X</span>
             <h2>Opret ny portefølje</h2>
             <form action="/portfolios" method="POST">
-                <input type="text" name="Name" placeholder="Navn på portefølje" required>
-                <input type="hidden" name="accountId" value="<%= account_id %>">
+                <input type="text" name="portfolioName" placeholder="Navn på portefølje" required>
+                
+                <!-- Vælg hvilken konto porteføljen skal høre til -->
+                <select name="accountId" required>
+                    <option value="">Vælg konto</option>
+                    <% if (accounts && accounts.length > 0) { %>
+                        <% accounts.forEach(function(account) { %>
+                            <option value="<%= account.account_id %>"><%= account.name %> - <%= account.account_number %></option>
+                        <% }); %>
+                    <% } %>
+                </select>
+
                 <button type="submit" class="greenbtn">Opret</button>
             </form>
         </div>

@@ -6,8 +6,8 @@ const methodOverride = require('method-override');
 const { getStockData } = require('./api');
 const { passwordConfig } = require('../Database/config');
 const { database, createDatabaseConnection } = require('../Database/database');
-const accountsroutes = require('./Routes/accountroutes')
-const ledgerRoutes = require('./Routes/ledgerroutes')
+const accountsroutes = require('./Routes/accountroutes');
+const ledgerRoutes = require('./Routes/ledgerroutes');
 const portfolioroutes = require('./Routes/portfolioroutes')
 const { reqLogin, reqActive, reqAccount } = require('./middleware');
 
@@ -57,10 +57,22 @@ app.get('/login',(req, res) => {
   });
 });
 
-app.get('/portfolios', reqLogin, reqActive, reqAccount, async (req, res) => {
-  res.render('portfolios', {
-     user: req.session.user 
+app.get('/portfolios', reqLogin, reqActive, async (req, res) => {
+  try {
+    const user_id = req.session.user.user_id;
+    const portfolios = await db.findPortfoliosByUser(user_id);
+    const accounts = await db.findLedgerByUser(user_id);
+
+    res.render('portfolios', {
+      user: req.session.user,
+      portfolios,
+      accounts,
+      errors: []
     });
+  } catch (err) {
+    console.error('Error fetching portfolios:', err);
+    res.status(500).send('Internal Server Error');
+  }
 });
 
 app.get('/createaccount', (req, res) => {

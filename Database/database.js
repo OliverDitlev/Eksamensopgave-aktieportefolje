@@ -359,14 +359,54 @@ async getLedgerById(account_id) {
   return result.recordset[0];
 }
 
-async insertPortfolio(account_id, name) {
+async createPortfolios() {
   const query = `
-      INSERT INTO portfolios (account_id, name, created_at)
-      VALUES (@account_id, @name, GETDATE())
+    IF NOT EXISTS (
+      SELECT * FROM INFORMATION_SCHEMA.TABLES 
+      WHERE TABLE_NAME = 'portfolios'
+    )
+    BEGIN
+      CREATE TABLE portfolios (
+        portfolio_id UNIQUEIDENTIFIER PRIMARY KEY DEFAULT NEWID(),
+        user_id UNIQUEIDENTIFIER NOT NULL REFERENCES userAdministration(user_id),
+        account_id UNIQUEIDENTIFIER NOT NULL REFERENCES userledger(account_id),
+        name VARCHAR(100) NOT NULL,
+        created_at DATETIME DEFAULT GETDATE()
+      );
+    END
+  `;
+  this.executeQuery(query)
+    .then(() => {
+      console.log("Portfolios table created");
+    });
+}
+
+async findPortfoliosByUser(user_id) {
+  try {
+    const query = `
+      SELECT *
+      FROM portfolios
+      WHERE user_id = @user_id
+    `;
+    const request = await this.poolConnection.request();
+    request.input('user_id', sql.UniqueIdentifier, user_id);
+    const result = await request.query(query);
+    return result.recordset; 
+  } catch (err) {
+    console.error('Error in findPortfoliosByUser:', err); 
+    throw err; 
+  }
+}
+
+async insertPortfolio(user_id, name, account_id) {
+  const query = `
+      INSERT INTO portfolios (user_id, name, account_id, created_at)
+      VALUES (@user_id, @name, @account_id, GETDATE())
   `;
   const request = this.poolConnection.request();
+  request.input('user_id', sql.UniqueIdentifier, user_id);
+  request.input('name', sql.VarChar, name);
   request.input('account_id', sql.UniqueIdentifier, account_id);
-  request.input('name', sql.VarChar(50), name);
   
   await request.query(query);
 }
@@ -378,7 +418,7 @@ const createDatabaseConnection = async (passwordConfig) => {
   await database.createTable();
   await database.createLedger();
   await database.createTransactions();
-  await database.createPortfolio();
+  await database.createPortfolios();
   return database;
 };
 
