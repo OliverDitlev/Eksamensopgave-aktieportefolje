@@ -3,18 +3,23 @@ const { body, validationResult } = require('express-validator');
 
 const router = express.Router();
 
-// Henter brugerens porteføljer
-router.get('/portfolios', async (req, res) => {
-    const db = req.app.locals.db;
-    const user_id = req.session.user.user_id;
+const { reqLogin, reqActive, reqAccount } = require('../middleware.js');
 
-    const portfolios = await db.findPortfoliosByUser(user_id);
+router.get('/portfolios/:accountId', async (req,res) =>{
+    const db = req.app.locals.db;
+    const account_id = req.params.accountId
+
+    const portfolios = await db.findPortfoliosByAccountId(account_id);
+    const account = await db.getLedgerById(account_id)
+
     res.render('portfolios', {
-        user: req.session.user,
-        portfolios,
-        errors: []
-    });
+    user: req.session.user,
+    account_id,
+    account,
+    portfolios,
+    errors: []
 });
+})
 
 // Opretter en ny portefølje
 router.post('/portfolios', [

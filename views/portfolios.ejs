@@ -10,6 +10,11 @@
     <link rel="stylesheet" href="/css/style.css">
 </head>
 <body id="main" class="main">
+    <% if (account) { %>
+        <h2>Portfolios for account: <%= account.name %> (<%= account.currency %>)</h2>
+      <% } else { %>
+        <h2>All portfolios</h2>
+      <% } %>
 
     <h1 class="accounth1">Mine Porteføljer</h1>
 
@@ -30,29 +35,29 @@
                 </tr>
             </thead>
             <tbody>
-                <% if (portfolios && portfolios.length > 0) { %>
-                    <% portfolios.forEach(function(portfolio) { %>
+               
+                   
                         <tr>
-                            <td><%= portfolio.name %></td>
-                            <td><%= portfolio.createdAt.toLocaleDateString() %></td>
+                            <td>TECH</td>
+                            <td>4/4</td>
                         </tr>
-                    <% }); %>
-                <% } else { %>
-                    <tr><td colspan="2">No portfolios found.</td></tr>
-                <% } %>
+                   
                 
-<!--                <% portfolios.forEach(function(portfolio) { %>
+                    <tr><td colspan="2">No portfolios found.</td></tr>
+               
+
+                
+            
                     <tr>
-                        <td><%= portfolio.name %></td>
-                        <td><%= portfolio.createdAt.toLocaleDateString() %></td>
-                        <td><%= portfolio.totalAcquisitionPrice.toFixed(2) %> DKK</td>
-                        <td><%= portfolio.totalExpectedValue.toFixed(2) %> DKK</td>
-                        <td><%= portfolio.totalUnrealizedProfitLoss.toFixed(2) %> DKK</td>
+                        <td>4</td>
+                        <td>4/4</td>
+                        <td> </td>
+                        <td></td>
+                        <td></td>
                         <td>
-                            <a class="accountbtn" href="/portfolios/<%= portfolio.id %>">Se detaljer</a>
+                            <a>Se detaljer</a>
                         </td>
-                    </tr>
-                <% }) %>        -->
+                    </tr> 
             </tbody>
         </table>
     </div>
