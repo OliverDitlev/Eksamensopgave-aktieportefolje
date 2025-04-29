@@ -5,6 +5,8 @@ const router = express.Router();
 
 const { reqLogin, reqActive, reqAccount } = require('../middleware.js');
 
+
+
 router.get('/portfolios/:accountId', async (req,res) =>{
     const db = req.app.locals.db;
     const account_id = req.params.accountId
@@ -18,7 +20,9 @@ router.get('/portfolios/:accountId', async (req,res) =>{
     account,
     portfolios,
     errors: []
+    
 });
+console.log('Portfolios data:', portfolios);
 })
 
 // Opretter en ny portefølje
@@ -26,24 +30,26 @@ router.post('/portfolios', [
     body('name')
         .trim()
         .notEmpty()
-        .withMessage('Navn på portefølje kræves')
+        .withMessage('Name required')
 ], async (req, res) => {
     const db = req.app.locals.db;
     const errors = validationResult(req);
-    const user_id = req.session.user.user_id;
-    const portfolios = await db.findPortfoliosByUser(user_id);
+
+    const { name, accountId } = req.body;
 
     if (!errors.isEmpty()) {
+        const portfolios = await db.findPortfoliosByAccountId(accountId);
         return res.status(400).render('portfolios', {
             user: req.session.user,
             portfolios,
+            account_id: accountId,
+            account: await db.getLedgerById(accountId),
             errors: errors.array()
         });
     }
+        await db.insertPortfolio(accountId, name);
+        res.redirect(`/portfolios/${accountId}`);
 
-    const { name } = req.body;
-    await db.insertPortfolio(user_id, name);
-    res.redirect('/portfolios');
 });
 
 // Sletter en portefølje

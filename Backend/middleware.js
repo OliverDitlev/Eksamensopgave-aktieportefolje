@@ -19,5 +19,4 @@ function reqLogin(req, res, next){
       next()
   }
   
-
   module.exports = {reqActive, reqLogin, reqAccount}

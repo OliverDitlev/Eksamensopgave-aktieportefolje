@@ -316,7 +316,29 @@ async findTransactionByUser(user_id) {
 
 return request.recordset;
 }
-//kaldes
+
+async createPortfolio() {
+  const query = `
+    IF NOT EXISTS (
+      SELECT * FROM INFORMATION_SCHEMA.TABLES 
+      WHERE TABLE_NAME = 'portfolios'
+    )
+    BEGIN
+      CREATE TABLE [dbo].[portfolios] (
+        [portfolio_id] UNIQUEIDENTIFIER PRIMARY KEY DEFAULT NEWID(),
+        [account_id] UNIQUEIDENTIFIER NOT NULL REFERENCES userledger(account_id),
+        [name] VARCHAR(50) NOT NULL,
+        [created_at] DATETIME DEFAULT GETDATE()
+      )
+    END
+  `;
+
+  this.executeQuery(query)
+    .then(() => {
+      console.log("Portfolio created");
+    })
+}
+
 async findPortfoliosByAccountId(account_id) {
   const query = `
     SELECT *
@@ -328,7 +350,7 @@ async findPortfoliosByAccountId(account_id) {
   const result = await request.query(query);
   return result.recordset;
 }
-//kaldes
+
 async getLedgerById(account_id) {
   const query = `SELECT * FROM userledger WHERE account_id = @account_id`;
   const request = this.poolConnection.request();
@@ -337,30 +359,17 @@ async getLedgerById(account_id) {
   return result.recordset[0];
 }
 
-async insertPortfolio(user_id, name) {
+async insertPortfolio(account_id, name) {
   const query = `
-      INSERT INTO portfolios (user_id, name, created_at)
-      VALUES (@user_id, @name, GETDATE())
+      INSERT INTO portfolios (account_id, name, created_at)
+      VALUES (@account_id, @name, GETDATE())
   `;
   const request = this.poolConnection.request();
-  request.input('user_id', sql.UniqueIdentifier, user_id);
-  request.input('name', sql.VarChar, name);
+  request.input('account_id', sql.UniqueIdentifier, account_id);
+  request.input('name', sql.VarChar(50), name);
   
   await request.query(query);
 }
-
-async deletePortfolio(portfolioID) {
-  const query = `
-      DELETE FROM portfolios
-      WHERE portfolio_id = @portfolioID
-  `;
-  const request = this.poolConnection.request();
-  request.input('portfolioID', sql.UniqueIdentifier, portfolioID);
-  
-  const result = await request.query(query);
-  return result.rowsAffected[0] > 0; 
-}
-
 
   }
 const createDatabaseConnection = async (passwordConfig) => {
@@ -369,6 +378,7 @@ const createDatabaseConnection = async (passwordConfig) => {
   await database.createTable();
   await database.createLedger();
   await database.createTransactions();
+  await database.createPortfolio();
   return database;
 };
 
