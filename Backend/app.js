@@ -11,7 +11,7 @@ const ledgerRoutes = require('./Routes/ledgerroutes')
 const portfolioroutes = require('./Routes/portfolioroutes')
 
 const app = express();
-const port = 3000;
+const port = 2000;
 require('dotenv').config();
 
 

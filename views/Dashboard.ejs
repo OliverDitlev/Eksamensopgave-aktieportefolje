@@ -1,21 +1,42 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PortofolioTracker</title>
-    
-    <%- include('partials/menu') %>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PortofolioTracker</title>
 
-    <link rel="stylesheet" href="/css/style.css">
- 
+  <%- include('partials/menu') %>
+
+  <link rel="stylesheet" href="/css/style.css" />
+  <script src="https://cdn.jsdelivr.net/npm/echarts@5.6.0/dist/echarts.min.js"></script>
 </head>
-<body id = "main" class="main">
-<div>
+<body class="main">
+  <div>
     <div class="searchbar">
-        <h1> Velkommen til <%= user.firstname %></h1>
-      </div>
-</div>
- 
+      <h1>Velkommen til <%= user.firstname %></h1>
+    </div>
+  </div>
+
+  <div id="main" style="width: 600px; height: 400px;"></div>
+
+  <script type="text/javascript">
+    var myChart = echarts.init(document.getElementById('main'));
+
+    var option = {
+      xAxis: {
+        data: ['Jan', 'Feb', 'Mar', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+      },
+      yAxis: {},
+      series: [
+        {
+          data: [10, 22, 28, 23, 19, 22, 52, 72, 68, 88, 85, 100],
+          type: 'line',
+          smooth: true
+        }
+      ]
+    };
+
+    myChart.setOption(option);
+  </script>
 </body>
 </html>
