@@ -4,6 +4,7 @@ const session = require('express-session')
 const methodOverride = require('method-override');
 
 const { getStockData } = require('./api');
+const {drawStockChart} = require('../utils/plot')
 const { passwordConfig } = require('../Database/config');
 const { createDatabaseConnection } = require('../Database/database');
 const accountsroutes = require('./Routes/accountroutes')
@@ -94,6 +95,33 @@ app.get('/disabledaccount', reqLogin,(req,res)=>{
     user: req.session.user
   });
 });
+
+app.get('/stock/:name', reqLogin, reqActive, (req, res) => {
+  const company = req.params.name;
+
+  getStockData(company, (result) => {
+    if (!result) {
+      return res.render('specificData', {
+        user: req.session.user,
+        error: 'Data ikke fundet',
+        symbol: '',
+        currentPrice: 0,
+        monthlyPrices: []
+      });
+    }
+
+    const [symbol, , currentPrice, , , , , , , ...monthlyPrices] = result;
+    res.render('specificData', {
+      user: req.session.user,
+      symbol,
+      currentPrice,
+      monthlyPrices: JSON.stringify(monthlyPrices),
+      error: null
+    });
+  });
+});
+
+
 
 app.listen(port, () =>{
     console.log(`Server listening on port:${port} `)
