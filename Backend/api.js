@@ -78,7 +78,7 @@ function getStockData(companyName, callback) { // <-- Tilføjet callback
           ...monthlyOpenPrices 
         ];
 
-        callback(result[0]); // Kalder callback-funktion med resultatet
+        callback(result); // Kalder callback-funktion med resultatet
       });
     });
   });

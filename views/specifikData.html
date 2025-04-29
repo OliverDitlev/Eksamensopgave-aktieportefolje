@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="da">
+<head>
+  <meta charset="UTF-8">
+  <title>Aktiekurs</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+  <h2>Aktiekurs for <span id="symbol"></span></h2>
+  <p id="error" style="color: red; display: none;"></p>
+  <canvas id="stockChart" width="600" height="300"></canvas>
+
+  <script>
+    // Hent data dynamisk via API'et
+    async function fetchStockData(companyName) {
+      try {
+        const response = await fetch(`/api/stock/${encodeURIComponent(companyName)}`);
+        const data = await response.json();
+
+        if (data.error) {
+          document.getElementById('error').textContent = data.error;
+          document.getElementById('error').style.display = 'block';
+          return;
+        }
+
+        const allPrices = data.prices;
+        const symbol = data.symbol;
+        const currentPrice = allPrices[2];
+        const monthlyPrices = allPrices.slice(8).reverse(); // Vend rækkefølgen
+        const labels = [...Array.from({ length: 12 }, (_, i) => `${12 - i} måneder siden`), 'I dag'];
+        const prices = [...monthlyPrices, currentPrice];
+
+        document.getElementById('symbol').textContent = symbol;
+
+        const ctx = document.getElementById('stockChart').getContext('2d');
+        new Chart(ctx, {
+          type: 'line',
+          data: {
+            labels: labels,
+            datasets: [{
+              label: `Kurs for ${symbol}`,
+              data: prices,
+              borderColor: 'blue',
+              borderWidth: 2,
+              fill: false,
+              tension: 0.3,
+            }]
+          },
+          options: {
+            scales: {
+              y: {
+                beginAtZero: false
+              }
+            }
+          }
+        });
+
+      } catch (err) {
+        document.getElementById('error').textContent = 'Fejl under hentning af data';
+        document.getElementById('error').style.display = 'block';
+      }
+    }
+
+    // Kald funktionen med et firma (fx "apple")
+    fetchStockData("apple");
+  </script>
+</body>
+</html>

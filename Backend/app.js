@@ -4,7 +4,6 @@ const session = require('express-session')
 const methodOverride = require('method-override');
 
 const { getStockData } = require('./api');
-const {drawStockChart} = require('../utils/plot')
 const { passwordConfig } = require('../Database/config');
 const { createDatabaseConnection } = require('../Database/database');
 const accountsroutes = require('./Routes/accountroutes')
@@ -96,28 +95,17 @@ app.get('/disabledaccount', reqLogin,(req,res)=>{
   });
 });
 
-app.get('/stock/:name', reqLogin, reqActive, (req, res) => {
-  const company = req.params.name;
+
+
+app.get('/api/stock/:company', (req, res) => {
+  const company = req.params.company;
 
   getStockData(company, (result) => {
     if (!result) {
-      return res.render('specificData', {
-        user: req.session.user,
-        error: 'Data ikke fundet',
-        symbol: '',
-        currentPrice: 0,
-        monthlyPrices: []
-      });
+      return res.status(404).json({ error: 'Data ikke fundet' });
     }
 
-    const [symbol, , currentPrice, , , , , , , ...monthlyPrices] = result;
-    res.render('specificData', {
-      user: req.session.user,
-      symbol,
-      currentPrice,
-      monthlyPrices: JSON.stringify(monthlyPrices),
-      error: null
-    });
+    res.json({ symbol: company, prices: result }); 
   });
 });
 
