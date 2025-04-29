@@ -17,6 +17,24 @@
     </div>
   </div>
 
+
+  <!-- Tre bokse over diagrammet -->
+<div class="top-boxes">
+  <div class="box">
+    <p>Total værdi</p>
+    <p>96.024,55 kr</p>
+  </div>
+  <div class="box">
+    <h2>Afkast</h2>
+    <p style="color: green;">+2.024,55 kr (+3,7%)</p>
+  </div>
+  <div class="box">
+    <h2>Investeringer</h2>
+    <p>10 aktier</p>
+  </div>
+</div>
+
+ <!-- Diagrammet (bare med tilfældige tal) -->
   <div id="main" style="width: 600px; height: 400px;"></div>
 
   <script type="text/javascript">
@@ -35,8 +53,28 @@
         }
       ]
     };
-
     myChart.setOption(option);
   </script>
+
+  <!-- To bokse under diagrammet -->
+<div class="bottom-boxes">
+  <div class="box">
+    <h2>Seneste køb</h2>
+    <ul>
+      <li>15/04/2025 – 5 stk Novo Nordisk</li>
+      <li>12/04/2025 – 3 stk Tesla</li>
+      <li>10/04/2025 – 2 stk Amazon</li>
+    </ul>
+  </div>
+  <div class="box">
+    <h2>Notifikationer</h2>
+    <ul>
+      <li>🔔 Tesla er steget med 5%</li>
+      <li>🔔 Udbetaling af udbytte fra Mærsk</li>
+      <li>🔔 Nordnet opdaterer deres priser</li>
+    </ul>
+  </div>
+</div>
+
 </body>
 </html>

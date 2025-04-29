@@ -281,3 +281,21 @@ img {
 .accountsdash {
   display: flex;
 }
+/* Fælles stil for både top bokse og bund bokse */
+.box {
+  background-color: #474747;
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  flex: 1;
+  margin: 10px;
+}
+
+/* Layout til top og bund-bokse */
+.top-boxes,
+.bottom-boxes {
+  display: flex;
+  justify-content: space-between;
+  margin: 20px;
+  gap: 20px;
+}
