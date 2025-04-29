@@ -39,6 +39,7 @@ router.post('/portfolios', [
     const accounts = await db.findLedgerByUser(user_id);
 
     if (!errors.isEmpty()) {
+        const portfolios = await db.findPortfoliosByAccountId(accountId);
         return res.status(400).render('portfolios', {
             user: req.session.user,
             portfolios,
@@ -46,6 +47,8 @@ router.post('/portfolios', [
             errors: errors.array()
         });
     }
+        await db.insertPortfolio(accountId, name);
+        res.redirect(`/portfolios/${accountId}`);
 
     const { portfolioName, accountId } = req.body;
 
