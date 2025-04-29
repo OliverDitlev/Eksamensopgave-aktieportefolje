@@ -3,20 +3,7 @@ const {body, validationResult} = require('express-validator')
 
 const router = express.Router()
 
-
-function reqLogin(req, res, next){
-  if(!req.session.user){
-    return res.redirect('/login')
-  } 
-    next()
-}
-
-function reqActive(req, res, next){
-  if(!req.session.user.active){
-    return res.redirect('/disabledaccount')
-  } 
-    next()
-}
+const { reqLogin, reqActive } = require('../middleware.js');
 
 router.post('/createaccount', [
 // valider Input fra brugere med brug af express-validator

@@ -197,8 +197,7 @@ img {
   border-radius: 70px;
   cursor: pointer;
 }
-#openformbtn {
-  padding: 1px 10px;
+#openformbtn, #historybtn{
   border: none;
   border-radius: 5px;
   background: #474747;
@@ -207,12 +206,21 @@ img {
   font-size: 20px;
   width: 140px;
   height: 50px;
-  position: absolute;
-  right: 100px;
   top: 20px;
 }
+
+.accountswrap {
+  display: flex;
+  justify-content: space-between; 
+}
+.buttons {
+  display: flex;
+  gap: 10px; 
+  padding: 10px 50px;
+}
+
 .accounttable, .halfaccounttable {
-  margin: 30px auto 0 50px;
+  margin: 30px 40px 0 50px;
   background: #474747;
   border-radius: 10px;
   font-family: 'Inter', sans-serif;
@@ -249,7 +257,7 @@ img {
   border-radius: 5px;
   cursor: pointer;
   font-size: 10px;
-  width: 100px;
+  width: 125px;
   height: 50px;
 }
 .accountbtn {
@@ -270,7 +278,7 @@ img {
   padding: 20px 0 0 20px;
 }
 #chartinUSDandDKK {
-  margin: 30px 0 0 40px;
+  margin: 30px 50px 0 0;
   background: #474747;
   width: 43%;
   height: 200px;
@@ -299,3 +307,55 @@ img {
   margin: 20px;
   gap: 20px;
 }
+#transactiontable {
+  display: table;
+  width: 90%;
+  min-height: 325px;
+  max-height: 325px;
+  margin: 30px 40px 0 50px;
+  overflow-y: auto;
+  border-radius: 10px;
+  background: #474747;
+  font-family: 'Inter', sans-serif;
+}
+
+#transactiontable th {
+  background: #5c5c5c;
+  padding: 20px;
+  font-size: 15px;
+  color: white;
+}
+
+#transactiontable td {
+  padding: 10px;
+  text-align: center;
+  border-bottom: 1px solid black;
+  color: white;
+}
+
+.deposit {
+  color: green !important;
+  
+}
+
+.withdraw {
+  color: red !important;
+}
+
+#gotoaccount {
+  display: inline-block;
+  padding: 12px 24px;
+  margin: 20px 50px;
+  background-color: #5c5c5c;
+  color: #ffffff;
+  text-decoration: none;
+  font-family: 'Inter', sans-serif;
+  font-size: 16px;
+  border-radius: 8px;
+}
+
+#gotoaccount:hover {
+  background-color: #777777;
+ 
+}
+

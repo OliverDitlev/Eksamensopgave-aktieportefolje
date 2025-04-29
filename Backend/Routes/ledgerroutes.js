@@ -3,19 +3,7 @@ const {body, validationResult} = require('express-validator')
 
 const router = express.Router()
 
-function reqLogin(req, res, next){
-  if(!req.session.user){
-    return res.redirect('/login')
-  } 
-    next()
-}
-
-function reqActive(req, res, next){
-  if(!req.session.user.active){
-    return res.redirect('/disabledaccount')
-  } 
-    next()
-}
+const { reqLogin, reqActive } = require('../middleware.js');
 
 //henter brugerens kontoer/ledger
 router.get('/accounts', reqLogin, reqActive, async(req,res) => {
@@ -72,31 +60,6 @@ router.delete('/deleteaccount', async (req, res) =>{
       }
 })
     
-
-router.post('/activateaccount', async(req, res) =>{
-  const db = req.app.locals.db
-  const {accountID} = req.body;
-  console.log('test')
-  await db.activateLedger(accountID);
-
-  const updatedUser = await db.findUserEmailAndPassword(req.session.user.email, req.session.user.password);
-  req.session.user = updatedUser;
-
-  res.sendStatus(200)
-})
-
-router.post('/deactivateaccount', async(req, res) =>{
-  const db = req.app.locals.db
-  const {accountID} = req.body;
-
-  await db.deactivateLedger(accountID);
-
-  const updatedUser = await db.findUserEmailAndPassword(req.session.user.email, req.session.user.password);
-  req.session.user = updatedUser;
-
-  res.sendStatus(200)
-})
-
 router.post('/addTransaction', async(req, res)=>{
   const db = req.app.locals.db
   const {accountId, amount, action} = req.body

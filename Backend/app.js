@@ -9,6 +9,7 @@ const { database, createDatabaseConnection } = require('../Database/database');
 const accountsroutes = require('./Routes/accountroutes');
 const ledgerRoutes = require('./Routes/ledgerroutes');
 const portfolioroutes = require('./Routes/portfolioroutes')
+const { reqLogin, reqActive, reqAccount } = require('./middleware');
 
 const app = express();
 const port = 3000;
@@ -27,11 +28,6 @@ app.use(session({
   secret: 'tester',
   resave: false,
   saveUninitialized: true,
-  cookie:{
-    maxAge: 24 * 60 * 60 * 1000, //1 dag
-    sameSite: 'lax',
-    secure: false
-  }
 }))
 
 
@@ -41,26 +37,11 @@ createDatabaseConnection(passwordConfig).then((instance => {
   db = instance
   app.locals.db = db;
 
-  //await db.ensureLedgerTable()
   app.use('/', accountsroutes)
   app.use('/', ledgerRoutes)
   app.use('/', portfolioroutes)
 }))
 
-// funktion som videresender en bruger som ikke er logget ind til login-siden
-function reqLogin(req, res, next){
-  if(!req.session.user){
-    return res.redirect('/login')
-  } 
-    next()
-}
-
-function reqActive(req, res, next){
-  if(!req.session.user.active){
-    return res.redirect('/disabledaccount')
-  } 
-    next()
-}
 
 app.get('/', reqLogin, reqActive, (req, res) => {
   res.render('dashboard', { user: req.session.user });
@@ -114,19 +95,17 @@ app.get('/disabledaccount', reqLogin,(req,res)=>{
     user: req.session.user
   });
 });
-/*
-async function testDbConnection() {
-  try {
-    await database.connect(); // Sørg for, at du har oprettet forbindelse
-    const testResult = await database.executeQuery('SELECT 1');
-    console.log('Database test result:', testResult);
-  } catch (err) {
-    console.error('Error with database connection or query:', err);
-  }
-}
-testDbConnection();
-*/
 
+app.get('/transactionhistory', reqLogin, reqActive, async (req, res) => {
+  const db = req.app.locals.db;
+  const user_id = req.session.user.user_id;
+
+  const transactions = await db.findTransactionByUser(user_id);
+
+  res.render('transactionhistory', {
+    user: req.session.user, transactions
+  });
+});
 app.listen(port, () =>{
     console.log(`Server listening on port:${port} `)
 })

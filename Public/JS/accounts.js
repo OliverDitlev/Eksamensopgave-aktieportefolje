@@ -9,6 +9,7 @@ const chartElement = document.getElementById('chartinUSDandDKK');
 const deleteledgerbtns = document.querySelectorAll('#deletebtn');
 const toggleAccountBtns = document.querySelectorAll('.toggleAccountBtn');
 const accountsdash = document.querySelector('.accountsdash');
+const seeHistoryBtn = document.getElementById('historybtn')
 
 let formopen = false;
 function formpopup() {
@@ -81,6 +82,10 @@ toggleAccountBtns.forEach(btn => {
             console.error(`Could not ${action} account`, err);
         }
     });
+});
+
+seeHistoryBtn.addEventListener('click', () => {
+    window.location.href = '/transactionhistory';
 });
 
 const sumDKK = Number(chartElement.dataset.sumdkk);

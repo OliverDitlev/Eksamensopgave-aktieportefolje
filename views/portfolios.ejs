@@ -9,6 +9,11 @@
     <link rel="stylesheet" href="/css/style.css">
 </head>
 <body id="main" class="main">
+    <% if (account) { %>
+        <h2>Portfolios for account: <%= account.name %> (<%= account.currency %>)</h2>
+      <% } else { %>
+        <h2>All portfolios</h2>
+      <% } %>
 
     <h1 class="accounth1">Mine Porteføljer</h1>
 

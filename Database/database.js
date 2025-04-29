@@ -1,5 +1,8 @@
+const { request } = require('express');
 const sql = require('mssql');
 let database = null;
+
+
 
   class Database {
   config = {};
@@ -198,36 +201,14 @@ async insertLedger(user_id, name, bank, currency, balance){
 }
 
 async deleteLedger(account_id){
-  const result = await this.poolConnection
+  const request = this.poolConnection
   .request()
   .input('account_id', sql.UniqueIdentifier, account_id)
-  .query('DELETE FROM [dbo].[userledger] WHERE account_id = @account_id')
+
+  await request.query('DELETE FROM [dbo].[ledgertransactions] WHERE account_id = @account_id')
+  const result = await request.query('DELETE FROM [dbo].[userledger] WHERE account_id = @account_id')
 
   return result.rowsAffected[0]
-}
-
-async deactivateLedger(account_id){
-  const result = await this.poolConnection
-  .request()
-  .input('account_id', sql.UniqueIdentifier, account_id)
-  .query(`
-    UPDATE userledger
-    SET ledger_active = 0
-    WHERE account_id = @account_id
-    `)
-    return result.rowsAffected[0]
-}
-
-async activateLedger(account_id){
-  const result = await this.poolConnection
-  .request()
-  .input('account_id', sql.UniqueIdentifier, account_id)
-  .query(`
-    UPDATE userledger
-    SET ledger_active = 1
-    WHERE account_id = @account_id
-    `)
-    return result.rowsAffected[0]
 }
 
 async createTransactions(){
@@ -254,9 +235,30 @@ async createTransactions(){
   
 }
 
-async changeBalance(account_id, amount, action) {
-  let query;
+async getBalanceAccount(account_id){
+  const query = `
+  SELECT balance
+  FROM userledger
+  WHERE account_id= @account_id
+  `
+  const request =this.poolConnection.request()
+  request.input('account_id', sql.UniqueIdentifier, account_id)
 
+
+  const result = await request.query(query);
+
+  return result.recordset[0].balance
+}
+
+async changeBalance(account_id, amount, action) {
+  const balance = await this.getBalanceAccount(account_id) 
+
+  if(action === 'Withdraw' && balance < amount){
+    throw new Error('Insuffienct money')
+
+  }
+
+  let query;
   if(action === 'Deposit'){
     query = `
     UPDATE userledger
@@ -283,7 +285,6 @@ async changeBalance(account_id, amount, action) {
 async addTransaction(accountId, amount, action){
   const pool = await sql.connect();
 
-  if(action === 'Deposit'){
     await pool.request()
     .input('accountId', sql.UniqueIdentifier, accountId)
     .input('amount', sql.Decimal(12,1), amount)
@@ -292,7 +293,48 @@ async addTransaction(accountId, amount, action){
       INSERT INTO ledgertransactions (account_id, amount, action)
       VALUES(@accountId, @amount, @action)
       `)
-  } 
+}
+
+async findTransactionByUser(user_id) {
+  const query = `
+    SELECT 
+      ledgertransaction.transaction_id,
+      ledgertransaction.amount,
+      ledgertransaction.action,
+      ledgertransaction.transaction_time,
+      ledger.name AS account_name,
+      ledger.currency
+    FROM ledgertransactions ledgertransaction
+    INNER JOIN userledger ledger ON ledgertransaction.account_id = ledger.account_id
+    WHERE ledger.user_id = @user_id
+    ORDER BY ledgertransaction.transaction_time DESC
+  `
+  const request = await this.poolConnection
+  .request()
+  .input('user_id', sql.UniqueIdentifier, user_id)
+  .query(query);
+
+return request.recordset;
+}
+//kaldes
+async findPortfoliosByAccountId(account_id) {
+  const query = `
+    SELECT *
+    FROM portfolios
+    WHERE account_id = @account_id
+  `;
+  const request = this.poolConnection.request();
+  request.input('account_id', sql.UniqueIdentifier, account_id);
+  const result = await request.query(query);
+  return result.recordset;
+}
+//kaldes
+async getLedgerById(account_id) {
+  const query = `SELECT * FROM userledger WHERE account_id = @account_id`;
+  const request = this.poolConnection.request();
+  request.input('account_id', sql.UniqueIdentifier, account_id);
+  const result = await request.query(query);
+  return result.recordset[0];
 }
 
 async createPortfolios() {
@@ -334,15 +376,6 @@ async findPortfoliosByUser(user_id) {
   }
 }
 
-/*
-async insertPortfolio(user_id, name) {
-  const createdAt = new Date().toISOString();
-  const query = `
-    INSERT INTO portfolios (user_id, name, created_at) 
-    VALUES (?, ?, ?)`;
-  await this.poolConnection.execute(query, [user_id, name, createdAt]);
-}
-*/
 async insertPortfolio(user_id, name, account_id) {
   const query = `
       INSERT INTO portfolios (user_id, name, account_id, created_at)
@@ -367,9 +400,9 @@ async deletePortfolio(portfolioID) {
   const result = await request.query(query);
   return result.rowsAffected[0] > 0; 
 }
-}
 
 
+  }
 const createDatabaseConnection = async (passwordConfig) => {
   database = new Database(passwordConfig);
   await database.connect();
@@ -384,8 +417,4 @@ module.exports = {
     Database,
     createDatabaseConnection,
   };
-
-  
-const { passwordConfig } = require('./config');
-const { request } = require('express');
  
