@@ -78,7 +78,7 @@ function getStockData(companyName, callback) { // <-- Tilføjet callback
           ...monthlyOpenPrices 
         ];
 
-        callback(result); // Kalder callback-funktion med resultatet
+        callback(result[0]); // Kalder callback-funktion med resultatet
       });
     });
   });
@@ -87,6 +87,6 @@ function getStockData(companyName, callback) { // <-- Tilføjet callback
 module.exports = { getStockData };
 
 // Eksempel på brug:
-getStockData('tesla', (result) => {
-  console.log(result[2]); // Skriver forkortelsen (f.eks. "TSLA")
+getStockData('apple', (result) => {
+  console.log(result);
 });
