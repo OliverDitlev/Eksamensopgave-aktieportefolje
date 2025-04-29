@@ -121,6 +121,22 @@ async function testDbConnection() {
 testDbConnection();
 */
 
+
+
+app.get('/api/stock/:company', (req, res) => {
+  const company = req.params.company;
+
+  getStockData(company, (result) => {
+    if (!result) {
+      return res.status(404).json({ error: 'Data ikke fundet' });
+    }
+
+    res.json({ symbol: company, prices: result }); 
+  });
+});
+
+
+
 app.listen(port, () =>{
     console.log(`Server listening on port:${port} `)
 })

@@ -3,10 +3,10 @@ const request = require('request');
 
 const API_KEY = 'Q7DZ145NE084VB0O'; 
 
-function getStockData(companyName) {
-
+function getStockData(companyName, callback) { // <-- Tilføjet callback
   const searchUrl = `https://www.alphavantage.co/query?function=SYMBOL_SEARCH&keywords=${encodeURIComponent(companyName)}&apikey=${API_KEY}`;
-//Henter data fra URL
+
+  // Henter data fra URL
   request.get({
     url: searchUrl,
     json: true,
@@ -20,7 +20,6 @@ function getStockData(companyName) {
     const bestMatch = searchData.bestMatches[0];
     const symbol = bestMatch['1. symbol'];
 
-    
     const dailyStockUrl = `https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol=${symbol}&apikey=${API_KEY}`;
     const monthlyStockUrl = `https://www.alphavantage.co/query?function=TIME_SERIES_MONTHLY&symbol=${symbol}&apikey=${API_KEY}`;
 
@@ -63,10 +62,12 @@ function getStockData(companyName) {
           console.log('Not enough monthly data available');
           return;
         }
+
         const monthlyOpenPrices = monthlyTimestamps.slice(0, 12).map(timestamp => Math.floor(parseFloat(monthlyTimeSeries[timestamp]['1. open'])));
 
-        //laver array med data: [Navn,dagens pris, de sidste fem dage, de sidste 12 måneder]
+        // laver array med data: [forkortelse, Navn, dagens pris, de sidste fem dage, de sidste 12 måneder]
         const result = [
+          symbol,
           companyName,
           dailyOpenPrices[0],
           dailyOpenPrices[1], 
@@ -77,11 +78,15 @@ function getStockData(companyName) {
           ...monthlyOpenPrices 
         ];
 
-        console.log(result);
+        callback(result); // Kalder callback-funktion med resultatet
       });
     });
   });
 }
 
+module.exports = { getStockData };
 
-module.exports = {getStockData}
+// Eksempel på brug:
+getStockData('apple', (result) => {
+  console.log(result);
+});
