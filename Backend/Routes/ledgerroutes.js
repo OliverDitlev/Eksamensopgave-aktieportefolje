@@ -72,6 +72,7 @@ router.delete('/deleteaccount', async (req, res) =>{
       }
 })
     
+
 router.post('/activateaccount', async(req, res) =>{
   const db = req.app.locals.db
   const {accountID} = req.body;
@@ -96,6 +97,13 @@ router.post('/deactivateaccount', async(req, res) =>{
   res.sendStatus(200)
 })
 
+router.post('/addTransaction', async(req, res)=>{
+  const db = req.app.locals.db
+  const {accountId, amount, action} = req.body
+
+  await db.addTransaction(accountId, parseFloat(amount), action)
+  res.redirect('/accounts')
+})
 
 router.post('/changebalance', async (req, res) => {
     const db = req.app.locals.db
@@ -103,6 +111,7 @@ router.post('/changebalance', async (req, res) => {
   
     try {
       await db.changeBalance(accountId, parseFloat(amount), action);
+      await db.addTransaction(accountId, parseFloat(amount), action)
       res.redirect('/accounts'); 
     } catch (err) {
       console.error('Error updating balance:', err);
