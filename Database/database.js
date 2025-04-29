@@ -295,6 +295,28 @@ async addTransaction(accountId, amount, action){
   } 
 }
 
+async createPortfolios() {
+  const query = `
+    IF NOT EXISTS (
+      SELECT * FROM INFORMATION_SCHEMA.TABLES 
+      WHERE TABLE_NAME = 'portfolios'
+    )
+    BEGIN
+      CREATE TABLE portfolios (
+        portfolio_id UNIQUEIDENTIFIER PRIMARY KEY DEFAULT NEWID(),
+        user_id UNIQUEIDENTIFIER NOT NULL REFERENCES userAdministration(user_id),
+        account_id UNIQUEIDENTIFIER NOT NULL REFERENCES userledger(account_id),
+        name VARCHAR(100) NOT NULL,
+        created_at DATETIME DEFAULT GETDATE()
+      );
+    END
+  `;
+  this.executeQuery(query)
+    .then(() => {
+      console.log("Portfolios table created");
+    });
+}
+
 async findPortfoliosByUser(user_id) {
   try {
     const query = `
@@ -312,14 +334,24 @@ async findPortfoliosByUser(user_id) {
   }
 }
 
+/*
 async insertPortfolio(user_id, name) {
+  const createdAt = new Date().toISOString();
   const query = `
-      INSERT INTO portfolios (user_id, name, created_at)
-      VALUES (@user_id, @name, GETDATE())
+    INSERT INTO portfolios (user_id, name, created_at) 
+    VALUES (?, ?, ?)`;
+  await this.poolConnection.execute(query, [user_id, name, createdAt]);
+}
+*/
+async insertPortfolio(user_id, name, account_id) {
+  const query = `
+      INSERT INTO portfolios (user_id, name, account_id, created_at)
+      VALUES (@user_id, @name, @account_id, GETDATE())
   `;
   const request = this.poolConnection.request();
   request.input('user_id', sql.UniqueIdentifier, user_id);
   request.input('name', sql.VarChar, name);
+  request.input('account_id', sql.UniqueIdentifier, account_id);
   
   await request.query(query);
 }
@@ -344,6 +376,7 @@ const createDatabaseConnection = async (passwordConfig) => {
   await database.createTable();
   await database.createLedger();
   await database.createTransactions();
+  await database.createPortfolios();
   return database;
 };
 

@@ -3,42 +3,64 @@ const { body, validationResult } = require('express-validator');
 
 const router = express.Router();
 
-// Henter brugerens porteføljer
+// Henter brugerens porteføljer og konti
 router.get('/portfolios', async (req, res) => {
     const db = req.app.locals.db;
     const user_id = req.session.user.user_id;
 
     const portfolios = await db.findPortfoliosByUser(user_id);
+    const accounts = await db.findLedgerByUser(user_id); // <-- Hent brugerens konti
+
     res.render('portfolios', {
         user: req.session.user,
         portfolios,
+        accounts,
         errors: []
     });
 });
 
 // Opretter en ny portefølje
 router.post('/portfolios', [
-    body('name')
+    body('portfolioName')
         .trim()
         .notEmpty()
-        .withMessage('Navn på portefølje kræves')
+        .withMessage('Navn på portefølje kræves'),
+    body('accountId')
+        .notEmpty()
+        .withMessage('Vælg en konto')
 ], async (req, res) => {
+    console.log('POST /portfolios modtaget:', req.body);
+
     const db = req.app.locals.db;
     const errors = validationResult(req);
     const user_id = req.session.user.user_id;
+
     const portfolios = await db.findPortfoliosByUser(user_id);
+    const accounts = await db.findLedgerByUser(user_id);
 
     if (!errors.isEmpty()) {
         return res.status(400).render('portfolios', {
             user: req.session.user,
             portfolios,
+            accounts,
             errors: errors.array()
         });
     }
 
-    const { name } = req.body;
-    await db.insertPortfolio(user_id, name);
-    res.redirect('/portfolios');
+    const { portfolioName, accountId } = req.body;
+
+    try {
+        await db.insertPortfolio(user_id, portfolioName, accountId);
+        res.redirect('/portfolios');
+    } catch (err) {
+        console.error('Fejl ved oprettelse af portefølje:', err);
+        res.status(500).render('portfolios', {
+            user: req.session.user,
+            portfolios,
+            accounts,
+            errors: [{ msg: 'Serverfejl. Prøv igen senere.' }]
+        });
+    }
 });
 
 // Sletter en portefølje
