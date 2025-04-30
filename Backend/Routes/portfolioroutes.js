@@ -7,14 +7,20 @@ const router = express.Router();
 router.get('/portfolios', async (req, res) => {
     const db = req.app.locals.db;
     const user_id = req.session.user.user_id;
+    const account_id = req.query.accountId;
 
-    const portfolios = await db.findPortfoliosByUser(user_id);
-    const accounts = await db.findLedgerByUser(user_id); // <-- Hent brugerens konti
+    
 
+    const accounts = await db.findLedgerByUser(user_id); 
+    let portfolios = []
+
+    portfolios = await db.findPortfoliosByAccountId(account_id);
+    ledger = await db.getLedgerById(accountId);
     res.render('portfolios', {
         user: req.session.user,
         portfolios,
         accounts,
+        ledger,
         errors: []
     });
 });
@@ -24,16 +30,17 @@ router.post('/portfolios', [
     body('portfolioName')
         .trim()
         .notEmpty()
-        .withMessage('Navn på portefølje kræves'),
+        .withMessage('Name required'),
     body('accountId')
         .notEmpty()
-        .withMessage('Vælg en konto')
+        .withMessage('Choose account')
 ], async (req, res) => {
-    console.log('POST /portfolios modtaget:', req.body);
-
+    
     const db = req.app.locals.db;
     const errors = validationResult(req);
     const user_id = req.session.user.user_id;
+
+    const { portfolioName, accountId } = req.body;
 
     const portfolios = await db.findPortfoliosByUser(user_id);
     const accounts = await db.findLedgerByUser(user_id);
@@ -47,24 +54,10 @@ router.post('/portfolios', [
             errors: errors.array()
         });
     }
-        await db.insertPortfolio(accountId, name);
-        res.redirect(`/portfolios/${accountId}`);
+        await db.insertPortfolio( user_id, portfolioName, accountId);
+        res.redirect(`/portfolios`);
 
-    const { portfolioName, accountId } = req.body;
-
-    try {
-        await db.insertPortfolio(user_id, portfolioName, accountId);
-        res.redirect('/portfolios');
-    } catch (err) {
-        console.error('Fejl ved oprettelse af portefølje:', err);
-        res.status(500).render('portfolios', {
-            user: req.session.user,
-            portfolios,
-            accounts,
-            errors: [{ msg: 'Serverfejl. Prøv igen senere.' }]
-        });
-    }
-});
+    });
 
 // Sletter en portefølje
 router.delete('/deleteportfolio', async (req, res) => {

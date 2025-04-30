@@ -9,22 +9,42 @@
     <link rel="stylesheet" href="/css/style.css">
 </head>
 <body id="main" class="main">
-      <% if (typeof account !== 'undefined' && account) { %>
-        <h2>Portfolios for account: <%= account.name %> (<%= account.currency %>)</h2>
-      <% } else { %>
-        <h2>All portfolios</h2>
-      <% } %>
 
-    <h1 class="accounth1">Mine Porteføljer</h1>
+    <div class="accountswrap">
+        <h1 class="accounth1">Mine Porteføljer</h1>
+        <div class="buttons">
+            <button class="popupform" id="openformbtn" onclick="openCreatePortfolio()">Opret Portefølje</button>
+        </div>
+      </div>
 
-    <button id="openformbtn" onclick="openCreatePortfolio()">Opret Portefølje</button>
-
+      <div class="portfoliotop">
+        <div class="portfolioboxes">
+          <div class="box" id="portofoliovalue">
+            <h3>Total value in DKK</h3>
+            <p><%= portfolios.reduce((sum, p) => sum + (p.totalExpectedValue || 0), 0).toFixed(0) %> DKK</p>
+          </div>
+      
+          <div class="box" id="portofoliochange">
+            <h3>Changes</h3>
+            <p>1.4% 24 hours</p>
+            <p>1.4% 7 days</p>
+            <p>1.4% 30 days</p>
+          </div>
+        </div>
+      
+        <div class="box" id="portofoliopie">
+          <h3>Distrubution of value in portfolios</h3>
+          <div id="portfolioDonut"></div>
+        </div>
+      </div>
+    
     <div class="accounttable">
         <table>
             <thead>
                 <tr>
                     <th>Portefølje Navn</th>
-                    <th>Oprettelsesdato</th>
+                    <th>Konto tilknyttet</th>
+                    <th>Samlet værdi</th>
                     <th>Samlet Erhvervelsespris</th>
                     <th>Samlet Forventet Værdi</th>
                     <th>Samlet Urealiseret Gevinst/Tab</th>
@@ -36,6 +56,9 @@
                     <% portfolios.forEach(function(portfolio) { %>
                         <tr>
                             <td><%= portfolio.name %></td>
+                            <td>
+                                <%= (accounts.find(account => account.account_id === portfolio.account_id).name) %>
+                              </td>
                             <td><%= new Date(portfolio.created_at).toLocaleDateString() %></td>
                             <td><%= portfolio.totalAcquisitionPrice?.toFixed(2) || "0.00" %> DKK</td>
                             <td><%= portfolio.totalExpectedValue?.toFixed(2) || "0.00" %> DKK</td>
@@ -69,7 +92,6 @@
                         <% }); %>
                     <% } %>
                 </select>
-
                 <button type="submit" class="greenbtn">Opret</button>
             </form>
         </div>
@@ -82,6 +104,7 @@
         function closeCreatePortfolio() {
             document.getElementById('createPortfolioPopup').classList.add('hidden');
         }
+        
     </script>
 
 </body>

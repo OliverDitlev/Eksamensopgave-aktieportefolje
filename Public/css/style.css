@@ -144,8 +144,12 @@ img {
   position: center;
 }
 .popup {
-  position: fixed;
-  margin-left: 200px;
+  position: fixed; 
+  padding-left: 450px;
+  margin-top: -450px;
+  width: 100px;
+  height: 100px;
+  background: black;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -357,5 +361,40 @@ img {
 #gotoaccount:hover {
   background-color: #777777;
  
+}
+
+.portfoliotop {
+  display: grid;
+  grid-template-columns: 35% 60%;
+  gap: 20px;
+  margin: 30px 50px;
+}
+
+.portfolioboxes {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+#portofoliopie {
+  margin: 0; 
+  width: 100%;
+  height: 80%%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+
+#portofoliochange, #portofoliovalue {
+  width: 80%;
+  height: auto;
+}
+
+
+#portofoliochange {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
