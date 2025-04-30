@@ -11,7 +11,7 @@ const ledgerRoutes = require('./Routes/ledgerroutes')
 
 
 const app = express();
-const port = 3000;
+const port = 3000;  
 require('dotenv').config();
 
 
@@ -95,18 +95,21 @@ app.get('/disabledaccount', reqLogin,(req,res)=>{
   });
 });
 
-
-
-app.get('/api/stock/:company', (req, res) => {
-  const company = req.params.company;
-
-  getStockData(company, (result) => {
-    if (!result) {
-      return res.status(404).json({ error: 'Data ikke fundet' });
-    }
-
-    res.json({ symbol: company, prices: result }); 
+app.get('/specifikdata', reqLogin, reqActive, (req, res) => {
+  res.render('specifikdata', {
+    user: req.session.user
   });
+});
+
+
+app.get('/api/stock/:company', async (req, res) => {
+  const company = req.params.company;
+  try {
+    const data = await getStockData(company);
+    res.json(data);
+  } catch (err) {
+    res.status(500).json({ error: err.toString() });
+  }
 });
 
 

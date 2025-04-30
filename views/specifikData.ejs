@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Stock Data</title>
+</head>
+<body>
+  <h1>Stock Data</h1>
+  <input type="text" id="companyInput" placeholder="Enter company name">
+  <button onclick="fetchStock()">Get Stock Data</button>
+
+  <pre id="output"></pre>
+
+  <script>
+    async function fetchStock() {
+      const company = document.getElementById('companyInput').value;
+      const res = await fetch(`/api/stock/${encodeURIComponent(company)}`);
+      const output = document.getElementById('output');
+      if (res.ok) {
+        const data = await res.json();
+        output.textContent = JSON.stringify(data, null, 2);
+      } else {
+        const err = await res.json();
+        output.textContent = 'Error: ' + err.error;
+      }
+    }
+  </script>
+</body>
+</html>
