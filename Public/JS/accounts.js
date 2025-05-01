@@ -1,3 +1,4 @@
+document.addEventListener('DOMContentLoaded', () => {
 const popupform = document.getElementById('popupform');
 const balancepopup = document.getElementById('balancepopup');
 const openformbtn = document.getElementById('openformbtn');
@@ -117,3 +118,5 @@ const option = {
     ]
 };
 chart.setOption(option);
+
+});

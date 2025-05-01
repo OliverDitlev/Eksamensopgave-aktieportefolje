@@ -204,7 +204,7 @@ async deleteLedger(account_id){
   const request = this.poolConnection
   .request()
   .input('account_id', sql.UniqueIdentifier, account_id)
-
+  await request.query('DELETE FROM [dbo].[portfolios] WHERE account_id = @account_id')
   await request.query('DELETE FROM [dbo].[ledgertransactions] WHERE account_id = @account_id')
   const result = await request.query('DELETE FROM [dbo].[userledger] WHERE account_id = @account_id')
 
@@ -351,6 +351,18 @@ async findPortfoliosByAccountId(account_id) {
   return result.recordset;
 }
 
+async findPortfoliosById(portfolio_id) {
+  const query = `
+    SELECT *
+    FROM portfolios
+    WHERE portfolio_id = @portfolio_id
+  `;
+  const request = this.poolConnection.request();
+  request.input('portfolio_id', sql.UniqueIdentifier, portfolio_id);
+  const result = await request.query(query);
+  return result.recordset[0];
+}
+
 async getLedgerById(account_id) {
   const query = `SELECT * FROM userledger WHERE account_id = @account_id`;
   const request = this.poolConnection.request();
@@ -411,7 +423,107 @@ async insertPortfolio(user_id, name, account_id) {
   await request.query(query);
 }
 
+async createPortfolios_stocks() {
+  const query = `
+    IF NOT EXISTS (
+      SELECT * FROM INFORMATION_SCHEMA.TABLES 
+      WHERE TABLE_NAME = 'portfolios_stocks'
+    )
+    BEGIN
+      CREATE TABLE portfolios_stocks (
+        stock_id UNIQUEIDENTIFIER PRIMARY KEY DEFAULT NEWID(),
+        portfolio_id UNIQUEIDENTIFIER NOT NULL REFERENCES portfolios(portfolio_id),
+        ticker VARCHAR(20) NOT NULL REFERENCES stocks(ticker),
+        volume INT NOT NULL,
+        purchase_price DECIMAL(12, 2),
+        created_at DATETIME DEFAULT GETDATE()
+      );
+    END
+  `;
+  this.executeQuery(query)
+    .then(() => {
+      console.log("createPortfolios_stocks table created");
+    });
+}
+
+async stocks() {
+  const query = `
+    IF NOT EXISTS (
+      SELECT * FROM INFORMATION_SCHEMA.TABLES 
+      WHERE TABLE_NAME = 'stocks'
+    )
+    BEGIN
+      CREATE TABLE stocks (
+        ticker VARCHAR(20) PRIMARY KEY,
+        company_name VARCHAR(100),
+        currency CHAR(3),
+        last_updated DATETIME
+      );
+    END
+  `;
+  this.executeQuery(query)
+    .then(() => {
+      console.log("Stock table created");
+    });
+}
+
+async stocks_prices() {
+  const query = `
+    IF NOT EXISTS (
+      SELECT * FROM INFORMATION_SCHEMA.TABLES 
+      WHERE TABLE_NAME = 'stocks_prices'
+    )
+    BEGIN
+      CREATE TABLE stocks_prices (
+        id INT PRIMARY KEY IDENTITY,
+        ticker VARCHAR(20) NOT NULL REFERENCES stocks(ticker),
+        price DECIMAL(12, 2) NOT NULL,
+        currency CHAR(3),
+        timestamp DATETIME DEFAULT GETDATE()
+      );
+    END
+  `;
+  this.executeQuery(query)
+    .then(() => {
+      console.log("createPortfolios_stocks table created");
+    });
+}
+
+async saveStockData(ticker, name, currency, latestOpen) {
+  const pool = this.poolConnection;
+
+  await pool.request()
+    .input('ticker',   sql.VarChar, ticker)
+    .input('name',     sql.VarChar, name)
+    .input('currency', sql.Char(3), currency)
+    .query(`
+      MERGE stocks AS tgt
+      USING (SELECT @ticker AS ticker) AS src
+      ON tgt.ticker = src.ticker
+      WHEN MATCHED THEN
+        UPDATE SET company_name = ISNULL(@name, tgt.company_name),
+                   currency     = ISNULL(@currency, tgt.currency),
+                   last_updated = GETDATE()
+      WHEN NOT MATCHED THEN
+        INSERT (ticker, company_name, currency, last_updated)
+        VALUES (@ticker, @name, @currency, GETDATE());
+    `);
+  await pool.request()
+    .input('ticker',   sql.VarChar, ticker)
+    .input('price',    sql.Decimal(12,2), latestOpen)
+    .input('currency', sql.Char(3), currency)
+    .query(`
+  INSERT INTO stock_prices (ticker, price, currency)
+  VALUES (@ticker, @price, @currency);
+`);
+}
   }
+
+
+
+
+
+  
 const createDatabaseConnection = async (passwordConfig) => {
   database = new Database(passwordConfig);
   await database.connect();
@@ -419,8 +531,12 @@ const createDatabaseConnection = async (passwordConfig) => {
   await database.createLedger();
   await database.createTransactions();
   await database.createPortfolios();
+  await database.createPortfolios_stocks()
+  await database.stocks()
+  await database.stocks_prices()
   return database;
 };
+
 
 module.exports = {
     Database,

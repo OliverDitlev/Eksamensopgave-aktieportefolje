@@ -1,9 +1,10 @@
 'use strict';
 const request = require('request');
+const sql = require('mssql')
 
 const API_KEY = 'Q7DZ145NE084VB0O'; 
 
-function getStockData(companyName) {
+function getStockData(companyName , db = null) {
 
   const searchUrl = `https://www.alphavantage.co/query?function=SYMBOL_SEARCH&keywords=${encodeURIComponent(companyName)}&apikey=${API_KEY}`;
 //Henter data fra URL
@@ -11,25 +12,23 @@ function getStockData(companyName) {
     url: searchUrl,
     json: true,
     headers: { 'User-Agent': 'request' }
-  }, (err, res, searchData) => {
+  }, async (err, res, searchData) => {
     if (err || !searchData.bestMatches || searchData.bestMatches.length === 0) {
       console.log('Company not found or error occurred');
       return;
     }
 
     const bestMatch = searchData.bestMatches[0];
-    const symbol = bestMatch['1. symbol'];
-
+    const ticker = bestMatch['1. symbol']
+    const currency = bestMatch['8. currency'] || 'DKK'
     
-    const dailyStockUrl = `https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol=${symbol}&apikey=${API_KEY}`;
-    const monthlyStockUrl = `https://www.alphavantage.co/query?function=TIME_SERIES_MONTHLY&symbol=${symbol}&apikey=${API_KEY}`;
+    const dailyStockUrl = `https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol=${ticker}&apikey=${API_KEY}`;
+    const monthlyStockUrl = `https://www.alphavantage.co/query?function=TIME_SERIES_MONTHLY&symbol=${ticker}&apikey=${API_KEY}`;
 
     // Fetcher daglig og månedlig data
-    request.get({
-      url: dailyStockUrl,
-      json: true,
-      headers: { 'User-Agent': 'request' }
-    }, (err, res, dailyData) => {
+    request.get({ url: dailyStockUrl, json: true, headers: { 'User-Agent': 'request' }},
+
+    (err, res, dailyData) => {
       if (err || !dailyData['Time Series (Daily)']) {
         console.log('Daily stock data not available');
         return;
@@ -43,15 +42,13 @@ function getStockData(companyName) {
         return;
       }
 
-      // Henter data fra de sidste fem dage
-      const dailyOpenPrices = dailyTimestamps.slice(0, 6).map(timestamp => Math.floor(parseFloat(dailyTimeSeries[timestamp]['1. open'])));
+      // Henter data fra de sidste seks dage + i dag
+      const dailyOpenPrices = dailyTimestamps.slice(0, 7).map(timestamp => Math.floor(parseFloat(dailyTimeSeries[timestamp]['1. open'])));
 
       // Henter månedlig data
-      request.get({
-        url: monthlyStockUrl,
-        json: true,
-        headers: { 'User-Agent': 'request' }
-      }, (err, res, monthlyData) => {
+      request.get({ url: monthlyStockUrl, json: true, headers: { 'User-Agent': 'request' }}, 
+        async (err, res, monthlyData) => {
+
         if (err || !monthlyData['Monthly Time Series']) {
           return;
         }
@@ -65,23 +62,29 @@ function getStockData(companyName) {
         }
         const monthlyOpenPrices = monthlyTimestamps.slice(0, 12).map(timestamp => Math.floor(parseFloat(monthlyTimeSeries[timestamp]['1. open'])));
 
-        //laver array med data: [Navn,dagens pris, de sidste fem dage, de sidste 12 måneder]
-        const result = [
-          companyName,
-          dailyOpenPrices[0],
-          dailyOpenPrices[1], 
-          dailyOpenPrices[2],
-          dailyOpenPrices[3], 
-          dailyOpenPrices[4], 
-          dailyOpenPrices[5], 
-          ...monthlyOpenPrices 
-        ];
+        const result = {
+          ticker,
+          currency,
+          daily: dailyOpenPrices, 
+          monthly: monthlyOpenPrices,
+        }
 
         console.log(result);
+
+        if (db) {
+          try {
+            const todayOpen = dailyOpenPrices[0];
+            await db.saveStockData(ticker, companyName, currency, todayOpen);
+          } catch (e) {
+            console.error(e);
+          }
+        }
+        await db.saveStockData(ticker, companyName, currency, dailyOpenPrices[0]);
       });
     });
   });
 }
+
 
 
 module.exports = {getStockData}

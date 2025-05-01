@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PortofolioTracker</title>
+    
+    <%- include('partials/menu') %>
+
+    <link rel="stylesheet" href="/css/style.css">
+ 
+</head>
+<body id="main" class="main">
+    <div class="accountswrap">
+        <h1 class="accounth1"><%= portfolio.name %></h1>
+        <div class="buttons">
+          <button class="popupform" id="historybtn" >See history</button>
+          <button class="popupform" id="openformbtn">Registrer trade</button>
+        </div>
+      </div>
+      
+      <form action="/searchstock" method="POST">
+        <input type="text" name="company" required>
+        <button type="submit">Søg</button>
+      </form>
+    
+      <% if (result) { %>
+        <h2>Resultat</h2>
+        <p style="color: aquamarine;"><strong>Ticker:</strong> <%= result.ticker %></p>
+        <p><strong>Valuta:</strong> <%= result.currency %></p>
+        <p><strong>Pris i dag:</strong> <%= result.daily[0] %> <%= result.currency %></p>
+      <% } %>
+</body>
+</html>

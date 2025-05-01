@@ -1,27 +1,34 @@
 const express = require('express');
 const { body, validationResult } = require('express-validator');
+const { getStockData } = require('../api');
 
 const router = express.Router();
 
 // Henter brugerens porteføljer og konti
-router.get('/portfolios', async (req, res) => {
+router.get('/portfolios/:portofolio_id', async (req, res) => {
     const db = req.app.locals.db;
     const user_id = req.session.user.user_id;
-    const account_id = req.query.accountId;
+    const portfolio_id = req.params.portofolio_id    
 
-    
+    req.session.currentPortfolioId = portfolio_id
 
     const accounts = await db.findLedgerByUser(user_id); 
-    let portfolios = []
+    const portfolio = await db.findPortfoliosById(portfolio_id)
 
-    portfolios = await db.findPortfoliosByAccountId(account_id);
-    ledger = await db.getLedgerById(accountId);
-    res.render('portfolios', {
+    /*console.log({
         user: req.session.user,
-        portfolios,
+        portfolio,
         accounts,
-        ledger,
-        errors: []
+        ledger
+    });
+*/
+    res.render('portfoliodetails', {
+        user: req.session.user,
+        portfolio,
+        accounts,
+        
+        errors: [],
+        result: null
     });
 });
 
@@ -77,5 +84,38 @@ router.delete('/deleteportfolio', async (req, res) => {
         res.status(500).send('Serverfejl');
     }
 });
+
+router.get('/searchstock', (req, res) => {
+    res.render('portfoliodetails', { result: null });
+});
+
+router.post('/searchstock', async (req, res) => {
+    const db = req.app.locals.db;
+    const { company } = req.body;
+    const user_id = req.session.user.user_id;
+    const portfolio_id = req.session.currentPortfolioId;   
+
+    const accounts = await db.findLedgerByUser(user_id); 
+    const portfolio = await db.findPortfoliosById(portfolio_id)
+
+    const result = await getStockData(company, db);
+
+    console.log({
+        user: req.session.user,
+        portfolio,
+        accounts,
+        result,
+        errors: []
+    });
+
+    res.render('portfoliodetails', {
+        user: req.session.user,
+        portfolio,
+        accounts,
+        result,
+        errors: []
+    });
+});
+
 
 module.exports = router;
