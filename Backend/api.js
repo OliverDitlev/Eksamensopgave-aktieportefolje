@@ -1,7 +1,7 @@
 const request = require('request');
 
-const API_KEY = 'W88KZ6XMGA0OVVD1'; 
-
+const API_KEY = '8OZC3CIVXTE19JFG'; 
+//'W88KZ6XMGA0OVVD1'
 function getStockData(companyName) {
   return new Promise((resolve, reject) => {
     const searchUrl = `https://www.alphavantage.co/query?function=SYMBOL_SEARCH&keywords=${encodeURIComponent(companyName)}&apikey=${API_KEY}`;
