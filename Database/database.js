@@ -159,6 +159,7 @@ async createLedger() {
         [bank] VARCHAR(50) NOT NULL,
         [currency] CHAR(3) NOT NULL CHECK(currency IN('DKK','USD','GBP')),
         [balance] DECIMAL(12,1) NOT NULL,
+        [avaialable_balance] DECIMAL(12,1) NOT NULL,
         [ledger_created] DATETIME DEFAULT GETDATE(),
         [ledger_Active] BIT NOT NULL DEFAULT 1
         )
@@ -185,9 +186,9 @@ async findLedgerByUser(user_id) {
 
 async insertLedger(user_id, name, bank, currency, balance){
   const query = `
-  INSERT INTO userledger(user_id, name, bank, currency, balance)
+  INSERT INTO userledger(user_id, name, bank, currency, balance, available_balance)
   OUTPUT INSERTED.* 
-  VALUES (@user_id, @name, @bank, @currency, @balance) 
+  VALUES (@user_id, @name, @bank, @currency, @balance, @balance) 
   `;
   const request = await this.poolConnection
   .request()
@@ -204,8 +205,9 @@ async deleteLedger(account_id){
   const request = this.poolConnection
   .request()
   .input('account_id', sql.UniqueIdentifier, account_id)
-  await request.query('DELETE FROM [dbo].[portfolios] WHERE account_id = @account_id')
   await request.query('DELETE FROM [dbo].[ledgertransactions] WHERE account_id = @account_id')
+  await request.query('DELETE FROM [dbo].[portfolios_stocks] WHERE portfolio_id IN(SELECT portfolio_id from dbo.portfolios where account_id = @account_id)')
+  await request.query('DELETE FROM [dbo].[portfolios] WHERE account_id = @account_id')
   const result = await request.query('DELETE FROM [dbo].[userledger] WHERE account_id = @account_id')
 
   return result.rowsAffected[0]
@@ -262,13 +264,15 @@ async changeBalance(account_id, amount, action) {
   if(action === 'Deposit'){
     query = `
     UPDATE userledger
-    SET balance = balance + @amount
+    SET balance = balance + @amount,
+    available_balance = available_balance + @amount
     WHERE account_id = @account_id
     `
   }else{
       query = `
       UPDATE userledger
-      SET balance = balance - @amount
+      SET balance = balance - @amount,
+      available_balance = available_balance - @amount
       WHERE account_id = @account_id
       `      
     }
@@ -519,19 +523,66 @@ async saveStockData(ticker, name, currency, latestOpen) {
 }
 
 async insertStockToPortfolio(portfolio_id, ticker, volume, price) {
+  const cost = price * volume
+
   const request = this.poolConnection.request();
   request.input('portfolio_id', sql.UniqueIdentifier, portfolio_id);
   request.input('ticker', sql.VarChar, ticker);
   request.input('volume', sql.Int, volume);
   request.input('price', sql.Decimal(12, 2), price);
-
+  request.input('cost', sql.Decimal, cost)
   const query = `
     INSERT INTO portfolios_stocks (portfolio_id, ticker, volume, purchase_price)
     VALUES (@portfolio_id, @ticker, @volume, @price)
+
+    UPDATE userledger
+    SET available_balance = available_balance - @cost
+    WHERE account_id = (
+    SELECT account_id
+    FROM portfolios
+    WHERE portfolio_id = @portfolio_id)
   `;
 
   await request.query(query);
   }
+
+async findStocksByPortfolio(portfolio_id){
+  const query = `
+        WITH latest_prices AS (
+      SELECT  price1.ticker,
+              price1.price,
+              price1.currency
+      FROM    stocks_prices price1
+      JOIN (
+          SELECT ticker, MAX([timestamp]) AS time
+          FROM   stocks_prices
+          GROUP  BY ticker
+      ) price2 ON price1.ticker = price2.ticker
+           AND price1.[timestamp] = price2.time
+      )
+      SELECT 
+        portfolios_stocks.ticker,
+       portfolios_stocks.volume,
+       portfolios_stocks.purchase_price,
+       latest_prices.price AS last_price,
+       latest_prices.currency,
+       stocks.company_name,
+    (portfolios_stocks.volume * latest_prices.price) AS value
+    FROM portfolios_stocks
+    JOIN stocks_prices AS latest_prices ON portfolios_stocks.ticker = latest_prices.ticker
+    JOIN stocks ON portfolios_stocks.ticker = stocks.ticker
+    WHERE portfolios_stocks.portfolio_id = @portfolio_id
+  `
+  const request = this.poolConnection.request();
+  request.input('portfolio_id', sql.UniqueIdentifier, portfolio_id);
+
+  const result = await request.query(query);
+  if (!result.recordset) return [];
+  return result.recordset;
+}
+
+
+
 }
 
 

@@ -15,18 +15,28 @@ router.get('/portfolios/:portofolio_id', async (req, res) => {
     const accounts = await db.findLedgerByUser(user_id); 
     const portfolio = await db.findPortfoliosById(portfolio_id)
 
-    /*console.log({
+    const stocks = await db.findStocksByPortfolio(portfolio_id)
+
+    const totalValue = stocks.reduce((sum, temp) => sum + Number(temp.value),0)
+    const pieData = stocks.map(temp =>({name: temp.ticker, value: temp.value}))
+    console.log({
         user: req.session.user,
         portfolio,
         accounts,
-        ledger
+        stocks,
+        totalValue,
+        pieData,
+        errors: [],
+        result: null
     });
-*/
+
     res.render('portfoliodetails', {
         user: req.session.user,
         portfolio,
         accounts,
-        
+        stocks,
+        totalValue,
+        pieData,
         errors: [],
         result: null
     });

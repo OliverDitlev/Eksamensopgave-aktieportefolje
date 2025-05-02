@@ -19,6 +19,8 @@
         </div>
       </div>
 
+
+
       <div id="registertrade" class="popup hidden">
         <div id="formAddportfolio">
             <span id="closeformbtn" onclick="closeRegisterTrade()">X</span>
@@ -31,16 +33,9 @@
                 <div id="stockResult">
                     <input type="hidden" name="portfolio_id" value="<%= portfolio.portfolio_id %>">
                     <input type="hidden" name="ticker" id="tickerField" readonly><br>
-                    <% if (result) { %>
-                        <input type="hidden" name="ticker"   value="<%= result.ticker %>">
-                        <input type="hidden" name="company"  value="<%= result.companyName %>">
-                        <input type="hidden" name="currency" value="<%= result.currency %>">
-                      <% } else { %>
-                        <input type="hidden" name="tickerTemp"   value="">
-                        <input type="hidden" name="companyTemp"  value="">
-                        <input type="hidden" name="currencyTemp" value="">
-                      <% } %>
-            
+                    <input type="hidden" name="company" id="companyField" readonly>
+                    <input type="hidden" name="currency" id="currencyField" readonly>
+                  
                     <label>Purchase price</label>
                     <input type="text" name="price" id="priceField" required><br>
             
@@ -51,6 +46,21 @@
             </form>
         </div>
     </div>    
+    <table class="accounttable">
+        <thead>
+          <tr><th>Name</th><th>Volume</th><th>Price</th><th>Value</th></tr>
+        </thead>
+        <tbody>
+          <% stocks.forEach(r => { %>
+            <tr>
+              <td><%= r.company_name %> <br><small><%= r.ticker %></small></td>
+              <td><%= r.volume %> stk.</td>
+              <td><%= r.last_price %> <%= r.currency %></td>
+              <td><%= r.value.toLocaleString() %> <%= r.currency %></td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
     <script src="/js/generel.js"></script>
 </body>
 </html>

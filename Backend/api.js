@@ -8,20 +8,24 @@ function getStockData(companyName , db = null) {
 
   const searchUrl = `https://www.alphavantage.co/query?function=SYMBOL_SEARCH&keywords=${encodeURIComponent(companyName)}&apikey=${API_KEY}`;
 //Henter data fra URL
-  request.get({
-    url: searchUrl,
-    json: true,
-    headers: { 'User-Agent': 'request' }
-  }, async (err, res, searchData) => {
+  request.get({ url: searchUrl, json: true, headers: { 'User-Agent': 'request' }}, 
+    async (err, res, searchData) => {
     if (err || !searchData.bestMatches || searchData.bestMatches.length === 0) {
       console.log('Company not found or error occurred');
       return;
     }
 
-    const bestMatch = searchData.bestMatches[0];
+    
+
+
+    const allowed = ['DKK', 'USD', 'GBP'];
+    const bestMatch = searchData.bestMatches
+    .filter( curr => curr['3. type'] = 'Equity' && allowed.includes(curr['8. currency']))
+    .sort((a, b) => parseFloat(b['9. matchScore']) - parseFloat(a['9. matchScore']))
+    [0]
+    
     const ticker = bestMatch['1. symbol']
     const currency = bestMatch['8. currency'] || 'DKK'
-    
     const dailyStockUrl = `https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol=${ticker}&apikey=${API_KEY}`;
     const monthlyStockUrl = `https://www.alphavantage.co/query?function=TIME_SERIES_MONTHLY&symbol=${ticker}&apikey=${API_KEY}`;
 
