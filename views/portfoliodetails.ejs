@@ -15,20 +15,42 @@
         <h1 class="accounth1"><%= portfolio.name %></h1>
         <div class="buttons">
           <button class="popupform" id="historybtn" >See history</button>
-          <button class="popupform" id="openformbtn">Registrer trade</button>
+          <button class="popupform" id="registertradebtn"  onclick="openRegisterTrade()">Registrer trade</button>
         </div>
       </div>
-      
-      <form action="/searchstock" method="POST">
-        <input type="text" name="company" required>
-        <button type="submit">Søg</button>
-      </form>
-    
-      <% if (result) { %>
-        <h2>Resultat</h2>
-        <p style="color: aquamarine;"><strong>Ticker:</strong> <%= result.ticker %></p>
-        <p><strong>Valuta:</strong> <%= result.currency %></p>
-        <p><strong>Pris i dag:</strong> <%= result.daily[0] %> <%= result.currency %></p>
-      <% } %>
+
+      <div id="registertrade" class="popup hidden">
+        <div id="formAddportfolio">
+            <span id="closeformbtn" onclick="closeRegisterTrade()">X</span>
+            <h2>Register trade</h2>
+            <form action="/registerTrade" method="POST">
+                <label>Find company</label>
+                <input type="text" id = "searchstock">
+                <button type="button" onclick="searchStock()">Search</button>
+
+                <div id="stockResult">
+                    <input type="hidden" name="portfolio_id" value="<%= portfolio.portfolio_id %>">
+                    <input type="hidden" name="ticker" id="tickerField" readonly><br>
+                    <% if (result) { %>
+                        <input type="hidden" name="ticker"   value="<%= result.ticker %>">
+                        <input type="hidden" name="company"  value="<%= result.companyName %>">
+                        <input type="hidden" name="currency" value="<%= result.currency %>">
+                      <% } else { %>
+                        <input type="hidden" name="tickerTemp"   value="">
+                        <input type="hidden" name="companyTemp"  value="">
+                        <input type="hidden" name="currencyTemp" value="">
+                      <% } %>
+            
+                    <label>Purchase price</label>
+                    <input type="text" name="price" id="priceField" required><br>
+            
+                    <label>Antal aktier:</label>
+                    <input type="number" name="volume" min="1" required><br>
+               
+            <button type="submit" class="greenbtn">Opret</button>
+            </form>
+        </div>
+    </div>    
+    <script src="/js/generel.js"></script>
 </body>
 </html>

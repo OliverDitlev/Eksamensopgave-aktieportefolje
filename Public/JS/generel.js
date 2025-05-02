@@ -1,3 +1,4 @@
+// account javascript
 document.addEventListener('DOMContentLoaded', () => {
 const popupform = document.getElementById('popupform');
 const balancepopup = document.getElementById('balancepopup');
@@ -120,3 +121,39 @@ const option = {
 chart.setOption(option);
 
 });
+
+// portofoliodetails javascript
+
+function searchStock() {
+    const company = document.getElementById('searchstock').value;
+  
+    fetch('/api/stockinfo?company=' + encodeURIComponent(company))
+      .then(res => res.json())
+      .then(data => {
+        if (data && data.ticker) {
+          document.getElementById('tickerField').value   = data.ticker;
+          document.getElementById('companyField').value  = data.companyName || company;
+          document.getElementById('currencyField').value = data.currency     || 'USD';
+          document.getElementById('priceField').value    = data.daily[0];
+          document.getElementById('stockResult').style.display = 'block';
+        } else {
+          alert('Aktie ikke fundet');
+        }
+      });
+  }
+  
+function openRegisterTrade() {
+    document.getElementById('registertrade').classList.remove('hidden');
+}
+function closeRegisterTrade() {
+    document.getElementById('registertrade').classList.add('hidden');
+}
+
+
+//portofolios javascript
+function openCreatePortfolio() {
+    document.getElementById('createPortfolioPopup').classList.remove('hidden');
+}
+function closeCreatePortfolio() {
+    document.getElementById('createPortfolioPopup').classList.add('hidden');
+}

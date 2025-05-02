@@ -513,11 +513,26 @@ async saveStockData(ticker, name, currency, latestOpen) {
     .input('price',    sql.Decimal(12,2), latestOpen)
     .input('currency', sql.Char(3), currency)
     .query(`
-  INSERT INTO stock_prices (ticker, price, currency)
+  INSERT INTO stocks_prices (ticker, price, currency)
   VALUES (@ticker, @price, @currency);
 `);
 }
+
+async insertStockToPortfolio(portfolio_id, ticker, volume, price) {
+  const request = this.poolConnection.request();
+  request.input('portfolio_id', sql.UniqueIdentifier, portfolio_id);
+  request.input('ticker', sql.VarChar, ticker);
+  request.input('volume', sql.Int, volume);
+  request.input('price', sql.Decimal(12, 2), price);
+
+  const query = `
+    INSERT INTO portfolios_stocks (portfolio_id, ticker, volume, purchase_price)
+    VALUES (@portfolio_id, @ticker, @volume, @price)
+  `;
+
+  await request.query(query);
   }
+}
 
 
 

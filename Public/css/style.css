@@ -152,12 +152,12 @@ img {
   justify-content: center;
   align-items: center;
 }
-#createPortfolioPopup{
+#createPortfolioPopup {
   padding-left: 450px;
   margin-top: -450px ;
 }
 
-#popupform, #balancepopup{
+#popupform, #balancepopup {
  width: auto;
  padding: 200px 200px;
  
@@ -167,7 +167,7 @@ img {
 .popup.hidden, .accounttable.hidden, .accountsdash.hidden {
   display: none;
 }
-#insideform, #divbalancepopup {
+#insideform, #divbalancepopup, #formAddportfolio {
   background: #000000;
   padding: 0 50px 35px 35px;
   border-radius: 10px solid white;
@@ -211,7 +211,7 @@ img {
   border-radius: 70px;
   cursor: pointer;
 }
-#openformbtn, #historybtn{
+#openformbtn, #historybtn, #registertradebtn{
   border: none;
   border-radius: 5px;
   background: #474747;
@@ -404,4 +404,23 @@ img {
   display: flex;
   justify-content: space-between;
   align-items: center;
+}
+
+
+#registertrade{  
+  margin-left: 400px;
+  margin-top: 200px;
+}
+
+#formAddportfolio form {
+  display: flex;
+  flex-direction: column;
+  margin-top: 20px;
+}
+#formAddportfolio input[type="text"],
+#formAddportfolio input[type="number"] {
+  border: none;
+  padding: 10px;
+  color: #000000;
+  margin-top: 20px;
 }

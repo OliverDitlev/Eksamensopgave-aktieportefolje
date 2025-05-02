@@ -89,33 +89,34 @@ router.get('/searchstock', (req, res) => {
     res.render('portfoliodetails', { result: null });
 });
 
-router.post('/searchstock', async (req, res) => {
+router.get('/api/stockinfo', async (req, res) => {
     const db = req.app.locals.db;
-    const { company } = req.body;
-    const user_id = req.session.user.user_id;
-    const portfolio_id = req.session.currentPortfolioId;   
-
-    const accounts = await db.findLedgerByUser(user_id); 
-    const portfolio = await db.findPortfoliosById(portfolio_id)
-
+    const { company } = req.query;
+  
     const result = await getStockData(company, db);
+    res.json(result);
+  });
 
-    console.log({
-        user: req.session.user,
-        portfolio,
-        accounts,
-        result,
-        errors: []
-    });
+  router.post('/registerTrade', async (req, res) => {
+    const db = req.app.locals.db;
+    const { portfolio_id, ticker, volume, price, company, currency } = req.body;
+  
 
-    res.render('portfoliodetails', {
-        user: req.session.user,
-        portfolio,
-        accounts,
-        result,
-        errors: []
-    });
-});
+    await db.saveStockData(
+        ticker,
+        company || null,
+        currency || 'USD',
+        parseFloat(price)
+    );
 
+    await db.insertStockToPortfolio(
+        portfolio_id,
+        ticker,
+        parseInt(volume, 10),
+        parseFloat(price)
+    );
+  
+    res.redirect(`/portfolios/${portfolio_id}`);
+  });
 
 module.exports = router;
