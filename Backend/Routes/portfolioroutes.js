@@ -1,6 +1,9 @@
 const express = require('express');
 const { body, validationResult } = require('express-validator');
 const { getStockData } = require('../api');
+const request = require('request')
+
+const API_KEY = 'Q7DZ145NE084VB0O'
 
 const router = express.Router();
 
@@ -16,15 +19,20 @@ router.get('/portfolios/:portofolio_id', async (req, res) => {
     const portfolio = await db.findPortfoliosById(portfolio_id)
 
     const stocks = await db.findStocksByPortfolio(portfolio_id)
+    const ledger = accounts.find(avabal => avabal.account_id === portfolio.account_id);
+    const availBalance = ledger.available_balance
 
     const totalValue = stocks.reduce((sum, temp) => sum + Number(temp.value),0)
     const pieData = stocks.map(temp =>({name: temp.ticker, value: temp.value}))
+    
     console.log({
         user: req.session.user,
         portfolio,
         accounts,
         stocks,
         totalValue,
+        //chartData,
+        availBalance,
         pieData,
         errors: [],
         result: null
@@ -36,6 +44,8 @@ router.get('/portfolios/:portofolio_id', async (req, res) => {
         accounts,
         stocks,
         totalValue,
+        //chartData,
+        availBalance,
         pieData,
         errors: [],
         result: null
@@ -59,7 +69,6 @@ router.post('/portfolios', [
 
     const { portfolioName, accountId } = req.body;
 
-    const portfolios = await db.findPortfoliosByUser(user_id);
     const accounts = await db.findLedgerByUser(user_id);
 
     if (!errors.isEmpty()) {
@@ -127,6 +136,27 @@ router.get('/api/stockinfo', async (req, res) => {
     );
   
     res.redirect(`/portfolios/${portfolio_id}`);
+  });
+
+
+// funktion til søgning af aktie
+router.get('/api/symbols', async (req, res) => {
+    const query = req.query.query || '';
+    if (query.length < 2) return res.json([]);
+  
+    const url = `https://www.alphavantage.co/query?function=SYMBOL_SEARCH&keywords=${encodeURIComponent(query)}&apikey=${API_KEY}`;
+  
+    request.get({ url, json: true }, (_err, _r, data) => {
+      const out = (data.bestMatches || [])
+        .filter(m => ['USD', 'DKK', 'GBP'].includes(m['8. currency']))
+        .slice(0, 6)
+        .map(m => ({
+          ticker:   m['1. symbol'],
+          name:     m['2. name'],
+          currency: m['8. currency']
+        }));
+      res.json(out);
+    });
   });
 
 module.exports = router;

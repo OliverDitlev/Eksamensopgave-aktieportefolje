@@ -123,23 +123,47 @@ chart.setOption(option);
 });
 
 // portofoliodetails javascript
+let timer;
+function debounce (fn, wait=300) {
+    clearTimeout(timer);
+    timer = setTimeout(fn, wait);
+}
+function searchStock () {
+    const query = document.getElementById('searchstock').value.trim();
+    
+    const select = document.getElementById('stockOptions');
 
-function searchStock() {
-    const company = document.getElementById('searchstock').value;
+    if (query.length < 2) {
+      select.style.display = 'none';       
+      return;
+    }
+    debounce(() => {
+      fetch('/api/symbols?query=' + encodeURIComponent(query))
+        .then(res => res.json())
+        .then(data => {
+          select.innerHTML = '';
+          if (data.length) {
+            data.forEach(stock => {
+              const option = document.createElement('option');
+              option.value = JSON.stringify(stock);
+              option.textContent = `${stock.name} (${stock.ticker})`;
+              select.appendChild(option);
+            });
+            select.style.display = 'block';
+          } else {
+            select.style.display = 'none';
+          }
+        });
+    });
+  }
   
-    fetch('/api/stockinfo?company=' + encodeURIComponent(company))
-      .then(res => res.json())
-      .then(data => {
-        if (data && data.ticker) {
-          document.getElementById('tickerField').value   = data.ticker;
-          document.getElementById('companyField').value  = data.companyName || company;
-          document.getElementById('currencyField').value = data.currency     || 'USD';
-          document.getElementById('priceField').value    = data.daily[0];
-          document.getElementById('stockResult').style.display = 'block';
-        } else {
-          alert('Aktie ikke fundet');
-        }
-      });
+  function selectStock(selectElement) {
+    const selected = JSON.parse(selectElement.value);
+    document.getElementById('searchstock').value = selected.name;
+    document.getElementById('tickerField').value = selected.ticker;
+    document.getElementById('companyField').value = selected.name;
+    document.getElementById('currencyField').value = selected.currency;
+    document.getElementById('stockOptions').style.display = 'none';
   }
   
 function openRegisterTrade() {
@@ -149,6 +173,53 @@ function closeRegisterTrade() {
     document.getElementById('registertrade').classList.add('hidden');
 }
 
+document.addEventListener('DOMContentLoaded', () => {
+    const balance = Number(document.getElementById('avalbalance').dataset.availbalance);
+  
+    const volume = document.querySelector('#formAddportfolio input[name="volume"]');
+    const price = document.querySelector('#formAddportfolio input[name="price"]');
+    const submit = document.querySelector('#formAddportfolio button[type="submit"]');
+  
+    function validate () {
+      const vol = Number(volume.value);
+      const priceup = Number(price.value);
+      const cost = vol * priceup;
+  
+      if (!vol || !priceup) {
+        submit.disabled = true;
+        return;
+      }
+      submit.disabled = cost > balance;
+    }
+  
+    volume.addEventListener('input', validate);
+    price.addEventListener('input', validate);
+  
+    validate(); // Kør ved load
+  });
+  const pie = document.getElementById('portofoliopie');
+  if (pie) {
+    const chart = echarts.init(pie);
+    chart.setOption({
+        title: {
+            text: `Distrubution in portfolio`,
+            left: 'left',
+            top: 10,
+            textStyle: {
+                color: '#ffffff',
+                fontSize: 20
+            }
+        },
+      tooltip: { trigger: 'item', formatter: '{b}: {c} ({d}%)' },
+      series: [{
+        type: 'pie',
+        radius : ['35%', '55%'],
+        data: pieChartData,
+        label: { formatter: '{b}: {d}%' }
+      }]
+    });
+  }
+
 
 //portofolios javascript
 function openCreatePortfolio() {
@@ -157,3 +228,9 @@ function openCreatePortfolio() {
 function closeCreatePortfolio() {
     document.getElementById('createPortfolioPopup').classList.add('hidden');
 }
+
+//dashboard
+
+  
+
+  

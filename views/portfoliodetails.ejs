@@ -8,6 +8,7 @@
     <%- include('partials/menu') %>
 
     <link rel="stylesheet" href="/css/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/echarts/dist/echarts.min.js"></script>
  
 </head>
 <body id="main" class="main">
@@ -18,6 +19,55 @@
           <button class="popupform" id="registertradebtn"  onclick="openRegisterTrade()">Registrer trade</button>
         </div>
       </div>
+      <div class="portfoliotop">
+        <div class="box">
+          <h3>Samlet Værdi af portefølje</h3>
+          <div id="portfolioline" style="width: 100%; height: 250px;"></div>
+        </div>
+      
+        <div class="portfolioboxes" id = "portfoliospie">
+            <div class="box" id="portofoliopie"></div>
+
+            <script>
+              window.pieChartData = <%- JSON.stringify(pieData) %>;
+            </script>
+          </div>
+          
+      
+          <div class="box" id="portofoliovalue">
+            <p>Total værdi i DKK</p>
+            <h2><%= totalValue.toFixed(0) %> DKK</h2>
+          </div>
+        </div>
+      </div>
+
+
+      <table class="accounttable">
+        <h3>Stocks in portfolio</h3>
+        <tr class="thtable">
+            <th>Name</th>
+            <th>Volume</th>
+            <th>24H change</th>
+            <th>7 day change</th>
+            <th>Current Price</th>
+            <th>Purchase Price</th>
+            <th>Value</th>
+        </tr>
+    
+        <% stocks.forEach(value => { %>
+        <tr>   
+            <td><%= value.company_name %></td> 
+            <td><%= value.volume %></td>
+            <td> <%= value.change_24h ? (value.change_24h > 0 ? '+' : '') + value.change_24h.toFixed(2) + '%' : '-' %> </td>
+            <td> <%= value.change_7d ? (value.change_7d > 0 ? '+' : '') + value.change_7d.toFixed(2) + '%' : '-' %> </td>
+            <td><%= value.last_price %> <%= value.currency %></td>
+            <td><%= value.purchase_price %> <%= value.currency %></td>
+            <td><%= (value.last_price * value.volume).toFixed(1) %> <%= value.currency %></td>
+
+        </tr>
+        <% }) %>
+    </table>
+    
 
 
 
@@ -26,41 +76,32 @@
             <span id="closeformbtn" onclick="closeRegisterTrade()">X</span>
             <h2>Register trade</h2>
             <form action="/registerTrade" method="POST">
-                <label>Find company</label>
-                <input type="text" id = "searchstock">
-                <button type="button" onclick="searchStock()">Search</button>
+              <label>Find company</label>
+              <input type="text" id="searchstock" oninput="searchStock()" autocomplete="off">
+              <select id="stockOptions" size="5" style="display:none" onchange="selectStock(this)"></select>
 
-                <div id="stockResult">
-                    <input type="hidden" name="portfolio_id" value="<%= portfolio.portfolio_id %>">
-                    <input type="hidden" name="ticker" id="tickerField" readonly><br>
-                    <input type="hidden" name="company" id="companyField" readonly>
-                    <input type="hidden" name="currency" id="currencyField" readonly>
-                  
-                    <label>Purchase price</label>
-                    <input type="text" name="price" id="priceField" required><br>
-            
-                    <label>Antal aktier:</label>
-                    <input type="number" name="volume" min="1" required><br>
-               
+              <input type="hidden" name = "portfolio_id" value = "<%= portfolio.portfolio_id %>">
+              <input type="hidden" name="ticker"   id="tickerField">
+              <input type="hidden" name="company"  id="companyField">
+              <input type="hidden" name="currency" id="currencyField">
+
+              <label>Stocks purchased</label>
+              <input type="number" name="volume" min="1" required><br>
+
+              <label>Purchase price</label>
+              <input type="text" name="price" id="priceField" required><br>
+
             <button type="submit" class="greenbtn">Opret</button>
+            <p id="avalbalance" data-availbalance="<%= availBalance %>">
+                Available balance: <%= availBalance %>
+              </p>
             </form>
         </div>
     </div>    
-    <table class="accounttable">
-        <thead>
-          <tr><th>Name</th><th>Volume</th><th>Price</th><th>Value</th></tr>
-        </thead>
-        <tbody>
-          <% stocks.forEach(r => { %>
-            <tr>
-              <td><%= r.company_name %> <br><small><%= r.ticker %></small></td>
-              <td><%= r.volume %> stk.</td>
-              <td><%= r.last_price %> <%= r.currency %></td>
-              <td><%= r.value.toLocaleString() %> <%= r.currency %></td>
-            </tr>
-          <% }) %>
-        </tbody>
-      </table>
+
+    
     <script src="/js/generel.js"></script>
+
+
 </body>
 </html>

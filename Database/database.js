@@ -321,28 +321,6 @@ async findTransactionByUser(user_id) {
 return request.recordset;
 }
 
-async createPortfolio() {
-  const query = `
-    IF NOT EXISTS (
-      SELECT * FROM INFORMATION_SCHEMA.TABLES 
-      WHERE TABLE_NAME = 'portfolios'
-    )
-    BEGIN
-      CREATE TABLE [dbo].[portfolios] (
-        [portfolio_id] UNIQUEIDENTIFIER PRIMARY KEY DEFAULT NEWID(),
-        [account_id] UNIQUEIDENTIFIER NOT NULL REFERENCES userledger(account_id),
-        [name] VARCHAR(50) NOT NULL,
-        [created_at] DATETIME DEFAULT GETDATE()
-      )
-    END
-  `;
-
-  this.executeQuery(query)
-    .then(() => {
-      console.log("Portfolio created");
-    })
-}
-
 async findPortfoliosByAccountId(account_id) {
   const query = `
     SELECT *
@@ -464,34 +442,13 @@ async stocks() {
         last_updated DATETIME
       );
     END
-  `;
+  `
   this.executeQuery(query)
     .then(() => {
       console.log("Stock table created");
     });
 }
 
-async stocks_prices() {
-  const query = `
-    IF NOT EXISTS (
-      SELECT * FROM INFORMATION_SCHEMA.TABLES 
-      WHERE TABLE_NAME = 'stocks_prices'
-    )
-    BEGIN
-      CREATE TABLE stocks_prices (
-        id INT PRIMARY KEY IDENTITY,
-        ticker VARCHAR(20) NOT NULL REFERENCES stocks(ticker),
-        price DECIMAL(12, 2) NOT NULL,
-        currency CHAR(3),
-        timestamp DATETIME DEFAULT GETDATE()
-      );
-    END
-  `;
-  this.executeQuery(query)
-    .then(() => {
-      console.log("createPortfolios_stocks table created");
-    });
-}
 
 async saveStockData(ticker, name, currency, latestOpen) {
   const pool = this.poolConnection;
@@ -512,14 +469,15 @@ async saveStockData(ticker, name, currency, latestOpen) {
         INSERT (ticker, company_name, currency, last_updated)
         VALUES (@ticker, @name, @currency, GETDATE());
     `);
-  await pool.request()
+    await pool.request()
     .input('ticker',   sql.VarChar, ticker)
-    .input('price',    sql.Decimal(12,2), latestOpen)
+    .input('price',    sql.Decimal(18,4), latestOpen)
     .input('currency', sql.Char(3), currency)
+    .input('asof',     sql.DateTime, new Date())
     .query(`
-  INSERT INTO stocks_prices (ticker, price, currency)
-  VALUES (@ticker, @price, @currency);
-`);
+      INSERT INTO stock_price_history (ticker, price, currency, asof)
+      VALUES (@ticker, @price, @currency, @asof)
+    `);
 }
 
 async insertStockToPortfolio(portfolio_id, ticker, volume, price) {
@@ -548,29 +506,47 @@ async insertStockToPortfolio(portfolio_id, ticker, volume, price) {
 
 async findStocksByPortfolio(portfolio_id){
   const query = `
-        WITH latest_prices AS (
-      SELECT  price1.ticker,
-              price1.price,
-              price1.currency
-      FROM    stocks_prices price1
-      JOIN (
-          SELECT ticker, MAX([timestamp]) AS time
-          FROM   stocks_prices
-          GROUP  BY ticker
-      ) price2 ON price1.ticker = price2.ticker
-           AND price1.[timestamp] = price2.time
+    WITH latest_prices AS (
+      SELECT ticker, price, currency
+      FROM stock_price_history price
+      WHERE asof = (
+        SELECT MAX(asof) FROM stock_price_history price2
+        WHERE price2.ticker = price.ticker
       )
-      SELECT 
-        portfolios_stocks.ticker,
-       portfolios_stocks.volume,
-       portfolios_stocks.purchase_price,
-       latest_prices.price AS last_price,
-       latest_prices.currency,
-       stocks.company_name,
-    (portfolios_stocks.volume * latest_prices.price) AS value
+    )
+    SELECT 
+      portfolios_stocks.ticker,
+      portfolios_stocks.volume,
+      portfolios_stocks.purchase_price,
+      latest_prices.price AS last_price,
+      latest_prices.currency,
+      stocks.company_name,
+      (portfolios_stocks.volume * latest_prices.price) AS value,
+
+      ROUND(((latest_prices.price - price1d.price) / price1d.price) * 100, 2) AS change_24h,
+      ROUND(((latest_prices.price - price7d.price) / price7d.price) * 100, 2) AS change_7d
+
     FROM portfolios_stocks
-    JOIN stocks_prices AS latest_prices ON portfolios_stocks.ticker = latest_prices.ticker
+
+    JOIN latest_prices ON portfolios_stocks.ticker = latest_prices.ticker
     JOIN stocks ON portfolios_stocks.ticker = stocks.ticker
+
+    OUTER APPLY (
+      SELECT TOP 1 price
+      FROM stock_price_history
+      WHERE ticker = portfolios_stocks.ticker
+        AND asof <= DATEADD(day, -1, GETDATE())
+      ORDER BY asof DESC
+    ) AS price1d
+
+    OUTER APPLY (
+      SELECT TOP 1 price
+      FROM stock_price_history
+      WHERE ticker = portfolios_stocks.ticker
+        AND asof <= DATEADD(day, -6, GETDATE())
+      ORDER BY asof DESC
+    ) AS price7d
+
     WHERE portfolios_stocks.portfolio_id = @portfolio_id
   `
   const request = this.poolConnection.request();
@@ -581,12 +557,30 @@ async findStocksByPortfolio(portfolio_id){
   return result.recordset;
 }
 
-
-
+async createStockPriceHistory(){
+  const query = `
+    IF NOT EXISTS (
+      SELECT * FROM INFORMATION_SCHEMA.TABLES 
+      WHERE TABLE_NAME = 'stock_price_history'
+    )
+      BEGIN
+    CREATE TABLE stock_price_history (
+    id INT PRIMARY KEY IDENTITY,
+    ticker VARCHAR(20) NOT NULL REFERENCES stocks(ticker),
+    price DECIMAL(18,4) NOT NULL,
+    currency CHAR(3) NOT NULL,
+    asof DATETIME NOT NULL,
+    UNIQUE (ticker, asof) 
+    )
+  END  
+`
+this.executeQuery(query)
+.then(() => {
+  console.log("stock_price_history table created");
+});
 }
 
-
-
+}
 
 
   
@@ -597,9 +591,9 @@ const createDatabaseConnection = async (passwordConfig) => {
   await database.createLedger();
   await database.createTransactions();
   await database.createPortfolios();
-  await database.createPortfolios_stocks()
-  await database.stocks()
-  await database.stocks_prices()
+  await database.createPortfolios_stocks();
+  await database.stocks();
+  await database.createStockPriceHistory();
   return database;
 };
 

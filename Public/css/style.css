@@ -409,7 +409,7 @@ img {
 
 #registertrade{  
   margin-left: 400px;
-  margin-top: 200px;
+  margin-top: -500px;
 }
 
 #formAddportfolio form {
@@ -417,10 +417,13 @@ img {
   flex-direction: column;
   margin-top: 20px;
 }
-#formAddportfolio input[type="text"],
-#formAddportfolio input[type="number"] {
-  border: none;
-  padding: 10px;
-  color: #000000;
-  margin-top: 20px;
+
+button[disabled] { 
+  opacity:.5; 
+  cursor:not-allowed;
+ }
+
+#portfoliospie{
+  height: 300px;
+  width: 350px;
 }
