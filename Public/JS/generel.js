@@ -213,7 +213,7 @@ document.addEventListener('DOMContentLoaded', () => {
       tooltip: { trigger: 'item', formatter: '{b}: {c} ({d}%)' },
       series: [{
         type: 'pie',
-        radius : ['35%', '55%'],
+        radius : ['25%', '45%'],
         data: pieChartData,
         label: { formatter: '{b}: {d}%' }
       }]
