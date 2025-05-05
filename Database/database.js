@@ -450,14 +450,14 @@ async stocks() {
 }
 
 
-async saveStockData(ticker, name, currency, latestOpen) {
+async saveStockData(ticker, companyName, currency, daily, monthly) {
   const pool = this.poolConnection;
-
+//tjekker om aktien findes. hvis ikke indsæt i stocks 
   await pool.request()
     .input('ticker',   sql.VarChar, ticker)
-    .input('name',     sql.VarChar, name)
+    .input('name',    sql.VarChar, companyName)
     .input('currency', sql.Char(3), currency)
-    .query(`
+    .query ( `
       MERGE stocks AS tgt
       USING (SELECT @ticker AS ticker) AS src
       ON tgt.ticker = src.ticker
@@ -468,16 +468,59 @@ async saveStockData(ticker, name, currency, latestOpen) {
       WHEN NOT MATCHED THEN
         INSERT (ticker, company_name, currency, last_updated)
         VALUES (@ticker, @name, @currency, GETDATE());
-    `);
-    await pool.request()
-    .input('ticker',   sql.VarChar, ticker)
-    .input('price',    sql.Decimal(18,4), latestOpen)
-    .input('currency', sql.Char(3), currency)
-    .input('asof',     sql.DateTime, new Date())
-    .query(`
-      INSERT INTO stock_price_history (ticker, price, currency, asof)
-      VALUES (@ticker, @price, @currency, @asof)
-    `);
+    `)
+
+    const request = pool.request()
+    request.input('ticker',   sql.VarChar, ticker)
+    request.input('currency',    sql.Char(3), currency)
+    request.input('last_updated', sql.DateTime, new Date())
+
+    request.input('daily0', sql.Decimal(18, 4), daily[0])
+    request.input('daily1', sql.Decimal(18, 4), daily[1])
+    request.input('daily6', sql.Decimal(18, 4), daily[6]);
+
+    for(let i = 0; i < 12; i++){
+      request.input(`month${i+1}`, sql.Decimal(18, 4), monthly[i])
+    }
+
+    const query =`
+    MERGE stock_price_history AS tgt
+    USING (SELECT @ticker AS ticker) AS src
+    ON tgt.ticker = src.ticker
+    WHEN MATCHED THEN
+      UPDATE SET
+        price_tday = @daily0,
+        price_ysday = @daily1,
+        price_7d = @daily6,
+        price_1m = @month1,
+        price_2m = @month2,
+        price_3m = @month3,
+        price_4m = @month4,
+        price_5m = @month5,
+        price_6m = @month6,
+        price_7m = @month7,
+        price_8m = @month8,
+        price_9m = @month9,
+        price_10m = @month10,
+        price_11m = @month11,
+        price_12m = @month12,
+        currency = @currency,
+        last_updated = @last_updated
+    WHEN NOT MATCHED THEN
+      INSERT (ticker, price_tday, price_ysday, price_7d,
+              price_1m, price_2m, price_3m,
+              price_4m, price_5m, price_6m,
+              price_7m, price_8m, price_9m,
+              price_10m, price_11m, price_12m,
+              currency, last_updated)
+      VALUES (@ticker, @daily0, @daily1, @daily6,
+              @month1, @month2, @month3,
+              @month4, @month5, @month6,
+              @month7, @month8, @month9,
+              @month10, @month11, @month12,
+              @currency, @last_updated);
+    `
+  await request.query(query)
 }
 
 async insertStockToPortfolio(portfolio_id, ticker, volume, price) {
@@ -506,47 +549,21 @@ async insertStockToPortfolio(portfolio_id, ticker, volume, price) {
 
 async findStocksByPortfolio(portfolio_id){
   const query = `
-    WITH latest_prices AS (
-      SELECT ticker, price, currency
-      FROM stock_price_history price
-      WHERE asof = (
-        SELECT MAX(asof) FROM stock_price_history price2
-        WHERE price2.ticker = price.ticker
-      )
-    )
-    SELECT 
+   SELECT 
       portfolios_stocks.ticker,
       portfolios_stocks.volume,
       portfolios_stocks.purchase_price,
-      latest_prices.price AS last_price,
-      latest_prices.currency,
+      stock_price_history.price_tday AS last_price,
+      stock_price_history.currency,
       stocks.company_name,
-      (portfolios_stocks.volume * latest_prices.price) AS value,
+      (portfolios_stocks.volume * stock_price_history.price_tday) AS value,
 
-      ROUND(((latest_prices.price - price1d.price) / price1d.price) * 100, 2) AS change_24h,
-      ROUND(((latest_prices.price - price7d.price) / price7d.price) * 100, 2) AS change_7d
+      ROUND(((stock_price_history.price_tday - stock_price_history.price_ysday) / stock_price_history.price_ysday) * 100, 2) AS change_24h,
+      ROUND(((stock_price_history.price_tday - stock_price_history.price_7d) / stock_price_history.price_7d) * 100, 2) AS change_7d
 
     FROM portfolios_stocks
-
-    JOIN latest_prices ON portfolios_stocks.ticker = latest_prices.ticker
+    JOIN stock_price_history ON portfolios_stocks.ticker = stock_price_history.ticker
     JOIN stocks ON portfolios_stocks.ticker = stocks.ticker
-
-    OUTER APPLY (
-      SELECT TOP 1 price
-      FROM stock_price_history
-      WHERE ticker = portfolios_stocks.ticker
-        AND asof <= DATEADD(day, -1, GETDATE())
-      ORDER BY asof DESC
-    ) AS price1d
-
-    OUTER APPLY (
-      SELECT TOP 1 price
-      FROM stock_price_history
-      WHERE ticker = portfolios_stocks.ticker
-        AND asof <= DATEADD(day, -6, GETDATE())
-      ORDER BY asof DESC
-    ) AS price7d
-
     WHERE portfolios_stocks.portfolio_id = @portfolio_id
   `
   const request = this.poolConnection.request();
@@ -565,12 +582,24 @@ async createStockPriceHistory(){
     )
       BEGIN
     CREATE TABLE stock_price_history (
-    id INT PRIMARY KEY IDENTITY,
-    ticker VARCHAR(20) NOT NULL REFERENCES stocks(ticker),
-    price DECIMAL(18,4) NOT NULL,
+    ticker VARCHAR(20) PRIMARY KEY REFERENCES stocks(ticker),
+    price_tday DECIMAL(18,4) NOT NULL,
+    price_ysday DECIMAL(18,4) NOT NULL,
+    price_7d DECIMAL(18,4) NOT NULL,
+    price_1m DECIMAL(18,4) NOT NULL,
+    price_2m DECIMAL(18,4) NOT NULL,
+    price_3m DECIMAL(18,4) NOT NULL,
+    price_4m DECIMAL(18,4) NOT NULL,
+    price_5m DECIMAL(18,4) NOT NULL,
+    price_6m DECIMAL(18,4) NOT NULL,
+    price_7m DECIMAL(18,4) NOT NULL,
+    price_8m DECIMAL(18,4) NOT NULL,
+    price_9m DECIMAL(18,4) NOT NULL,
+    price_10m DECIMAL(18,4) NOT NULL,
+    price_11m DECIMAL(18,4) NOT NULL,
+    price_12m DECIMAL(18,4) NOT NULL,
     currency CHAR(3) NOT NULL,
-    asof DATETIME NOT NULL,
-    UNIQUE (ticker, asof) 
+    last_updated DATETIME
     )
   END  
 `

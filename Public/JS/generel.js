@@ -158,13 +158,28 @@ function searchStock () {
   }
   
   function selectStock(selectElement) {
+    console.log('Gemmer daily og monthly i hidden fields:', data.daily, data.monthly);
+
+
     const selected = JSON.parse(selectElement.value);
     document.getElementById('searchstock').value = selected.name;
     document.getElementById('tickerField').value = selected.ticker;
     document.getElementById('companyField').value = selected.name;
     document.getElementById('currencyField').value = selected.currency;
     document.getElementById('stockOptions').style.display = 'none';
-  }
+    console.log('Gemmer daily og monthly i hidden fields:', data.daily, data.monthly);
+
+    fetch(`/api/stockinfo?company=${encodeURIComponent(selected.name)}`)
+    .then(res => res.json())
+    .then(data => {
+      document.getElementById('dailyPrices').value = JSON.stringify(data.daily);
+      document.getElementById('monthlyPrices').value = JSON.stringify(data.monthly);
+    })
+    .catch(err => {
+      console.error('Stock info error', err);
+    });
+}
+
   
 function openRegisterTrade() {
     document.getElementById('registertrade').classList.remove('hidden');

@@ -2,7 +2,7 @@
 const request = require('request');
 const sql = require('mssql')
 
-const API_KEY = 'Q7DZ145NE084VB0O'; 
+const API_KEY = '8O68Z80OXK4Q450G'; 
 
 function getStockData(companyName , db = null) {
 
@@ -20,7 +20,7 @@ function getStockData(companyName , db = null) {
 
     const allowed = ['DKK', 'USD', 'GBP'];
     const bestMatch = searchData.bestMatches
-    .filter( curr => curr['3. type'] = 'Equity' && allowed.includes(curr['8. currency']))
+    .filter( curr => curr['3. type'] === 'Equity' && allowed.includes(curr['8. currency']))
     .sort((a, b) => parseFloat(b['9. matchScore']) - parseFloat(a['9. matchScore']))
     [0]
     
@@ -41,13 +41,13 @@ function getStockData(companyName , db = null) {
       const dailyTimeSeries = dailyData['Time Series (Daily)'];
       const dailyTimestamps = Object.keys(dailyTimeSeries);
 
-      if (dailyTimestamps.length < 6) {
+      if (dailyTimestamps.length < 7) {
         console.log('Not enough daily data available');
         return;
       }
 
       // Henter data fra de sidste seks dage + i dag
-      const dailyOpenPrices = dailyTimestamps.slice(0, 7).map(timestamp => Math.floor(parseFloat(dailyTimeSeries[timestamp]['1. open'])));
+      const dailyOpenPrices = dailyTimestamps.slice(0, 7).map(timestamp => parseFloat(dailyTimeSeries[timestamp]['1. open']));
 
       // Henter månedlig data
       request.get({ url: monthlyStockUrl, json: true, headers: { 'User-Agent': 'request' }}, 
@@ -77,13 +77,12 @@ function getStockData(companyName , db = null) {
 
         if (db) {
           try {
-            const todayOpen = dailyOpenPrices[0];
-            await db.saveStockData(ticker, companyName, currency, todayOpen);
+            await db.saveStockData(ticker, companyName, currency, dailyOpenPrices, monthlyOpenPrices);
           } catch (e) {
             console.error(e);
           }
         }
-        await db.saveStockData(ticker, companyName, currency, dailyOpenPrices[0]);
+
       });
     });
   });
