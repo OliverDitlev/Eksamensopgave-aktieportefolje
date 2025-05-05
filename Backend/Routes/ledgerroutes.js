@@ -49,7 +49,7 @@ router.delete('/deleteaccount', async (req, res) =>{
     const {accountID} = req.body
 
     try {
-        // Forsøger at slette kontoen fra databasen via accountID
+        // Forsøger at slette kontoen fra databasen udfra accountID
         const deleted = await db.deleteLedger(accountID); 
   
         if (!deleted) {
@@ -62,20 +62,23 @@ router.delete('/deleteaccount', async (req, res) =>{
         res.status(500).send('Server error');
       }
 })
-    
+
+// tilføjer en transaktion til en konto
 router.post('/addTransaction', async(req, res)=>{
   const db = req.app.locals.db
   const {accountId, amount, action} = req.body
-
+  // Kalder funktion til at tilføje en transaktion til databasen
   await db.addTransaction(accountId, parseFloat(amount), action)
   res.redirect('/accounts')
 })
 
+// Ændrer balancen på en konto
 router.post('/changebalance', async (req, res) => {
     const db = req.app.locals.db
     const { accountId, amount, action } = req.body;
   
     try {
+    // Kalder funktion til at ændre balancen og samtidig en til at tilføje en transaktion til databasen
       await db.changeBalance(accountId, parseFloat(amount), action);
       await db.addTransaction(accountId, parseFloat(amount), action)
       res.redirect('/accounts'); 
