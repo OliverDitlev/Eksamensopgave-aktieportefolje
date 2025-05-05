@@ -12,11 +12,6 @@ function reqLogin(req, res, next){
       next()
   }
 
-  function reqAccount(req,res, next){
-    if(!req.params.accountId){
-      return res.redirect('/accounts')
-    } 
-      next()
-  }
+
   
-  module.exports = {reqActive, reqLogin, reqAccount}
+  module.exports = {reqActive, reqLogin}

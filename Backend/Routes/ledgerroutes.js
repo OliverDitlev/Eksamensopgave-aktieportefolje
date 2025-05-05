@@ -11,6 +11,7 @@ router.get('/accounts', reqLogin, reqActive, async(req,res) => {
     const user_id = req.session.user.user_id
 
     const accounts = await db.findLedgerByUser(user_id)
+    console.log(req.session.user, accounts)
     res.render('accounts', {
         user: req.session.user, 
         accounts, 
@@ -39,6 +40,7 @@ router.post('/accounts', [
     }
     const{name, bank, currency, balance} = req.body
     await db.insertLedger(user_id, name, bank, currency, balance)
+    console.log(req.body)
     res.redirect('/accounts')
 })
 

@@ -107,8 +107,7 @@ try{
         created: user.created,
         active: user.active
       }
-    
-      console.log(errorList)
+    console.log(req.session.user)
     res.redirect('/')
 }catch(err){
   console.error('Error with login', err)

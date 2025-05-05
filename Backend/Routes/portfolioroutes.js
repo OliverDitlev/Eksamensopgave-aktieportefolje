@@ -85,7 +85,7 @@ router.post('/portfolios', [
 
     });
 
-// Sletter en portefølje
+// Sletter en portefølje. ikke færdig
 router.delete('/deleteportfolio', async (req, res) => {
     const db = req.app.locals.db;
     const { portfolioID } = req.body;
@@ -107,7 +107,7 @@ router.delete('/deleteportfolio', async (req, res) => {
 router.get('/searchstock', (req, res) => {
     res.render('portfoliodetails', { result: null });
 });
-
+//slettes?
 router.get('/api/stockinfo', async (req, res) => {
     const db = req.app.locals.db;
     const { company } = req.query;
