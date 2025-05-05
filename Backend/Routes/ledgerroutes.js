@@ -5,7 +5,7 @@ const router = express.Router()
 
 const { reqLogin, reqActive } = require('../middleware.js');
 
-//henter brugerens kontoer/ledger
+// Henter brugerens konti/ledger
 router.get('/accounts', reqLogin, reqActive, async(req,res) => {
     const db = req.app.locals.db;
     const user_id = req.session.user.user_id
@@ -19,6 +19,7 @@ router.get('/accounts', reqLogin, reqActive, async(req,res) => {
      })
 })
 
+// Opretter en ny konto til brugeren
 router.post('/accounts', [
     body('name')
     .trim().notEmpty().withMessage('Name required'),
@@ -44,37 +45,42 @@ router.post('/accounts', [
     res.redirect('/accounts')
 })
 
+// Sletter en konto fra brugeren
 router.delete('/deleteaccount', async (req, res) =>{
     const db = req.app.locals.db;
     const {accountID} = req.body
 
     try {
+        // Forsøger at slette kontoen fra databasen udfra accountID
         const deleted = await db.deleteLedger(accountID); 
   
         if (!deleted) {
           return res.status(404).send('Account not found');
         }
-  
+
         res.sendStatus(204); 
       } catch (err) {
         console.error('Error deleting:', err);
         res.status(500).send('Server error');
       }
 })
-    
+
+// tilføjer en transaktion til en konto
 router.post('/addTransaction', async(req, res)=>{
   const db = req.app.locals.db
   const {accountId, amount, action} = req.body
-
+  // Kalder funktion til at tilføje en transaktion til databasen
   await db.addTransaction(accountId, parseFloat(amount), action)
   res.redirect('/accounts')
 })
 
+// Ændrer balancen på en konto
 router.post('/changebalance', async (req, res) => {
     const db = req.app.locals.db
     const { accountId, amount, action } = req.body;
   
     try {
+    // Kalder funktion til at ændre balancen og samtidig en til at tilføje en transaktion til databasen
       await db.changeBalance(accountId, parseFloat(amount), action);
       await db.addTransaction(accountId, parseFloat(amount), action)
       res.redirect('/accounts'); 

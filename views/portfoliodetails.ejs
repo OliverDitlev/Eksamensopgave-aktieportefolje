@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PortofolioTracker</title>
+    <title>PortfolioTracker</title>
     
     <%- include('partials/menu') %>
 
@@ -28,7 +28,7 @@
             <div class="box" id="portofoliopie"></div>
 
             <script>
-              window.pieChartData = <%- JSON.stringify(pieData) %>;
+              window.pieChartData = <%= JSON.stringify(pieData) %>;
             </script>
           </div>
           
