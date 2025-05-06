@@ -7,7 +7,7 @@ const { getStockData } = require('../api');
 const request = require('request')
 
 // Nøgle til API'en
-const API_KEY = '2WBMSEFUQFIUR6BF'
+const API_KEY = 'JUMYOA8PCTBZZI56'
 
 const router = express.Router();
 
@@ -21,6 +21,8 @@ router.get('/portfolios/:portofolio_id', async (req, res) => {
 
     const accounts = await db.findLedgerByUser(user_id); 
     const portfolio = await db.findPortfoliosById(portfolio_id)
+    const monthlyHistory = await db.getPortfolioHistory(portfolio_id)
+    // Henter aktierne i porteføljen
 
     const stocks = await db.findStocksByPortfolio(portfolio_id)
     const ledger = accounts.find(avabal => avabal.account_id === portfolio.account_id);
@@ -30,17 +32,12 @@ router.get('/portfolios/:portofolio_id', async (req, res) => {
     const totalValue = stocks.reduce((sum, temp) => sum + Number(temp.value),0)
     // Laver data til pie chart
     const pieData = stocks.map(temp =>({name: temp.ticker, value: temp.value}))
+
+  
     
     console.log({
-        user: req.session.user,
-        portfolio,
-        accounts,
-        stocks,
-        totalValue,
-        availBalance,
         pieData,
-        errors: [],
-        result: null
+        monthlyHistory,
     });
 
     // Sender alle informationerne til portfoliodetails.ejs
@@ -52,6 +49,7 @@ router.get('/portfolios/:portofolio_id', async (req, res) => {
         totalValue,
         availBalance,
         pieData,
+        monthlyHistory,
         errors: [],
         result: null
     });
@@ -127,17 +125,17 @@ router.get('/api/stockinfo', async (req, res) => {
 
   
 
-  // Registrer et køb af aktier i en portefølje
-  router.post('/registerTrade', async (req, res) => {
-    const db = req.app.locals.db;
-    const { 
-      portfolio_id, 
-      ticker, 
-      volume, 
-      company, 
-      currency = 'USD' 
-    } = req.body
-    try{
+// Registrer et køb af aktier i en portefølje
+router.post('/registerTrade', async (req, res) => {
+  const db = req.app.locals.db;
+  const { 
+    portfolio_id, 
+    ticker, 
+    volume, 
+    company, 
+    currency = 'USD' 
+  } = req.body
+  try{
     getStockData(company?? ticker, db)
 
     // Tilføjer aktiedataen til porteføljen i databasen
@@ -153,24 +151,68 @@ router.get('/api/stockinfo', async (req, res) => {
     console.error(err)
     res.status(500).send('error no trade')
   }
-  
 });
 
-router.get('/portfolios/:portofolio_id/history', reqLogin, reqActive, async (req, res) => {
+router.get('/portfolios/:portfolio_id/history', reqLogin, reqActive, async (req, res) => {
   const db = req.app.locals.db;
-  const portfolioId = req.params.portofolio_id;
+  const portfolioId = req.params.portfolio_id;
 
   try {
-      const history = await db.findPortfolioHistory(portfolioId); // Replace with your actual database query
+      console.log('Fetching history for portfolio ID:', portfolioId); // Debugging log
+      const history = await db.findPortfolioHistory(portfolioId);
+      console.log('History data:', history); // Debugging log
+
       res.render('history', {
           user: req.session.user,
           history,
       });
   } catch (err) {
-      console.error('Error fetching portfolio history:', err);
+      console.error('Error fetching portfolio history:', err); // Log the error
       res.status(500).send('Internal Server Error');
   }
 });
+
+// Registrer et salg af aktier i en portefølje
+router.post('/sellTrade', async (req, res) => {
+  const db = req.app.locals.db;
+  const { 
+      portfolio_id, 
+      ticker, 
+      volume, 
+      price 
+  } = req.body;
+
+  try {
+      // Hent aktien fra porteføljen
+      const stock = await db.findStockInPortfolio(portfolio_id, ticker);
+
+      // Tjek om der er nok aktier til at sælge
+      if (!stock || stock.volume < volume) {
+          return res.status(400).send('Ikke nok aktier til at sælge');
+      }
+
+      // Fjern aktier fra porteføljen
+      await db.removeStockFromPortfolio(portfolio_id, ticker, volume);
+
+      // Tilføj pengene til den tilknyttede konto
+      const totalValue = volume * price;
+      await db.addFundsToAccount(portfolio_id, totalValue);
+
+      // Redirect til porteføljeoversigten
+      res.redirect(`/portfolios/${portfolio_id}`);
+  } catch (err) {
+      console.error(err);
+      res.status(500).send('Fejl ved salg af aktier');
+  }
+});
+  
+
+
+router.get('/api/portfolioHistory', async (req, res) =>{
+  const db = req.app.locals.db;
+  const history = await db.getPortfolioHistory(req.query.portfolioId);
+  res.json(history);
+})
 
 // Funktion til søgning af aktie
 router.get('/api/symbols', async (req, res) => {

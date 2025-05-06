@@ -395,19 +395,6 @@ async findPortfoliosByUser(user_id) {
   }
 }
 
-async insertPortfolio(user_id, name, account_id) {
-  const query = `
-      INSERT INTO portfolios (user_id, name, account_id, created_at)
-      VALUES (@user_id, @name, @account_id, GETDATE())
-  `;
-  const request = this.poolConnection.request();
-  request.input('user_id', sql.UniqueIdentifier, user_id);
-  request.input('name', sql.VarChar, name);
-  request.input('account_id', sql.UniqueIdentifier, account_id);
-  
-  await request.query(query);
-}
-
 async createPortfolios_stocks() {
   const query = `
     IF NOT EXISTS (
@@ -419,6 +406,7 @@ async createPortfolios_stocks() {
         stock_id UNIQUEIDENTIFIER PRIMARY KEY DEFAULT NEWID(),
         portfolio_id UNIQUEIDENTIFIER NOT NULL REFERENCES portfolios(portfolio_id),
         ticker VARCHAR(20) NOT NULL REFERENCES stocks(ticker),
+       
         volume INT NOT NULL,
         purchase_price DECIMAL(12, 2),
         created_at DATETIME DEFAULT GETDATE()
@@ -427,10 +415,25 @@ async createPortfolios_stocks() {
   `;
   this.executeQuery(query)
     .then(() => {
-      console.log("createPortfolios_stocks table created");
+      console.log("portfolios_stocks table created");
     });
 }
 
+async addActionColumnToPortfoliosStocks() {
+  const query = `
+    IF NOT EXISTS (
+      SELECT * 
+      FROM INFORMATION_SCHEMA.COLUMNS 
+      WHERE TABLE_NAME = 'portfolios_stocks' AND COLUMN_NAME = 'action'
+    )
+    BEGIN
+      ALTER TABLE portfolios_stocks
+      ADD action VARCHAR(10) NOT NULL DEFAULT 'BUY';
+    END
+  `;
+  await this.executeQuery(query);
+  console.log("Action column added to portfolios_stocks table (if it didn't already exist).");
+}
 async stocks() {
   const query = `
     IF NOT EXISTS (
@@ -577,6 +580,39 @@ async findStocksByPortfolio(portfolio_id){
   return result.recordset;
 }
 
+// Hent en aktie fra en portefølje
+async findStockInPortfolio(portfolio_id, ticker) {
+    const query = `SELECT * FROM stocks WHERE portfolio_id = ? AND ticker = ?`;
+    const [stock] = await db.query(query, [portfolio_id, ticker]);
+    return stock;
+}
+
+// Fjern aktier fra en portefølje
+async removeStockFromPortfolio(portfolio_id, ticker, volume) {
+    const query = `
+        UPDATE stocks 
+        SET volume = volume - ? 
+        WHERE portfolio_id = ? AND ticker = ? AND volume >= ?`;
+    const result = await db.query(query, [volume, portfolio_id, ticker, volume]);
+
+    // Slet aktien, hvis volumen er 0
+    const deleteQuery = `DELETE FROM stocks WHERE portfolio_id = ? AND ticker = ? AND volume = 0`;
+    await db.query(deleteQuery, [portfolio_id, ticker]);
+
+    return result;
+}
+
+// Tilføj penge til en konto
+async addFundsToAccount(portfolio_id, amount) {
+    const query = `
+        UPDATE accounts 
+        SET available_balance = available_balance + ? 
+        WHERE account_id = (
+            SELECT account_id FROM portfolios WHERE portfolio_id = ?
+        )`;
+    return await db.query(query, [amount, portfolio_id]);
+}
+
 async createStockPriceHistory(){
   const query = `
     IF NOT EXISTS (
@@ -612,24 +648,63 @@ this.executeQuery(query)
 });
 }
 
+  async getPortfolioHistory(portfolioId) {
+    const periods = [];
+    for (let i = 1; i <= 12; i++) {
+      periods.push({
+        label: `${i} months ago`,
+        column:`price_${i}m`,
+        order: i
+    });
+  }
+  const selectBlocks = [];
+  for (let i = 0; i < periods.length; i++) {
+    const { label, column, order } = periods[i];
+    selectBlocks.push(`
+      SELECT
+        '${label}' AS history,
+        SUM(stock_price_history.${column} * portfolios_stocks.volume) AS value,
+        ${order} as [order]
+      FROM portfolios_stocks
+      JOIN stock_price_history
+        ON portfolios_stocks.ticker = stock_price_history.ticker
+      WHERE portfolios_stocks.portfolio_id = @portfolioId
+    `);
+  }
+
+  const sqlQuery = selectBlocks.join('\nUNION ALL\n') + `\nORDER BY [order]`;
+
+  const request = this.poolConnection.request();
+  request.input('portfolioId', sql.UniqueIdentifier, portfolioId);
+  const result = await request.query(sqlQuery);
+
+
+  return result.recordset.map(({ history, value }) => ({ history, value }));
+}
+  
+
+
+
 async findPortfolioHistory(portfolioId) {
   const query = `
-      SELECT 
-          ps.ticker,
-          ps.volume,
-          ps.purchase_price,
-          ps.created_at AS date,
-          s.company_name AS description
-      FROM portfolios_stocks ps
-      JOIN stocks s ON ps.ticker = s.ticker
-      WHERE ps.portfolio_id = @portfolioId
-      ORDER BY ps.created_at DESC
+    SELECT 
+        ps.action AS action,
+        ps.ticker AS stock,
+        ps.purchase_price AS price,
+        ps.volume AS quantity,
+        ps.created_at AS date
+    FROM portfolios_stocks ps
+    JOIN stocks s ON ps.ticker = s.ticker
+    WHERE ps.portfolio_id = @portfolioId
+    ORDER BY ps.created_at DESC
   `;
+  
   const request = this.poolConnection.request();
   request.input('portfolioId', sql.UniqueIdentifier, portfolioId);
   const result = await request.query(query);
   return result.recordset;
 }
+
 
 
 
