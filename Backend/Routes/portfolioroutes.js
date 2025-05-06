@@ -168,6 +168,8 @@ router.get('/portfolios/:portofolio_id/history', reqLogin, reqActive, async (req
   } catch (err) {
       console.error('Error fetching portfolio history:', err);
       res.status(500).send('Internal Server Error');
+  }
+});
 
 // Registrer et salg af aktier i en portefølje
 router.post('/sellTrade', async (req, res) => {
