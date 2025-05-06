@@ -44,10 +44,11 @@
                 <tr>
                     <th>Portefølje Navn</th>
                     <th>Konto tilknyttet</th>
-                    <th>Samlet værdi</th>
+                    <th>Oprettelsesdato</th>
                     <th>Samlet Erhvervelsespris</th>
                     <th>Samlet Forventet Værdi</th>
                     <th>Samlet Urealiseret Gevinst/Tab</th>
+                    
                     <th>Handlinger</th>
                 </tr>
             </thead>
@@ -59,6 +60,7 @@
                             <td>
                                 <%= (accounts.find(account => account.account_id === portfolio.account_id).name) %>
                               </td>
+                              
                             <td><%= new Date(portfolio.created_at).toLocaleDateString() %></td>
                             <td><%= portfolio.totalAcquisitionPrice?.toFixed(2) || "0.00" %> DKK</td>
                             <td><%= portfolio.totalExpectedValue?.toFixed(2) || "0.00" %> DKK</td>
