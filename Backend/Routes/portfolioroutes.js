@@ -154,18 +154,21 @@ router.post('/registerTrade', async (req, res) => {
   }
 });
 
-router.get('/portfolios/:portofolio_id/history', reqLogin, reqActive, async (req, res) => {
+router.get('/portfolios/:portfolio_id/history', reqLogin, reqActive, async (req, res) => {
   const db = req.app.locals.db;
-  const portfolioId = req.params.portofolio_id;
+  const portfolioId = req.params.portfolio_id;
 
   try {
-      const history = await db.findPortfolioHistory(portfolioId); 
+      console.log('Fetching history for portfolio ID:', portfolioId); // Debugging log
+      const history = await db.findPortfolioHistory(portfolioId);
+      console.log('History data:', history); // Debugging log
+
       res.render('history', {
           user: req.session.user,
           history,
       });
   } catch (err) {
-      console.error('Error fetching portfolio history:', err);
+      console.error('Error fetching portfolio history:', err); // Log the error
       res.status(500).send('Internal Server Error');
   }
 });

@@ -322,6 +322,8 @@ return request.recordset;
 }
 
 
+
+
 async findPortfoliosByAccountId(account_id) {
   const query = `
     SELECT *
@@ -393,19 +395,6 @@ async findPortfoliosByUser(user_id) {
   }
 }
 
-async insertPortfolio(user_id, name, account_id) {
-  const query = `
-      INSERT INTO portfolios (user_id, name, account_id, created_at)
-      VALUES (@user_id, @name, @account_id, GETDATE())
-  `;
-  const request = this.poolConnection.request();
-  request.input('user_id', sql.UniqueIdentifier, user_id);
-  request.input('name', sql.VarChar, name);
-  request.input('account_id', sql.UniqueIdentifier, account_id);
-  
-  await request.query(query);
-}
-
 async createPortfolios_stocks() {
   const query = `
     IF NOT EXISTS (
@@ -426,11 +415,25 @@ async createPortfolios_stocks() {
   `;
   this.executeQuery(query)
     .then(() => {
-      console.log("createPortfolios_stocks table created");
+      console.log("portfolios_stocks table created");
     });
 }
 
-
+async addActionColumnToPortfoliosStocks() {
+  const query = `
+    IF NOT EXISTS (
+      SELECT * 
+      FROM INFORMATION_SCHEMA.COLUMNS 
+      WHERE TABLE_NAME = 'portfolios_stocks' AND COLUMN_NAME = 'action'
+    )
+    BEGIN
+      ALTER TABLE portfolios_stocks
+      ADD action VARCHAR(10) NOT NULL DEFAULT 'BUY';
+    END
+  `;
+  await this.executeQuery(query);
+  console.log("Action column added to portfolios_stocks table (if it didn't already exist).");
+}
 async stocks() {
   const query = `
     IF NOT EXISTS (
@@ -685,7 +688,7 @@ this.executeQuery(query)
 async findPortfolioHistory(portfolioId) {
   const query = `
     SELECT 
-        ps.action,
+        ps.action AS action,
         ps.ticker AS stock,
         ps.purchase_price AS price,
         ps.volume AS quantity,
