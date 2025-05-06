@@ -609,9 +609,18 @@ this.executeQuery(query)
 });
 }
 
-async getPortfolioHistory(portfolio_id){
-  
+async findPortfolioHistory(portfolioId) {
+  const query = `
+      SELECT date, description
+      FROM portfolio_history
+      WHERE portfolio_id = @portfolioId
+      ORDER BY date DESC
+  `;
+  const result = await database.query(query, { portfolioId });
+  return result.recordset; 
 }
+
+
 
 }
 
