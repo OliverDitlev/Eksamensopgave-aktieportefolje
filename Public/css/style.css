@@ -94,7 +94,7 @@ img {
   color: #fff;
 }
 .greenbtn, #deleteAccountbtn {
-  width: 350px;
+  width: 300px;
   height: 40px;
   margin-top: 15px;
   font-size: 25px;
@@ -163,11 +163,11 @@ img {
  
 }
 
-
 .popup.hidden, .accounttable.hidden, .accountsdash.hidden {
   display: none;
+
 }
-#insideform, #divbalancepopup, #formAddportfolio {
+#insideform, #divbalancepopup, #formAddportfolio, #formSellTrade {
   background: #000000;
   padding: 0 50px 35px 35px;
   border-radius: 10px solid white;
@@ -410,7 +410,7 @@ img {
 }
 
 
-#registertrade{  
+#registertrade, #selltrade {  
   margin-left: 400px;
   margin-top: -500px;
 }
@@ -452,6 +452,7 @@ button[disabled] {
   grid-column: 1 / 2;
   grid-row: 1 / span 2;
   height: 80%;
+<<<<<<< Updated upstream
 }
 
 .history-container {
@@ -517,3 +518,6 @@ button[disabled] {
   margin-left: 80px;
 
 }
+=======
+}
+>>>>>>> Stashed changes

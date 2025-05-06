@@ -66,13 +66,14 @@
             <td><%= (value.last_price * value.volume).toFixed(1) %> <%= value.currency %></td>
             <td>
               <button
-              class="popupform" 
-              data-ticker="<%= value.ticker %>" 
-              data-company="<%= value.company_name %>" 
-              data-volume="<%= value.volume %>" 
-              data-price="<%= value.last_price %>" 
-              data-currency="<%= value.currency %>">
-              Sell
+                class="popupform" 
+                data-ticker="<%= value.ticker %>" 
+                data-company="<%= value.company_name %>" 
+                data-volume="<%= value.volume %>" 
+                data-price="<%= value.last_price %>" 
+                data-currency="<%= value.currency %>"
+                onclick="openSellTrade()"
+              >Sell
               </button>
             </td>
         </tr>
@@ -108,7 +109,7 @@
       </div>
   </div>
 
-  <div id="selltrade" class="popup hidden">
+<div id="selltrade" class="popup hidden">
     <div id="formSellTrade">
         <span id="closeformbtn" onclick="closeSellTrade()">X</span>
         <h2>Sell Trade</h2>
@@ -117,12 +118,12 @@
             <input type="hidden" name="ticker" id="sellTickerField">
             <input type="hidden" name="company" id="sellCompanyField">
             <input type="hidden" name="currency" id="sellCurrencyField">
+            <input type="hidden" name="price" id="sellPriceField">
 
-            <label>Volume to sell</label>
-            <input type="number" name="volume" id="sellVolumeField" min="1" required><br>
+            <label for="sellVolumeField">Volume to sell</label>
+            <input type="number" name="volume" id="sellVolumeField" min="1" step="1" required>
 
-            <label>Sell price</label>
-            <input type="number" name="price" id="sellPriceField" required><br>
+            <p>Current price: <span id="currentPriceDisplay"></span> <span id="currentCurrencyDisplay"></span></p>
 
             <button type="submit" class="greenbtn">Sell</button>
         </form>
