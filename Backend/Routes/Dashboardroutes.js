@@ -8,15 +8,19 @@ const { reqLogin, reqActive } = require('../middleware.js');
 router.get('/dashboard', reqLogin, reqActive, async (req, res) => {
     const db = req.app.locals.db;
     const userId = req.session.user.user_id;
-
+  
     try {
-        const totalRealizedGain = await db.calculateTotalRealizedGain(userId); // Call the function
-        res.render('Dashboard', {
-            user: req.session.user,
-            totalRealizedGain, // Pass the result to the template
-        });
+      const totalRealizedGain = await db.calculateTotalRealizedGain(userId) ?? 0;
+  
+      res.render('Dashboard', {
+        user: req.session.user,
+        totalRealizedGain, // pass the number, even if it's 0
+      });
+  
     } catch (err) {
-        console.error('Error fetching total realized gain:', err);
-        res.status(500).send('Internal Server Error');
+      console.error('Error fetching total realized gain:', err);
+      res.status(500).send('Internal Server Error');
     }
-});
+  });
+  
+  module.exports = router;
