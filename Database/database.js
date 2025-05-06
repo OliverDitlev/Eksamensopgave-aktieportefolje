@@ -702,8 +702,26 @@ async findPortfolioHistory(portfolioId) {
   const result = await request.query(query);
   return result.recordset;
 }
+async calculateAverageAcquisitionPrice(portfolioId) {
+  const query = `
+    SELECT 
+        ps.ticker AS stock,
+        s.company_name AS company,
+        SUM(ps.purchase_price * ps.volume) / SUM(ps.volume) AS average_price, -- Weighted average formula
+        SUM(ps.volume) AS total_volume -- Total number of stocks purchased
+    FROM portfolios_stocks ps
+    JOIN stocks s ON ps.ticker = s.ticker
+    WHERE ps.portfolio_id = @portfolioId
+    GROUP BY ps.ticker, s.company_name
+    ORDER BY s.company_name
+  `;
 
+  const request = this.poolConnection.request();
+  request.input('portfolioId', sql.UniqueIdentifier, portfolioId);
+  const result = await request.query(query);
 
+  return result.recordset;
+}
 
 
 }

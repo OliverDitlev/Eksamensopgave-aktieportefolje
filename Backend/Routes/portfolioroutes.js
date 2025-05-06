@@ -158,16 +158,17 @@ router.get('/portfolios/:portfolio_id/history', reqLogin, reqActive, async (req,
   const portfolioId = req.params.portfolio_id;
 
   try {
-      console.log('Fetching history for portfolio ID:', portfolioId); // Debugging log
+      console.log('Fetching history for portfolio ID:', portfolioId);
       const history = await db.findPortfolioHistory(portfolioId);
-      console.log('History data:', history); // Debugging log
+      const averagePrices = await db.calculateAverageAcquisitionPrice(portfolioId);
 
       res.render('history', {
           user: req.session.user,
           history,
+          averagePrices, // Pass the average prices to the template
       });
   } catch (err) {
-      console.error('Error fetching portfolio history:', err); // Log the error
+      console.error('Error fetching portfolio history:', err);
       res.status(500).send('Internal Server Error');
   }
 });
