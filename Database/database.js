@@ -393,19 +393,6 @@ async findPortfoliosByUser(user_id) {
   }
 }
 
-async insertPortfolio(user_id, name, account_id) {
-  const query = `
-      INSERT INTO portfolios (user_id, name, account_id, created_at)
-      VALUES (@user_id, @name, @account_id, GETDATE())
-  `;
-  const request = this.poolConnection.request();
-  request.input('user_id', sql.UniqueIdentifier, user_id);
-  request.input('name', sql.VarChar, name);
-  request.input('account_id', sql.UniqueIdentifier, account_id);
-  
-  await request.query(query);
-}
-
 async createPortfolios_stocks() {
   const query = `
     IF NOT EXISTS (
@@ -417,7 +404,7 @@ async createPortfolios_stocks() {
         stock_id UNIQUEIDENTIFIER PRIMARY KEY DEFAULT NEWID(),
         portfolio_id UNIQUEIDENTIFIER NOT NULL REFERENCES portfolios(portfolio_id),
         ticker VARCHAR(20) NOT NULL REFERENCES stocks(ticker),
-        action ADD action VARCHAR(10) NOT NULL DEFAULT 'BUY';
+        action VARCHAR(10) NOT NULL DEFAULT 'BUY',
         volume INT NOT NULL,
         purchase_price DECIMAL(12, 2),
         created_at DATETIME DEFAULT GETDATE()
