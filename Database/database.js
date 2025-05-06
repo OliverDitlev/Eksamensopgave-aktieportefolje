@@ -406,7 +406,7 @@ async createPortfolios_stocks() {
         stock_id UNIQUEIDENTIFIER PRIMARY KEY DEFAULT NEWID(),
         portfolio_id UNIQUEIDENTIFIER NOT NULL REFERENCES portfolios(portfolio_id),
         ticker VARCHAR(20) NOT NULL REFERENCES stocks(ticker),
-        action VARCHAR(10) NOT NULL, 
+        action VARCHAR(10) NOT NULL,
         volume INT NOT NULL,
         purchase_price DECIMAL(12, 2),
         created_at DATETIME DEFAULT GETDATE()
@@ -724,7 +724,32 @@ async calculateAverageAcquisitionPrice(portfolioId) {
 
   return result.recordset;
 }
+async calculateTotalRealizedGain(userId) {
+  const query = `
+    SELECT 
+      SUM(
+        (sells.purchase_price - buys.avg_price) * sells.volume
+      ) AS total_realized_gain
+    FROM portfolios p
+    JOIN userAdministration u ON u.user_id = p.user_id
+    JOIN portfolios_stocks sells ON sells.portfolio_id = p.portfolio_id AND sells.action = 'sell'
+    JOIN (
+      SELECT 
+        portfolio_id, 
+        ticker, 
+        AVG(purchase_price) AS avg_price
+      FROM portfolios_stocks
+      WHERE action = 'buy'
+      GROUP BY portfolio_id, ticker
+    ) buys ON buys.portfolio_id = sells.portfolio_id AND buys.ticker = sells.ticker
+    WHERE u.user_id = @userId
+  `;
 
+  const request = this.poolConnection.request();
+  request.input('userId', sql.UniqueIdentifier, userId);
+  const result = await request.query(query);
+  return result.recordset[0].total_realized_gain ?? 0;
+}
 
 }
 
