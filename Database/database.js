@@ -404,7 +404,7 @@ async createPortfolios_stocks() {
         stock_id UNIQUEIDENTIFIER PRIMARY KEY DEFAULT NEWID(),
         portfolio_id UNIQUEIDENTIFIER NOT NULL REFERENCES portfolios(portfolio_id),
         ticker VARCHAR(20) NOT NULL REFERENCES stocks(ticker),
-        action VARCHAR(10) NOT NULL DEFAULT 'BUY',
+       
         volume INT NOT NULL,
         purchase_price DECIMAL(12, 2),
         created_at DATETIME DEFAULT GETDATE()
@@ -417,7 +417,21 @@ async createPortfolios_stocks() {
     });
 }
 
-
+async addActionColumnToPortfoliosStocks() {
+  const query = `
+    IF NOT EXISTS (
+      SELECT * 
+      FROM INFORMATION_SCHEMA.COLUMNS 
+      WHERE TABLE_NAME = 'portfolios_stocks' AND COLUMN_NAME = 'action'
+    )
+    BEGIN
+      ALTER TABLE portfolios_stocks
+      ADD action VARCHAR(10) NOT NULL DEFAULT 'BUY';
+    END
+  `;
+  await this.executeQuery(query);
+  console.log("Action column added to portfolios_stocks table (if it didn't already exist).");
+}
 async stocks() {
   const query = `
     IF NOT EXISTS (
