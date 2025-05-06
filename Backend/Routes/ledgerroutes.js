@@ -90,4 +90,18 @@ router.post('/changebalance', async (req, res) => {
     }
   });
 
+  router.get('/transactions', async (req, res) => {
+    const db = req.app.locals.db;
+    const user_id = req.session.user.user_id;
+  
+    // Hent alle transaktioner fra databasen
+    const transactions = await db.getAllTransactionsByUser(user_id);
+  
+    // Send dem videre til siden
+    res.render('transactions', {
+      user: req.session.user,
+      transactions
+    });
+  });
+
 module.exports = router
