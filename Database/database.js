@@ -612,16 +612,17 @@ this.executeQuery(query)
 
 async findPortfolioHistory(portfolioId) {
   const query = `
-      SELECT 
-          ps.ticker,
-          ps.volume,
-          ps.purchase_price,
-          ps.created_at AS date,
-          s.company_name AS description
-      FROM portfolios_stocks ps
-      JOIN stocks s ON ps.ticker = s.ticker
-      WHERE ps.portfolio_id = @portfolioId
-      ORDER BY ps.created_at DESC
+     SELECT 
+    'Buy' AS action, 
+    ps.ticker AS stock,
+    ps.purchase_price AS price,
+    ps.volume AS quantity,
+    ps.created_at AS date
+FROM portfolios_stocks ps
+JOIN stocks s ON ps.ticker = s.ticker
+WHERE ps.portfolio_id = @portfolioId
+ORDER BY ps.created_at DESC
+
   `;
   const request = this.poolConnection.request();
   request.input('portfolioId', sql.UniqueIdentifier, portfolioId);
