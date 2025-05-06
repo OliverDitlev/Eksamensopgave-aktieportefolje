@@ -19,8 +19,10 @@
   <!-- Tre bokse over diagrammet -->
 <div class="top-boxes">
   <div class="box">
-    <p>Total værdi</p>
-    <p>96.024,55 kr</p>
+    <p>Total realized gains</p>
+    <p>
+      <%= (totalRealizedGain ?? 0).toLocaleString('da-DK', { style: 'currency', currency: 'DKK' }) %>
+    </p>
   </div>
   <div class="box">
     <h2>Afkast</h2>

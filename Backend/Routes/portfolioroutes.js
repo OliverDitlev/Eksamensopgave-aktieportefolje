@@ -184,10 +184,12 @@ router.get('/portfolios/:portfolio_id/history', reqLogin, reqActive, async (req,
       console.log('Fetching history for portfolio ID:', portfolioId);
       const history = await db.findPortfolioHistory(portfolioId);
       console.log('History data:', history); 
+      const averagePrices = await db.calculateAverageAcquisitionPrice(portfolioId);
 
       res.render('history', {
           user: req.session.user,
           history,
+          averagePrices, // Pass the average prices to the template
       });
   } catch (err) {
       console.error('Error fetching portfolio history:', err)
