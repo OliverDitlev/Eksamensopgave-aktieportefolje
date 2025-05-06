@@ -2,7 +2,7 @@
 const request = require('request');
 const sql = require('mssql')
 
-const API_KEY = '8O68Z80OXK4Q450G'; 
+const API_KEY = '2WBMSEFUQFIUR6BF'; 
 
 function getStockData(companyName , db = null) {
 
