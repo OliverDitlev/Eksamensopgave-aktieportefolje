@@ -158,6 +158,7 @@ router.post('/registerTrade', async (req, res) => {
 <<<<<<< Updated upstream
 <<<<<<< Updated upstream
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
 router.get('/portfolios/:portofolio_id/history', reqLogin, reqActive, async (req, res) => {
   const db = req.app.locals.db;
   const portfolioId = req.params.portofolio_id;
@@ -172,6 +173,8 @@ router.get('/portfolios/:portofolio_id/history', reqLogin, reqActive, async (req
       console.error('Error fetching portfolio history:', err);
       res.status(500).send('Internal Server Error');
 =======
+=======
+>>>>>>> Stashed changes
 =======
 >>>>>>> Stashed changes
 =======
@@ -209,6 +212,9 @@ router.post('/sellTrade', async (req, res) => {
       res.status(500).send('Fejl ved salg af aktier');
 <<<<<<< Updated upstream
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
 >>>>>>> Stashed changes
 =======
 >>>>>>> Stashed changes
