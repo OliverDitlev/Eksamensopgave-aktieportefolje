@@ -7,6 +7,7 @@ const methodOverride = require('method-override');
 //const { getStockData } = require('./routes/api');
 const { passwordConfig } = require('../Database/config');
 const { database, createDatabaseConnection } = require('../Database/database');
+const dashboardRoutes = require('./Routes/Dashboardroutes');
 const accountsroutes = require('./Routes/accountroutes');
 const ledgerRoutes = require('./Routes/ledgerroutes');
 const portfolioroutes = require('./Routes/portfolioroutes')
@@ -41,11 +42,12 @@ createDatabaseConnection(passwordConfig).then((instance => {
   app.use('/', accountsroutes)
   app.use('/', ledgerRoutes)
   app.use('/', portfolioroutes)
+  app.use('/', dashboardRoutes)
 }))
 
 
 app.get('/', reqLogin, reqActive, (req, res) => {
-  res.render('dashboard', { user: req.session.user });
+  res.redirect('/dashboard');
 });
 
 app.get('/login',(req, res) => {

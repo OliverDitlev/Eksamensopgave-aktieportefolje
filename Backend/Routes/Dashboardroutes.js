@@ -8,10 +8,11 @@ const { reqLogin, reqActive } = require('../middleware.js');
 router.get('/dashboard', reqLogin, reqActive, async (req, res) => {
   const db = req.app.locals.db;
   const userId = req.session.user.user_id;
-
+  console.log("User session ID:", req.session.user?.user_id);
+  console.log('Total Realized Gain:', totalRealizedGain);
   try {
       const totalRealizedGain = await db.calculateTotalRealizedGain(userId);
-      console.log('Total Realized Gain:', totalRealizedGain); // Log the value for debugging
+ 
       res.render('Dashboard', {
           user: req.session.user,
           totalRealizedGain: totalRealizedGain !== undefined && totalRealizedGain !== null ? totalRealizedGain : 0, // Ensure it's defined
