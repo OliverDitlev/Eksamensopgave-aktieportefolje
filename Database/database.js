@@ -417,7 +417,7 @@ async createPortfolios_stocks() {
         stock_id UNIQUEIDENTIFIER PRIMARY KEY DEFAULT NEWID(),
         portfolio_id UNIQUEIDENTIFIER NOT NULL REFERENCES portfolios(portfolio_id),
         ticker VARCHAR(20) NOT NULL REFERENCES stocks(ticker),
-        action VARCHAR(10) NOT NULL, -- added to match findPortfolioHistory
+        action ADD action VARCHAR(10) NOT NULL DEFAULT 'BUY';
         volume INT NOT NULL,
         purchase_price DECIMAL(12, 2),
         created_at DATETIME DEFAULT GETDATE()
@@ -426,7 +426,7 @@ async createPortfolios_stocks() {
   `;
   this.executeQuery(query)
     .then(() => {
-      console.log("createPortfolios_stocks table created");
+      console.log("portfolios_stocks table created");
     });
 }
 
@@ -685,7 +685,7 @@ this.executeQuery(query)
 async findPortfolioHistory(portfolioId) {
   const query = `
     SELECT 
-        ps.action,
+        ps.action AS action,
         ps.ticker AS stock,
         ps.purchase_price AS price,
         ps.volume AS quantity,
