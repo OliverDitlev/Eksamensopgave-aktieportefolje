@@ -6,7 +6,7 @@ const { getStockData } = require('../api');
 const request = require('request')
 
 // Nøgle til API'en
-const API_KEY = '8O68Z80OXK4Q450G'
+const API_KEY = '2WBMSEFUQFIUR6BF'
 
 const router = express.Router();
 
@@ -129,45 +129,15 @@ router.get('/api/stockinfo', async (req, res) => {
   // Registrer et køb af aktier i en portefølje
   router.post('/registerTrade', async (req, res) => {
     const db = req.app.locals.db;
-
-  try{
-    const {
-        portfolio_id,
-        ticker,
-        volume,
-        price,
-        company,
-        currency = 'DKK',
-        daily,
-        monthly
-      } = req.body;
-
-      if (!daily || !monthly) {
-        throw new Error('daily or monthly prices missing');
-      }
-      
-      let parsedDaily, parsedMonthly;
-      try {
-        parsedDaily = JSON.parse(daily);
-        parsedMonthly = JSON.parse(monthly);
-      } catch (err) {
-        throw new Error('Invalid JSON in daily or monthly');
-      }
-
-     await db.saveStockData(
-        ticker,
-        company || null,
-        currency,
-        parsedDaily,
-        parsedMonthly
-);
-    // Gemmer data for aktien i databasen
-    await db.saveStockData(
-        ticker,
-        company || null,
-        currency || 'USD',
-        parseFloat(price)
-    )
+    const { 
+      portfolio_id, 
+      ticker, 
+      volume, 
+      company, 
+      currency = 'USD' 
+    } = req.body
+    try{
+    getStockData(company?? ticker, db)
 
     // Tilføjer aktiedataen til porteføljen i databasen
     await db.insertStockToPortfolio(
@@ -178,13 +148,12 @@ router.get('/api/stockinfo', async (req, res) => {
     );
     // Sender brugeren hen til siden for den relevante portefølje
     res.redirect(`/portfolios/${portfolio_id}`);
-}catch(err){
+  }catch(err){
     console.error(err)
-    res.status(500).send('Error no trade')
-}
-    
-
-  });
+    res.status(500).send('error no trade')
+  }
+  
+});
 
 
 // Funktion til søgning af aktie

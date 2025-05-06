@@ -159,7 +159,7 @@ async createLedger() {
         [bank] VARCHAR(50) NOT NULL,
         [currency] CHAR(3) NOT NULL CHECK(currency IN('DKK','USD','GBP')),
         [balance] DECIMAL(12,1) NOT NULL,
-        [avaialable_balance] DECIMAL(12,1) NOT NULL,
+        [available_balance] DECIMAL(12,1) NOT NULL,
         [ledger_created] DATETIME DEFAULT GETDATE(),
         [ledger_Active] BIT NOT NULL DEFAULT 1
         )
@@ -607,6 +607,10 @@ this.executeQuery(query)
 .then(() => {
   console.log("stock_price_history table created");
 });
+}
+
+async getPortfolioHistory(portfolio_id){
+  
 }
 
 }

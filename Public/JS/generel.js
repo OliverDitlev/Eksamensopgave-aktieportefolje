@@ -137,7 +137,7 @@ function searchStock () {
       select.style.display = 'none';       
       return;
     }
-    debounce(() => {
+    
       fetch('/api/symbols?query=' + encodeURIComponent(query))
         .then(res => res.json())
         .then(data => {
@@ -146,7 +146,8 @@ function searchStock () {
             data.forEach(stock => {
               const option = document.createElement('option');
               option.value = JSON.stringify(stock);
-              option.textContent = `${stock.name} (${stock.ticker})`;
+              option.textContent = `${stock.name} (${stock.ticker})`
+              option.addEventListener('click', () => selectStock(option));
               select.appendChild(option);
             });
             select.style.display = 'block';
@@ -154,31 +155,29 @@ function searchStock () {
             select.style.display = 'none';
           }
         });
-    });
-  }
+    };
   
-  function selectStock(selectElement) {
-    console.log('Gemmer daily og monthly i hidden fields:', data.daily, data.monthly);
-
-
+  
+    async function selectStock(selectElement) {
+ 
     const selected = JSON.parse(selectElement.value);
     document.getElementById('searchstock').value = selected.name;
     document.getElementById('tickerField').value = selected.ticker;
     document.getElementById('companyField').value = selected.name;
     document.getElementById('currencyField').value = selected.currency;
     document.getElementById('stockOptions').style.display = 'none';
-    console.log('Gemmer daily og monthly i hidden fields:', data.daily, data.monthly);
 
-    fetch(`/api/stockinfo?company=${encodeURIComponent(selected.name)}`)
-    .then(res => res.json())
-    .then(data => {
+    try{
+
+    const res = await fetch(`/api/stockinfo?company=${encodeURIComponent(selected.name)}`)
+    const data = await res.json()
       document.getElementById('dailyPrices').value = JSON.stringify(data.daily);
       document.getElementById('monthlyPrices').value = JSON.stringify(data.monthly);
-    })
-    .catch(err => {
+    }catch(err){
       console.error('Stock info error', err);
-    });
-}
+    }
+    };
+
 
   
 function openRegisterTrade() {
