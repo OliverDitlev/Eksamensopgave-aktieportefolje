@@ -15,9 +15,6 @@ function getStockData(companyName , db = null) {
       return;
     }
 
-    
-
-
     const allowed = ['DKK', 'USD', 'GBP'];
     const bestMatch = searchData.bestMatches
     .filter( curr => curr['3. type'] === 'Equity' && allowed.includes(curr['8. currency']))
