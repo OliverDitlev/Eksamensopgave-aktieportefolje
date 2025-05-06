@@ -468,13 +468,13 @@ button[disabled] {
   text-align: left;
 }
 
-/* Header row styling */
+
 .history-table thead {
   background-color: #444;
   color: white;
 }
 
-/* Table body styling */
+
 .history-table tbody {
   background-color: #222;
 }
@@ -483,7 +483,7 @@ button[disabled] {
   color: white;
 }
 
-/* Optional: Hover effect on rows */
+
 .history-table tbody tr:hover {
   background-color: #333;
 }
