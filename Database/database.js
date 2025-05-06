@@ -724,32 +724,35 @@ async calculateAverageAcquisitionPrice(portfolioId) {
 
   return result.recordset;
 }
+
 async calculateTotalRealizedGain(userId) {
   const query = `
     SELECT 
       SUM(
-        (sells.purchase_price - buys.avg_price) * sells.volume
+        ps_sells.volume * (
+          ps_sells.purchase_price - ISNULL(buy_avg.avg_price, 0)
+        )
       ) AS total_realized_gain
     FROM portfolios p
-    JOIN userAdministration u ON u.user_id = p.user_id
-    JOIN portfolios_stocks sells ON sells.portfolio_id = p.portfolio_id AND sells.action = 'sell'
-    JOIN (
-      SELECT 
-        portfolio_id, 
-        ticker, 
-        AVG(purchase_price) AS avg_price
+    JOIN portfolios_stocks ps_sells ON ps_sells.portfolio_id = p.portfolio_id
+    LEFT JOIN (
+      SELECT portfolio_id, ticker, AVG(purchase_price) AS avg_price
       FROM portfolios_stocks
       WHERE action = 'buy'
       GROUP BY portfolio_id, ticker
-    ) buys ON buys.portfolio_id = sells.portfolio_id AND buys.ticker = sells.ticker
-    WHERE u.user_id = @userId
+    ) buy_avg ON buy_avg.portfolio_id = ps_sells.portfolio_id AND buy_avg.ticker = ps_sells.ticker
+    WHERE p.user_id = @userId AND ps_sells.action = 'sell'
   `;
 
   const request = this.poolConnection.request();
   request.input('userId', sql.UniqueIdentifier, userId);
   const result = await request.query(query);
-  return result.recordset[0].total_realized_gain ?? 0;
+
+  const gain = result.recordset[0]?.total_realized_gain;
+  return gain !== null && gain !== undefined ? gain : 0;
 }
+
+
 
 }
 
