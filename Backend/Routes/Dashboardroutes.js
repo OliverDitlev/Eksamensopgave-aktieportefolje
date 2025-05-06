@@ -11,6 +11,7 @@ router.get('/dashboard', reqLogin, reqActive, async (req, res) => {
 
   try {
       const totalRealizedGain = await db.calculateTotalRealizedGain(userId);
+      console.log('Total Realized Gain:', totalRealizedGain); // Log the value for debugging
       res.render('Dashboard', {
           user: req.session.user,
           totalRealizedGain: totalRealizedGain !== undefined && totalRealizedGain !== null ? totalRealizedGain : 0, // Ensure it's defined
