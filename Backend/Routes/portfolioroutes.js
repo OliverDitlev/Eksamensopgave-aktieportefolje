@@ -158,7 +158,7 @@ router.get('/portfolios/:portofolio_id/history', reqLogin, reqActive, async (req
   const portfolioId = req.params.portofolio_id;
 
   try {
-      const history = await db.findPortfolioHistory(portfolioId); // Replace with your actual database query
+      const history = await db.findPortfolioHistory(portfolioId); 
       res.render('history', {
           user: req.session.user,
           history,
@@ -203,7 +203,7 @@ router.post('/sellTrade', async (req, res) => {
   }
 });
   
-});
+
 
 router.get('/api/portfolioHistory', async (req, res) =>{
   const db = req.app.locals.db;

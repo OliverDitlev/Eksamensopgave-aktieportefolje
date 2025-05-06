@@ -677,7 +677,7 @@ this.executeQuery(query)
   return result.recordset.map(({ history, value }) => ({ history, value }));
 }
   
-}
+
 
 
 async findPortfolioHistory(portfolioId) {
