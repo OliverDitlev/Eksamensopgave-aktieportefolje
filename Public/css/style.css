@@ -279,7 +279,7 @@ img {
   color: #fff;
 }
 #deletebtn {
-  background: red;
+  background:  red;
 }
 #choseaccount {
   background: green;
@@ -308,7 +308,7 @@ img {
   background-color: #474747;
   padding: 20px;
   border-radius: 12px;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 10px black;
   flex: 1;
   margin: 10px;
 }
@@ -330,6 +330,7 @@ img {
   overflow-y: auto;
   border-radius: 10px;
   background: #474747;
+  
   font-family: 'Inter', sans-serif;
 }
 

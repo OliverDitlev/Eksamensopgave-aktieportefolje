@@ -96,7 +96,7 @@ document.addEventListener('DOMContentLoaded', () => {
         title: {
             text: `Distrubution in portfolio`,
             left: 'left',
-            top: 10,
+            top: 5,
             textStyle: {
                 color: '#ffffff',
                 fontSize: 20
@@ -105,9 +105,10 @@ document.addEventListener('DOMContentLoaded', () => {
       tooltip: { trigger: 'item', formatter: '{b}: {c} ({d}%)' },
       series: [{
         type: 'pie',
-        radius : ['25%', '45%'],
+        radius : ['35%', '60%'],
         data: pieChartData,
-        label: { formatter: '{b}: {d}%' }
+        label: { formatter: '{b}: {d}%' },
+        top: 35,
       }]
     });
   }
@@ -125,7 +126,7 @@ const values = history12.map(entry => entry.value);
 
 const option = {
   title: {
-    text: 'Portfolio Value last 12 months',
+    text: 'Portfolio devolpment last 12 months',
     left: 'left',
     top: 15,
     textStyle: {
@@ -150,7 +151,7 @@ const option = {
     data: values,
     type: 'line',
     smooth: true,
-    itemStyle: { color: '#ff0000' }
+    itemStyle: { color: '#0059ff' }
   }]
 };
 

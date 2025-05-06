@@ -23,7 +23,7 @@
         <div class="box" id = "portfoliotopdetails">
           <div id="historyChart"
           data-portfolio-id="<%= portfolio.portfolio_id %>"
-          style="width:80%; height:300px; margin: 1px;;">
+          style="width:80%; height:300px; margin: 1px;">
      </div>
           
         </div>
@@ -32,8 +32,8 @@
             <div class="box" id="portofoliopie"></div>
 
             <script>
-              const pieChartData = <%- JSON.stringify(pieData) %>;
-              window.history12 = <%- JSON.stringify(monthlyHistory) %>;
+              const pieChartData = <%- JSON.stringify(pieData || {}) %>;
+              window.history12 = <%- JSON.stringify(monthlyHistory || []) %>;
             </script>
           </div>
           
@@ -91,10 +91,6 @@
             <input type="text" id="searchstock" oninput="searchStock()" autocomplete="off">
             <select id="stockOptions" size="5" style="display:none" onchange="selectStock(this)"></select>
 
-              <input type="hidden" name = "portfolio_id" value = "<%= portfolio.portfolio_id %>">
-              <input type="hidden" name="ticker"   id="tickerField">
-              <input type="hidden" name="company"  id="companyField">
-              <input type="hidden" name="currency" id="currencyField">
 
             <input type="hidden" name = "portfolio_id" value = "<%= portfolio.portfolio_id %>">
             <input type="hidden" name="ticker"   id="tickerField">
@@ -106,8 +102,6 @@
 
               <label>Purchase price</label>
               <input type="number" name="price" id="priceField" required><br>
-            <label>Purchase price</label>
-            <input type="text" name="price" id="priceField" required><br>
 
           <button type="submit" class="greenbtn">Opret</button>
           <p id="avalbalance" data-availbalance="<%= availBalance %>">
@@ -131,7 +125,7 @@
             <input type="number" name="volume" id="sellVolumeField" min="1" required><br>
 
             <label>Sell price</label>
-            <input type="text" name="price" id="sellPriceField" required><br>
+            <input type="number" name="price" id="sellPriceField" required><br>
 
             <button type="submit" class="greenbtn">Sell</button>
         </form>

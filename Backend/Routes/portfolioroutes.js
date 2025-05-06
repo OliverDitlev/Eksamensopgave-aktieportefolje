@@ -7,7 +7,7 @@ const { getStockData } = require('../api');
 const request = require('request')
 
 // Nøgle til API'en
-const API_KEY = 'JUMYOA8PCTBZZI56'
+const API_KEY = '5QA9YSDJVYM03SXE'
 
 const router = express.Router();
 
@@ -131,7 +131,8 @@ router.post('/registerTrade', async (req, res) => {
   const { 
     portfolio_id, 
     ticker, 
-    volume, 
+    volume,
+    price, 
     company, 
     currency = 'USD' 
   } = req.body

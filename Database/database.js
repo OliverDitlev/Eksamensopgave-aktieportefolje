@@ -417,7 +417,7 @@ async createPortfolios_stocks() {
         stock_id UNIQUEIDENTIFIER PRIMARY KEY DEFAULT NEWID(),
         portfolio_id UNIQUEIDENTIFIER NOT NULL REFERENCES portfolios(portfolio_id),
         ticker VARCHAR(20) NOT NULL REFERENCES stocks(ticker),
-        action VARCHAR(10) NOT NULL, -- added to match findPortfolioHistory
+        action VARCHAR(10) NOT NULL, 
         volume INT NOT NULL,
         purchase_price DECIMAL(12, 2),
         created_at DATETIME DEFAULT GETDATE()
@@ -531,13 +531,13 @@ async insertStockToPortfolio(portfolio_id, ticker, volume, price) {
 
   const request = this.poolConnection.request();
   request.input('portfolio_id', sql.UniqueIdentifier, portfolio_id);
-  request.input('ticker', sql.VarChar, ticker);
+  request.input('ticker', sql.VarChar(20), ticker);
   request.input('volume', sql.Int, volume);
   request.input('price', sql.Decimal(12, 2), price);
-  request.input('cost', sql.Decimal, cost)
+  request.input('cost', sql.Decimal(12,2), cost)
   const query = `
-    INSERT INTO portfolios_stocks (portfolio_id, ticker, volume, purchase_price)
-    VALUES (@portfolio_id, @ticker, @volume, @price)
+    INSERT INTO portfolios_stocks (portfolio_id, ticker, action, volume, purchase_price)
+    VALUES (@portfolio_id, @ticker, 'BUY', @volume, @price)
 
     UPDATE userledger
     SET available_balance = available_balance - @cost
