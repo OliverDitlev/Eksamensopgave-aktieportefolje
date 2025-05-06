@@ -611,13 +611,21 @@ this.executeQuery(query)
 
 async findPortfolioHistory(portfolioId) {
   const query = `
-      SELECT date, description
-      FROM portfolio_history
-      WHERE portfolio_id = @portfolioId
-      ORDER BY date DESC
+      SELECT 
+          ps.ticker,
+          ps.volume,
+          ps.purchase_price,
+          ps.created_at AS date,
+          s.company_name AS description
+      FROM portfolios_stocks ps
+      JOIN stocks s ON ps.ticker = s.ticker
+      WHERE ps.portfolio_id = @portfolioId
+      ORDER BY ps.created_at DESC
   `;
-  const result = await database.query(query, { portfolioId });
-  return result.recordset; 
+  const request = this.poolConnection.request();
+  request.input('portfolioId', sql.UniqueIdentifier, portfolioId);
+  const result = await request.query(query);
+  return result.recordset;
 }
 
 
@@ -636,6 +644,7 @@ const createDatabaseConnection = async (passwordConfig) => {
   await database.createPortfolios_stocks();
   await database.stocks();
   await database.createStockPriceHistory();
+
   return database;
 };
 
