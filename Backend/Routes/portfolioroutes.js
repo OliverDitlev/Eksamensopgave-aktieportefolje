@@ -4,7 +4,9 @@ const { reqLogin, reqActive } = require('../middleware');
 
 // Får data om aktier fra en API
 const { getStockData } = require('../api');
-const request = require('request')
+const { getExchangeRates } = require('../exrateAPI');
+const request = require('request');
+//const { number } = require('echarts');
 
 // Nøgle til API'en
 const API_KEY = '5QA9YSDJVYM03SXE'
@@ -12,32 +14,52 @@ const API_KEY = '5QA9YSDJVYM03SXE'
 const router = express.Router();
 
 // Henter brugerens porteføljer, konti og tilhørende aktier
-router.get('/portfolios/:portofolio_id', async (req, res) => {
+router.get('/portfolios/:portfolio_id', async (req, res) => {
     const db = req.app.locals.db;
     const user_id = req.session.user.user_id;
-    const portfolio_id = req.params.portofolio_id    
+    const portfolio_id = req.params.portfolio_id    
 
     req.session.currentPortfolioId = portfolio_id
 
     const accounts = await db.findLedgerByUser(user_id); 
     const portfolio = await db.findPortfoliosById(portfolio_id)
     const monthlyHistory = await db.getPortfolioHistory(portfolio_id)
-    // Henter aktierne i porteføljen
 
+    // Henter aktierne i porteføljen
     const stocks = await db.findStocksByPortfolio(portfolio_id)
-    const ledger = accounts.find(avabal => avabal.account_id === portfolio.account_id);
+    const ledger = accounts.find(account => account.account_id === portfolio.account_id);
     const availBalance = ledger.available_balance
 
-    // Beregner samlet værdi
-    const totalValue = stocks.reduce((sum, temp) => sum + Number(temp.value),0)
-    // Laver data til pie chart
-    const pieData = stocks.map(temp =>({name: temp.ticker, value: temp.value}))
+    const exchangeRates = await getExchangeRates()
+    const usdToDkkRate = exchangeRates['USD']
+    const gbpToDkkRate = exchangeRates['GBP']
 
-  
-    
-    console.log({
-        pieData,
-        monthlyHistory,
+const totalValueAfterEX = stocks.reduce((acc, stock) => {
+      let stockValueDKK = 0
+
+    if (stock.currency === 'USD') {
+        stockValueDKK = Number(stock.value) / usdToDkkRate
+      } else if (stock.currency === 'GBP') {
+        stockValueDKK = Number(stock.value) / gbpToDkkRate
+      } else {
+        stockValueDKK = Number(stock.value)
+      }
+
+      return acc + stockValueDKK
+    }, 0)
+
+    // Laver data til pie chart og omregner værdierne til DKK
+    const pieData = stocks.map(stock => {
+      let valueDKK = Number(stock.value)
+      if (stock.currency === 'USD') {
+        valueDKK/= usdToDkkRate
+      } else if (stock.currency === 'GBP') {  
+        valueDKK/= gbpToDkkRate
+      }
+      return {
+        name: stock.ticker,
+        value: valueDKK,
+      }
     });
 
     // Sender alle informationerne til portfoliodetails.ejs
@@ -46,7 +68,7 @@ router.get('/portfolios/:portofolio_id', async (req, res) => {
         portfolio,
         accounts,
         stocks,
-        totalValue,
+        totalValueAfterEX,
         availBalance,
         pieData,
         monthlyHistory,
@@ -161,6 +183,7 @@ router.get('/portfolios/:portfolio_id/history', reqLogin, reqActive, async (req,
   try {
       console.log('Fetching history for portfolio ID:', portfolioId);
       const history = await db.findPortfolioHistory(portfolioId);
+      console.log('History data:', history); 
       const averagePrices = await db.calculateAverageAcquisitionPrice(portfolioId);
 
       res.render('history', {
@@ -169,7 +192,7 @@ router.get('/portfolios/:portfolio_id/history', reqLogin, reqActive, async (req,
           averagePrices, // Pass the average prices to the template
       });
   } catch (err) {
-      console.error('Error fetching portfolio history:', err);
+      console.error('Error fetching portfolio history:', err)
       res.status(500).send('Internal Server Error');
   }
 });

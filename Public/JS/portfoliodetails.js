@@ -108,7 +108,8 @@ document.addEventListener('DOMContentLoaded', () => {
         radius : ['35%', '60%'],
         data: pieChartData,
         label: { formatter: '{b}: {d}%' },
-        top: 35,
+        top: 30,
+        left:-100,
       }]
     });
   }
