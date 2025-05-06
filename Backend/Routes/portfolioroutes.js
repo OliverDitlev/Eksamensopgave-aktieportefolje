@@ -1,5 +1,6 @@
 const express = require('express');
 const { body, validationResult } = require('express-validator');
+const { reqLogin, reqActive } = require('../middleware');
 
 // Får data om aktier fra en API
 const { getStockData } = require('../api');
