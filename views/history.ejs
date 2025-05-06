@@ -1,0 +1,12 @@
+<body>
+    <h1>Portfolio History</h1>
+    <% if (history && history.length > 0) { %>
+        <ul>
+            <% history.forEach(entry => { %>
+                <li><%= entry.date %>: <%= entry.description %></li>
+            <% }); %>
+        </ul>
+    <% } else { %>
+        <p>No history available for this portfolio.</p>
+    <% } %>
+</body>

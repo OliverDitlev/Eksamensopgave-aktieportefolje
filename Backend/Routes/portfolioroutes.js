@@ -155,6 +155,21 @@ router.get('/api/stockinfo', async (req, res) => {
   
 });
 
+router.get('/portfolios/:portofolio_id/history', reqLogin, reqActive, async (req, res) => {
+  const db = req.app.locals.db;
+  const portfolioId = req.params.portofolio_id;
+
+  try {
+      const history = await db.findPortfolioHistory(portfolioId); // Replace with your actual database query
+      res.render('history', {
+          user: req.session.user,
+          history,
+      });
+  } catch (err) {
+      console.error('Error fetching portfolio history:', err);
+      res.status(500).send('Internal Server Error');
+  }
+});
 
 // Funktion til søgning af aktie
 router.get('/api/symbols', async (req, res) => {
