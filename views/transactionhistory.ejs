@@ -30,7 +30,7 @@
                 <%= value.action === 'Withdraw' ? '-' : '+' %><%= value.amount %>
               </td>
               <td><%= value.currency %></td>
-              <td><%= value.balance%></td>
+              <td><%= value.account_balance %></td>
               <td><%= new Date(value.transaction_time).toLocaleString() %></td>
             </tr>
           <% }) %>
