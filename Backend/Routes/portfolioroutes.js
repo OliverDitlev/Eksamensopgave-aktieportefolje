@@ -20,6 +20,8 @@ router.get('/portfolios/:portofolio_id', async (req, res) => {
 
     const accounts = await db.findLedgerByUser(user_id); 
     const portfolio = await db.findPortfoliosById(portfolio_id)
+    const monthlyHistory = await db.getPortfolioHistory(portfolio_id)
+    // Henter aktierne i porteføljen
 
     const stocks = await db.findStocksByPortfolio(portfolio_id)
     const ledger = accounts.find(avabal => avabal.account_id === portfolio.account_id);
@@ -29,17 +31,12 @@ router.get('/portfolios/:portofolio_id', async (req, res) => {
     const totalValue = stocks.reduce((sum, temp) => sum + Number(temp.value),0)
     // Laver data til pie chart
     const pieData = stocks.map(temp =>({name: temp.ticker, value: temp.value}))
+
+  
     
     console.log({
-        user: req.session.user,
-        portfolio,
-        accounts,
-        stocks,
-        totalValue,
-        availBalance,
         pieData,
-        errors: [],
-        result: null
+        monthlyHistory,
     });
 
     // Sender alle informationerne til portfoliodetails.ejs
@@ -51,6 +48,7 @@ router.get('/portfolios/:portofolio_id', async (req, res) => {
         totalValue,
         availBalance,
         pieData,
+        monthlyHistory,
         errors: [],
         result: null
     });
@@ -155,6 +153,11 @@ router.get('/api/stockinfo', async (req, res) => {
   
 });
 
+router.get('/api/portfolioHistory', async (req, res) =>{
+  const db = req.app.locals.db;
+  const history = await db.getPortfolioHistory(req.query.portfolioId);
+  res.json(history);
+})
 
 // Funktion til søgning af aktie
 router.get('/api/symbols', async (req, res) => {

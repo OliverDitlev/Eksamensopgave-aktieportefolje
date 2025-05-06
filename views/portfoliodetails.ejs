@@ -21,14 +21,18 @@
       </div>
       <div class="portfoliotop" id = "portdetailsright" >
         <div class="box" id = "portfoliotopdetails">
-          <h3>Samlet værdi af portefølje</h3>
+          <div id="historyChart"
+          data-portfolio-id="<%= portfolio.portfolio_id %>"
+          style="width:80%; height:300px; margin: 1px;;">
+     </div>
         </div>
       
         <div class="portfolioboxes" id = "portfoliospie">
             <div class="box" id="portofoliopie"></div>
 
             <script>
-              window.pieChartData = <%= JSON.stringify(pieData) %>;
+              const pieChartData = <%- JSON.stringify(pieData) %>;
+              window.history12 = <%- JSON.stringify(monthlyHistory) %>;
             </script>
           </div>
           
@@ -84,11 +88,12 @@
               <input type="hidden" name="company"  id="companyField">
               <input type="hidden" name="currency" id="currencyField">
 
+
               <label>Stocks purchased</label>
               <input type="number" name="volume" min="1" required><br>
 
               <label>Purchase price</label>
-              <input type="text" name="price" id="priceField" required><br>
+              <input type="number" name="price" id="priceField" required><br>
 
             <button type="submit" class="greenbtn">Opret</button>
             <p id="avalbalance" data-availbalance="<%= availBalance %>">
@@ -99,7 +104,7 @@
     </div>    
 
     
-    <script src="/js/generel.js"></script>
+    <script src="/js/portfoliodetails.js"></script>
 
 
 </body>

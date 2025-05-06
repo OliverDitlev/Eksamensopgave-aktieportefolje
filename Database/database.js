@@ -609,11 +609,43 @@ this.executeQuery(query)
 });
 }
 
-async getPortfolioHistory(portfolio_id){
+  async getPortfolioHistory(portfolioId) {
+    const periods = [];
+    for (let i = 1; i <= 12; i++) {
+      periods.push({
+        label: `${i} months ago`,
+        column:`price_${i}m`,
+        order: i
+    });
+  }
+  const selectBlocks = [];
+  for (let i = 0; i < periods.length; i++) {
+    const { label, column, order } = periods[i];
+    selectBlocks.push(`
+      SELECT
+        '${label}' AS history,
+        SUM(stock_price_history.${column} * portfolios_stocks.volume) AS value,
+        ${order} as [order]
+      FROM portfolios_stocks
+      JOIN stock_price_history
+        ON portfolios_stocks.ticker = stock_price_history.ticker
+      WHERE portfolios_stocks.portfolio_id = @portfolioId
+    `);
+  }
+
+  const sqlQuery = selectBlocks.join('\nUNION ALL\n') + `\nORDER BY [order]`;
+
+  const request = this.poolConnection.request();
+  request.input('portfolioId', sql.UniqueIdentifier, portfolioId);
+  const result = await request.query(sqlQuery);
+
+
+  return result.recordset.map(({ history, value }) => ({ history, value }));
+}
   
 }
 
-}
+
 
 
   
