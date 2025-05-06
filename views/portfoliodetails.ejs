@@ -63,41 +63,69 @@
             <td><%= value.last_price %> <%= value.currency %></td>
             <td><%= value.purchase_price %> <%= value.currency %></td>
             <td><%= (value.last_price * value.volume).toFixed(1) %> <%= value.currency %></td>
-
+            <td>
+              <button
+              class="popupform" 
+              data-ticker="<%= value.ticker %>" 
+              data-company="<%= value.company_name %>" 
+              data-volume="<%= value.volume %>" 
+              data-price="<%= value.last_price %>" 
+              data-currency="<%= value.currency %>">
+              Sell
+              </button>
+            </td>
         </tr>
         <% }) %>
     </table>
     
+    <div id="registertrade" class="popup hidden">
+      <div id="formAddportfolio">
+          <span id="closeformbtn" onclick="closeRegisterTrade()">X</span>
+          <h2>Register trade</h2>
+          <form action="/registerTrade" method="POST">
+            <label>Find company</label>
+            <input type="text" id="searchstock" oninput="searchStock()" autocomplete="off">
+            <select id="stockOptions" size="5" style="display:none" onchange="selectStock(this)"></select>
 
+            <input type="hidden" name = "portfolio_id" value = "<%= portfolio.portfolio_id %>">
+            <input type="hidden" name="ticker"   id="tickerField">
+            <input type="hidden" name="company"  id="companyField">
+            <input type="hidden" name="currency" id="currencyField">
 
+            <label>Stocks purchased</label>
+            <input type="number" name="volume" min="1" required><br>
 
-      <div id="registertrade" class="popup hidden">
-        <div id="formAddportfolio">
-            <span id="closeformbtn" onclick="closeRegisterTrade()">X</span>
-            <h2>Register trade</h2>
-            <form action="/registerTrade" method="POST">
-              <label>Find company</label>
-              <input type="text" id="searchstock" oninput="searchStock()" autocomplete="off">
-              <select id="stockOptions" size="5" style="display:none" onchange="selectStock(this)"></select>
+            <label>Purchase price</label>
+            <input type="text" name="price" id="priceField" required><br>
 
-              <input type="hidden" name = "portfolio_id" value = "<%= portfolio.portfolio_id %>">
-              <input type="hidden" name="ticker"   id="tickerField">
-              <input type="hidden" name="company"  id="companyField">
-              <input type="hidden" name="currency" id="currencyField">
+          <button type="submit" class="greenbtn">Opret</button>
+          <p id="avalbalance" data-availbalance="<%= availBalance %>">
+              Available balance: <%= availBalance %>
+            </p>
+          </form>
+      </div>
+  </div>
 
-              <label>Stocks purchased</label>
-              <input type="number" name="volume" min="1" required><br>
+  <div id="selltrade" class="popup hidden">
+    <div id="formSellTrade">
+        <span id="closeformbtn" onclick="closeSellTrade()">X</span>
+        <h2>Sell Trade</h2>
+        <form action="/sellTrade" method="POST">
+            <input type="hidden" name="portfolio_id" value="<%= portfolio.portfolio_id %>">
+            <input type="hidden" name="ticker" id="sellTickerField">
+            <input type="hidden" name="company" id="sellCompanyField">
+            <input type="hidden" name="currency" id="sellCurrencyField">
 
-              <label>Purchase price</label>
-              <input type="text" name="price" id="priceField" required><br>
+            <label>Volume to sell</label>
+            <input type="number" name="volume" id="sellVolumeField" min="1" required><br>
 
-            <button type="submit" class="greenbtn">Opret</button>
-            <p id="avalbalance" data-availbalance="<%= availBalance %>">
-                Available balance: <%= availBalance %>
-              </p>
-            </form>
-        </div>
-    </div>    
+            <label>Sell price</label>
+            <input type="text" name="price" id="sellPriceField" required><br>
+
+            <button type="submit" class="greenbtn">Sell</button>
+        </form>
+    </div>
+</div>
 
     
     <script src="/js/generel.js"></script>

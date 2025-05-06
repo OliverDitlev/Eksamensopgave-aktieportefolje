@@ -575,6 +575,39 @@ async findStocksByPortfolio(portfolio_id){
   return result.recordset;
 }
 
+// Hent en aktie fra en portefølje
+async findStockInPortfolio(portfolio_id, ticker) {
+    const query = `SELECT * FROM stocks WHERE portfolio_id = ? AND ticker = ?`;
+    const [stock] = await db.query(query, [portfolio_id, ticker]);
+    return stock;
+}
+
+// Fjern aktier fra en portefølje
+async removeStockFromPortfolio(portfolio_id, ticker, volume) {
+    const query = `
+        UPDATE stocks 
+        SET volume = volume - ? 
+        WHERE portfolio_id = ? AND ticker = ? AND volume >= ?`;
+    const result = await db.query(query, [volume, portfolio_id, ticker, volume]);
+
+    // Slet aktien, hvis volumen er 0
+    const deleteQuery = `DELETE FROM stocks WHERE portfolio_id = ? AND ticker = ? AND volume = 0`;
+    await db.query(deleteQuery, [portfolio_id, ticker]);
+
+    return result;
+}
+
+// Tilføj penge til en konto
+async addFundsToAccount(portfolio_id, amount) {
+    const query = `
+        UPDATE accounts 
+        SET available_balance = available_balance + ? 
+        WHERE account_id = (
+            SELECT account_id FROM portfolios WHERE portfolio_id = ?
+        )`;
+    return await db.query(query, [amount, portfolio_id]);
+}
+
 async createStockPriceHistory(){
   const query = `
     IF NOT EXISTS (
