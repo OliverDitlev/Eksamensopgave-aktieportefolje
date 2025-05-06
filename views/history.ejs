@@ -1,7 +1,11 @@
-<body>
+<head>
+    <%- include('partials/menu') %>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+
+<body id="main" class="main">
     <h1>Portfolio History</h1>
-   
-</body>
+
     <div class="history-container">
         <table class="history-table">
             <thead>
@@ -16,7 +20,7 @@
             <tbody>
                 <% history.forEach(item => { %>
                     <tr>
-                        <td><%= item.date %></td>
+                        <td><%= new Date(item.date).toDateString() %></td>
                         <td><%= item.action %></td>
                         <td><%= item.stock %></td>
                         <td><%= item.price %></td>
@@ -26,3 +30,4 @@
             </tbody>
         </table>
     </div>
+</body>
