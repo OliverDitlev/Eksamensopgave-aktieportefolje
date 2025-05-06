@@ -21,10 +21,7 @@
       </div>
       <div class="portfoliotop" id = "portdetailsright" >
         <div class="box" id = "portfoliotopdetails">
-          <div id="historyChart"
-          data-portfolio-id="<%= portfolio.portfolio_id %>"
-          style="width:80%; height:300px; margin: 1px;">
-     </div>
+          <div id="historyChart" data-portfolio-id="<%= portfolio.portfolio_id %>"></div>
           
         </div>
       
@@ -40,14 +37,14 @@
       
           <div class="box" id="portofoliovalue">
             <p>Total værdi i DKK</p>
-            <h2><%= totalValue.toFixed(0) %> DKK</h2>
+            <h2><%= totalValueAfterEX.toFixed(0) %> DKK</h2>
           </div>
         </div>
       </div>
 
 
-      <table class="accounttable">
-        <h3>Stocks in portfolio</h3>
+      <table class="accounttable" id = "accounttableportdet">
+        <h3 id="h3accountdet">Stocks in portfolio</h3>
         <tr class="thtable">
             <th>Name</th>
             <th>Volume</th>
