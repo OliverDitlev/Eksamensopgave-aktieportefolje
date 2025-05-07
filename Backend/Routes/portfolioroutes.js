@@ -9,7 +9,7 @@ const request = require('request');
 
 
 // Nøgle til API'en
-const API_KEY = '5QA9YSDJVYM03SXE'
+const API_KEY = 'KCV7VR1WLC10CL57'
 
 const router = express.Router();
 
