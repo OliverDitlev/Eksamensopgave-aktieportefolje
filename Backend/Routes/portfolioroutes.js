@@ -6,7 +6,7 @@ const { reqLogin, reqActive } = require('../middleware');
 const { getStockData } = require('../api');
 const { getExchangeRates } = require('../exrateAPI');
 const request = require('request');
-//const { number } = require('echarts');
+
 
 // Nøgle til API'en
 const API_KEY = '5QA9YSDJVYM03SXE'

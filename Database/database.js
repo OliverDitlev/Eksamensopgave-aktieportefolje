@@ -878,6 +878,13 @@ async calculateTotalUnrealizedGain(userId) {
   return gain !== null && gain !== undefined ? gain : 0;
 }
 
+async getAllCompanies() {
+  const result = await this.pool.request()
+    .query('SELECT DISTINCT ticker FROM stock_price_history'); 
+  return result.recordset.map(row => row.ticker);
+}
+
+
 }
 
 
