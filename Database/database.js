@@ -751,7 +751,7 @@ this.executeQuery(query)
 });
 }
 
-  async getPortfolioHistory(portfolioId) {
+async getPortfolioHistory(portfolioId) {
     const periods = [];
     for (let i = 1; i <= 12; i++) {
       periods.push({
@@ -947,8 +947,6 @@ async findStatsForPortfolio(user_id) {
 
   return resultList;
 }
-
-
 
 }
 

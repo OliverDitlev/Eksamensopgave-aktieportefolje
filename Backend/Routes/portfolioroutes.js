@@ -28,10 +28,6 @@ router.get('/portfolios', reqLogin, reqActive, async (req, res) => {
     const total_purchase_value_usd = parseFloat(stocksStats.total_current_value || 0);
     const total_purchase_value_dkk = (total_purchase_value_usd / usdToDkkRate).toFixed(0);
 
-
-   console.log(
-    portfolios, stats)
-
     res.render('portfolios', {
       user: req.session.user,
       portfolios,
@@ -45,7 +41,6 @@ router.get('/portfolios', reqLogin, reqActive, async (req, res) => {
     console.error('Error fetching portfolios:', err);
   }
 });
-
 
 // Henter brugerens porteføljer, konti og tilhørende aktier
 router.get('/portfolios/:portfolio_id', async (req, res) => {
@@ -69,19 +64,38 @@ router.get('/portfolios/:portfolio_id', async (req, res) => {
     const gbpToDkkRate = exchangeRates['GBP']
 
     let availBalance = Number(ledger.available_balance);
+    //laver array med info fra stock
+    let prices = {
+     lastprice: stocks.map(stock => Number(stock.last_price)),
+     purchasePrice: stocks.map(price => Number(price.purchase_price)),
+     value: stocks.map(val => Number(val.value))
+    }
+
+    
+  
     if (ledger.currency === 'DKK') {
       availBalance = availBalance * exchangeRates['USD'];
+
+      prices.lastprice = prices.lastprice.map(price => price / exchangeRates['USD']);
+      prices.purchasePrice = prices.purchasePrice.map(price => price / exchangeRates['USD']); 
+      prices.value = prices.value.map(val => val / exchangeRates['USD']);
+
     } else if (ledger.currency === 'GBP') {
-      availBalance = availBalance * (exchangeRates['GBP'] * exchangeRates['USD']);
+      availBalance = availBalance * exchangeRates['GBP'] 
+
+      prices.lastprice = prices.lastprice.map(price => price / exchangeRates['GBP']);
+      prices.purchasePrice = prices.purchasePrice.map(price => price / exchangeRates['GBP']); 
+      prices.value = prices.value.map(val => val / exchangeRates['GBP']);
+
     }
 
 const totalValueAfterEX = stocks.reduce((acc, stock) => {
       let stockValueDKK = 0
 
     if (stock.currency === 'USD') {
-        stockValueDKK = Number(stock.value) / usdToDkkRate
+        stockValueDKK = Number(stock.value) * usdToDkkRate
       } else if (stock.currency === 'GBP') {
-        stockValueDKK = Number(stock.value) / gbpToDkkRate
+        stockValueDKK = Number(stock.value) * gbpToDkkRate
       } else {
         stockValueDKK = Number(stock.value)
       }
@@ -102,7 +116,12 @@ const totalValueAfterEX = stocks.reduce((acc, stock) => {
         value: valueDKK,
       }
     });
-    console.log('portfolio', portfolio, 'accounts', accounts, 'stocks', stocks)
+    console.log(
+
+      totalValueAfterEX,
+
+)
+
     // Sender alle informationerne til portfoliodetails.ejs
     res.render('portfoliodetails', {
         user: req.session.user,
@@ -111,6 +130,7 @@ const totalValueAfterEX = stocks.reduce((acc, stock) => {
         stocks,
         totalValueAfterEX,
         availBalance,
+        prices,
         pieData,
         monthlyHistory,
         errors: [],
@@ -136,7 +156,6 @@ router.post('/portfolios', [
 
     const portfolioName = req.body.portfolioName;
     const accountId  = req.body.accountId;
-    console.log('accountId', accountId, portfolioName)
 
 
     const accounts = await db.findLedgerByUser(user_id);
@@ -225,9 +244,8 @@ router.get('/portfolios/:portfolio_id/history', reqLogin, reqActive, async (req,
   const portfolioId = req.params.portfolio_id;
 
   try {
-      console.log('Fetching history for portfolio ID:', portfolioId);
       const history = await db.findPortfolioHistory(portfolioId);
-      console.log('History data:', history); 
+
       const averagePrices = await db.calculateAverageAcquisitionPrice(portfolioId);
 
       res.render('history', {
@@ -252,12 +270,8 @@ router.post('/sellTrade', async (req, res) => {
   } = req.body;
 
   try {
-    console.log('Portfolio ID:', portfolio_id);
-    console.log('Ticker:', ticker);
-
     // Hent aktien fra porteføljen
     const stock = await db.findStockInPortfolio(portfolio_id, ticker);
-    console.log('Stock found:', stock);
 
       // Tjek om der er nok aktier til at sælge
       if (!stock || parseFloat(stock.volume) < parseFloat(volume)) {

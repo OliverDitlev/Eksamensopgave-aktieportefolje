@@ -108,8 +108,6 @@ try{
         created: user.created,
         active: user.active
       }
-    
-      console.log(errorList)
     // Sender brugeren tilbage til forsiden, når der er logget ind
     res.redirect('/')
 }catch(err){
@@ -168,8 +166,7 @@ body('repeatpassword')
   const {firstname, lastname, email, password} = req.body
 
   try {  
-    console.log('session:', req.session);
-    console.log('user:', req.session.user);
+
 
     // Brugerens nye informationer bliver opdateret i databasen
     await db.changeInfo(req.session.user.user_id, firstname, lastname, email, password)
@@ -182,9 +179,6 @@ body('repeatpassword')
        email,
        password 
       };
-
-    // req.session.tempData = null; // Slet, hvis appen kører fint uden denne linje
-    console.log('user:', req.session.user);
 
     res.redirect('/');
 
