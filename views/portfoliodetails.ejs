@@ -36,8 +36,8 @@
           
       
           <div class="box" id="portofoliovalue">
-            <p>Total værdi i DKK</p>
-            <h2><%= totalValueAfterEX.toFixed(0) %> DKK</h2>
+            <p>Total value</p>
+            <h2><%= totalValueAfterEX.toFixed(0) %> <%= accounts.curreny %> </h2>
           </div>
         </div>
       </div>
@@ -55,16 +55,18 @@
             <th>Expected value</th>
         </tr>
     
+        <% let i = 0; %>
         <% stocks.forEach(value => { %>
-        <tr>   
-            <td><%= value.company_name %></td> 
-            <td><%= value.volume %></td>
-            <td> <%= value.change_24h ? (value.change_24h > 0 ? '+' : '') + value.change_24h.toFixed(2) + '%' : '-' %> </td>
-            <td> <%= value.change_7d ? (value.change_7d > 0 ? '+' : '') + value.change_7d.toFixed(2) + '%' : '-' %> </td>
-            <td><%= value.last_price %> <%= value.currency %></td>
-            <td><%= value.purchase_price %> <%= value.currency %></td>
-            <td><%= (value.last_price * value.volume).toFixed(1) %> <%= value.currency %></td>
-            <td>
+          <% const account = accounts.find(acc => acc.account_id === portfolio.account_id); %>
+          <tr>
+          <td><%= value.company_name %></td>
+          <td><%= value.volume %></td>
+          <td><%= value.change_24h ? (value.change_24h > 0 ? '+' : '') + value.change_24h.toFixed(2) + '%' : '-' %></td>
+          <td><%= value.change_7d ? (value.change_7d > 0 ? '+' : '') + value.change_7d.toFixed(2) + '%' : '-' %></td>
+          <td><%= prices.lastprice[i].toFixed(1) %> <%= account.currency %></td>
+          <td><%= prices.purchasePrice[i].toFixed(1) %> <%= account.currency %></td>
+          <td><%= prices.value[i].toFixed(1) %> <%= account.currency %></td>
+          <td>
               <button
                 id="sellTradeBtn"
                 class="popupform" 
@@ -84,6 +86,7 @@
               </button>
             </td>
         </tr>
+        <% i++ %>
         <% }) %>
     </table>
     
