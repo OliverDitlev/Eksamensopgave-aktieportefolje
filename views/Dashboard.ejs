@@ -19,21 +19,22 @@
   <!-- Tre bokse over diagrammet -->
 <div class="top-boxes">
   <div class="box">
-    <p>Total realized gains</p>
+    <h2>Total realized gains</h2>
     
       <p>
         <%= (totalRealizedGain !== undefined && totalRealizedGain !== null ? totalRealizedGain : 0) %> DKK
       </p>
   </div>
   <div class="box">
-    <h2>Total realized gains</h2>
-    <p style="color: green;">+2.024,55 kr (+3,7%)</p>
+    <h2>Total unrealized gains</h2>
+    <p><%= (totalUnrealizedGain !== undefined && totalUnrealizedGain !== null ? totalUnrealizedGain.toLocaleString('da-DK') : '0,00') %> DKK</p>
   </div>
   <div class="box">
-    <h2>Total unrealized gains</h2>
+    <h2>Total value</h2>
     <p>
-      
+      <%= stocksStats.total_current_value %> DKK
     </p>
+    <p> <%= stocksStats.total_growth_percent</p>
   </div>
 </div>
 
