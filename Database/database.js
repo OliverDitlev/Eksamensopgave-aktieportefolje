@@ -784,50 +784,16 @@ async calculateAverageAcquisitionPrice(portfolioId) {
   return result.recordset;
 }
 
-async calculateTotalRealizedGain(userId) {
-  const query = `
-  SELECT 
-    SUM(
-      ps_sells.volume * (
-        ps_sells.purchase_price - ISNULL(buy_avg.avg_price, 0)
-      )
-    ) AS total_realized_gain
-  FROM portfolios p
-  JOIN portfolios_stocks ps_sells ON ps_sells.portfolio_id = p.portfolio_id
-  LEFT JOIN (
-    SELECT portfolio_id, ticker, 
-           SUM(purchase_price * volume) / SUM(volume) AS avg_price
-    FROM portfolios_stocks
-    WHERE action = 'buy'
-    GROUP BY portfolio_id, ticker
-  ) buy_avg ON buy_avg.portfolio_id = ps_sells.portfolio_id 
-            AND buy_avg.ticker = ps_sells.ticker
-  WHERE p.user_id = @userId AND ps_sells.action = 'sell'
-`;
-
-  const request = this.poolConnection.request();
-  request.input('userId', sql.UniqueIdentifier, userId);
-  const result = await request.query(query);
-
-  const gain = result.recordset[0]?.total_realized_gain;
-  return gain !== null && gain !== undefined ? gain : 0;
-}
-
 async calculateTotalUnrealizedGain(userId) {
   const query = `
     SELECT 
       SUM(
-        ps.volume * (latest_price.price_tday - ps.purchase_price)
+        ps.volume * (stock_price_history.price_tday - ps.purchase_price)
       ) AS total_unrealized_gain
     FROM portfolios p
     JOIN portfolios_stocks ps ON ps.portfolio_id = p.portfolio_id
-    OUTER APPLY (
-      SELECT TOP 1 s.price_tday
-      FROM stock_price_history s
-      WHERE s.ticker = ps.ticker
-      ORDER BY s.price_date DESC
-    ) latest_price
-    WHERE p.user_id = @userId AND ps.action = 'buy'
+    JOIN stock_price_history ON ps.ticker = stock_price_history.ticker
+    WHERE p.user_id = @userId AND ps.action = 'BUY'
   `;
 
   const request = this.poolConnection.request();
@@ -837,7 +803,6 @@ async calculateTotalUnrealizedGain(userId) {
   const gain = result.recordset[0]?.total_unrealized_gain;
   return gain !== null && gain !== undefined ? gain : 0;
 }
-
 
 }
 
