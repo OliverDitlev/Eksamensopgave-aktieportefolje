@@ -4,6 +4,7 @@ const session = require('express-session')
 const methodOverride = require('method-override');
 
 
+
 //const { getStockData } = require('./routes/api');
 const { passwordConfig } = require('../Database/config');
 const { database, createDatabaseConnection } = require('../Database/database');
@@ -16,7 +17,8 @@ const { reqLogin, reqActive, reqAccount } = require('./middleware');
 const app = express();
 const port = 3000;
 require('dotenv').config();
-
+const { updateAllStockData } = require('./UpdateAPI');
+const cron = require('node-cron')
 
 app.set('view engine', 'ejs')
 app.set('views', path.join(__dirname, '../views'));
@@ -43,6 +45,11 @@ createDatabaseConnection(passwordConfig).then((instance => {
   app.use('/', ledgerRoutes)
   app.use('/', portfolioroutes)
   app.use('/', dashboardRoutes)
+
+  cron.schedule('0 12 * * *', () => {
+    updateAllStockData(db);
+    console.log('Opdateringsjob kørt kl. 12:00')
+})
 }))
 
 
