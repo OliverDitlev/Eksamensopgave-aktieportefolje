@@ -46,9 +46,9 @@ createDatabaseConnection(passwordConfig).then((instance => {
 }))
 
 
-//app.get('/', reqLogin, reqActive, (req, res) => {
-  //res.redirect('/dashboard');
-//});
+app.get('/', reqLogin, reqActive, (req, res) => {
+  res.redirect('/dashboard');
+});
 
 app.get('/login',(req, res) => {
   if (req.session.user) {
