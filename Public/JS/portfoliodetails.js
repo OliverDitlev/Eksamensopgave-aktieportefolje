@@ -159,3 +159,50 @@ const option = {
 myChart.setOption(option);
 window.addEventListener('resize', () => myChart.resize());
   
+document.addEventListener('DOMContentLoaded', () => {
+  // Tilføjer eventlisteners til alle "Sell"-knapper
+  const sellButtons = document.querySelectorAll('button.popupform');
+  sellButtons.forEach(button => {
+      button.addEventListener('click', event => {
+          const ticker = button.getAttribute('data-ticker');
+          const company = button.getAttribute('data-company');
+          const volume = button.getAttribute('data-volume');
+          const price = button.getAttribute('data-price');
+          const currency = button.getAttribute('data-currency');
+
+          openSellTrade(ticker, company, volume, price, currency);
+      });
+  });
+
+  // Lukker popup, når der klikkes på "X"-knappen
+  const closeSellButton = document.getElementById('closeformbtn');
+  if (closeSellButton) {
+      closeSellButton.addEventListener('click', closeSellTrade);
+  }
+});
+
+// Åbner popup-formularen til at sælge aktier
+function openSellTrade(ticker, company, volume, price, currency) {
+  const sellTickerField = document.getElementById('sellTickerField');
+  const sellCompanyField = document.getElementById('sellCompanyField');
+  const sellVolumeField = document.getElementById('sellVolumeField');
+  const sellPriceField = document.getElementById('sellPriceField');
+  const sellCurrencyField = document.getElementById('sellCurrencyField');
+  const currentPriceDisplay = document.getElementById('currentPriceDisplay');
+  const currentCurrencyDisplay = document.getElementById('currentCurrencyDisplay');
+
+  sellTickerField.value = ticker;
+  sellCompanyField.value = company;
+  sellVolumeField.max = volume;
+  sellPriceField.value = price;
+  sellCurrencyField.value = currency;
+  currentPriceDisplay.textContent = price;
+  currentCurrencyDisplay.textContent = currency;
+
+  document.getElementById('selltrade').classList.remove('hidden');
+}
+
+// Lukker popup-formularen til at sælge aktier
+function closeSellTrade() {
+  document.getElementById('selltrade').classList.add('hidden');
+}

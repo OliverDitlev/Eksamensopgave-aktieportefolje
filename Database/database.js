@@ -571,6 +571,7 @@ async findStocksByPortfolio(portfolio_id){
     JOIN stock_price_history ON portfolios_stocks.ticker = stock_price_history.ticker
     JOIN stocks ON portfolios_stocks.ticker = stocks.ticker
     WHERE portfolios_stocks.portfolio_id = @portfolio_id
+    AND portfolios_stocks.action = 'BUY'; -- Kun aktier med action = 'BUY'
   `
   const request = this.poolConnection.request();
   request.input('portfolio_id', sql.UniqueIdentifier, portfolio_id);
@@ -580,37 +581,81 @@ async findStocksByPortfolio(portfolio_id){
   return result.recordset;
 }
 
-// Hent en aktie fra en portefølje
 async findStockInPortfolio(portfolio_id, ticker) {
-    const query = `SELECT * FROM stocks WHERE portfolio_id = ? AND ticker = ?`;
-    const [stock] = await db.query(query, [portfolio_id, ticker]);
-    return stock;
+  const query = `
+      SELECT *
+      FROM portfolios_stocks
+      WHERE portfolio_id = @portfolio_id AND ticker = @ticker AND action = 'BUY';
+  `;
+  const request = this.poolConnection.request();
+  request.input('portfolio_id', sql.UniqueIdentifier, portfolio_id);
+  request.input('ticker', sql.VarChar(20), ticker);
+
+  const result = await request.query(query);
+  return result.recordset[0]; // Returnér den første post, hvis den findes
 }
 
-// Fjern aktier fra en portefølje
-async removeStockFromPortfolio(portfolio_id, ticker, volume) {
-    const query = `
-        UPDATE stocks 
-        SET volume = volume - ? 
-        WHERE portfolio_id = ? AND ticker = ? AND volume >= ?`;
-    const result = await db.query(query, [volume, portfolio_id, ticker, volume]);
+// Hent en aktie fra en portefølje
+async removeStockFromPortfolio(portfolio_id, ticker, volume, sell_price) {
+  const request = this.poolConnection.request();
+  request.input('portfolio_id', sql.UniqueIdentifier, portfolio_id);
+  request.input('ticker', sql.VarChar(20), ticker);
+  request.input('volume', sql.Decimal(12, 2), volume);
+  request.input('sell_price', sql.Decimal(12, 2), sell_price);
 
-    // Slet aktien, hvis volumen er 0
-    const deleteQuery = `DELETE FROM stocks WHERE portfolio_id = ? AND ticker = ? AND volume = 0`;
-    await db.query(deleteQuery, [portfolio_id, ticker]);
+  // Reducer volumen af aktien med action = BUY
+  const updateBuyQuery = `
+      UPDATE portfolios_stocks
+      SET volume = volume - @volume
+      WHERE portfolio_id = @portfolio_id AND ticker = @ticker AND action = 'BUY' AND volume >= @volume;
+  `;
+  await request.query(updateBuyQuery);
 
-    return result;
+  // Tjek om der allerede findes en post med action = SELL for denne aktie
+  const checkSellQuery = `
+      SELECT stock_id, volume
+      FROM portfolios_stocks
+      WHERE portfolio_id = @portfolio_id AND ticker = @ticker AND action = 'SELL';
+  `;
+  const sellResult = await request.query(checkSellQuery);
+
+  if (sellResult.recordset.length > 0) {
+      // Hvis der allerede findes en post med action = SELL, opdater volumen
+      const updateSellQuery = `
+          UPDATE portfolios_stocks
+          SET volume = volume + @volume
+          WHERE stock_id = @stock_id;
+      `;
+      const sellStockId = sellResult.recordset[0].stock_id;
+      const sellRequest = this.poolConnection.request();
+      sellRequest.input('stock_id', sql.UniqueIdentifier, sellStockId);
+      sellRequest.input('volume', sql.Decimal(12, 2), volume);
+      await sellRequest.query(updateSellQuery);
+  } else {
+      // Hvis der ikke findes en post med action = SELL, opret en ny
+      const insertSellQuery = `
+          INSERT INTO portfolios_stocks (portfolio_id, ticker, action, volume, purchase_price)
+          VALUES (@portfolio_id, @ticker, 'SELL', @volume, @sell_price);
+      `;
+      await request.query(insertSellQuery);
+    }
+
+    return true;
 }
 
 // Tilføj penge til en konto
-async addFundsToAccount(portfolio_id, amount) {
-    const query = `
-        UPDATE accounts 
-        SET available_balance = available_balance + ? 
-        WHERE account_id = (
-            SELECT account_id FROM portfolios WHERE portfolio_id = ?
-        )`;
-    return await db.query(query, [amount, portfolio_id]);
+async addFundsToAccount(account_id, amount) {
+  const query = `
+      UPDATE userledger
+      SET available_balance = available_balance + @amount
+      WHERE account_id = @account_id
+  `;
+  const request = this.poolConnection.request();
+  request.input('account_id', sql.UniqueIdentifier, account_id);
+  request.input('amount', sql.Decimal(12, 2), amount);
+
+  const result = await request.query(query);
+  return result.rowsAffected[0];
 }
 
 async createStockPriceHistory(){

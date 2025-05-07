@@ -208,25 +208,30 @@ router.post('/sellTrade', async (req, res) => {
   } = req.body;
 
   try {
-      // Hent aktien fra porteføljen
-      const stock = await db.findStockInPortfolio(portfolio_id, ticker);
+    console.log('Portfolio ID:', portfolio_id);
+    console.log('Ticker:', ticker);
+
+    // Hent aktien fra porteføljen
+    const stock = await db.findStockInPortfolio(portfolio_id, ticker);
+    console.log('Stock found:', stock);
 
       // Tjek om der er nok aktier til at sælge
-      if (!stock || stock.volume < volume) {
+      if (!stock || parseFloat(stock.volume) < parseFloat(volume)) {
           return res.status(400).send('Ikke nok aktier til at sælge');
       }
 
       // Fjern aktier fra porteføljen
-      await db.removeStockFromPortfolio(portfolio_id, ticker, volume);
+      await db.removeStockFromPortfolio(portfolio_id, ticker, parseFloat(volume), parseFloat(price));
 
       // Tilføj pengene til den tilknyttede konto
-      const totalValue = volume * price;
-      await db.addFundsToAccount(portfolio_id, totalValue);
+      const totalAmount = parseFloat(volume) * parseFloat(price);
+      const account_id = stock.account_id;
+      await db.addFundsToAccount(account_id, totalAmount);
 
       // Redirect til porteføljeoversigten
       res.redirect(`/portfolios/${portfolio_id}`);
   } catch (err) {
-      console.error(err);
+      console.error('Fejl ved salg af aktier:', err);
       res.status(500).send('Fejl ved salg af aktier');
   }
 });
