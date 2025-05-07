@@ -46,8 +46,8 @@ createDatabaseConnection(passwordConfig).then((instance => {
   app.use('/', portfolioroutes)
   app.use('/', dashboardRoutes)
 
-  cron.schedule('0 12 * * *', () => {
-    updateAllStockData(db);
+  cron.schedule('0 12 * * *', async () => {
+    await updateAllStockData(db);
     console.log('Opdateringsjob kørt kl. 12:00')
 })
 }))

@@ -621,7 +621,7 @@ async findStocksByPortfolio(portfolio_id){
       stock_price_history.currency,
       stocks.company_name,
       (portfolios_stocks.volume * stock_price_history.price_tday) AS value,
-
+      (stock_price_history.price_tday - portfolios_stocks.purchase_price) * portfolios_stocks.volume AS unrealized_gain,
       ROUND(((stock_price_history.price_tday - stock_price_history.price_ysday) / stock_price_history.price_ysday) * 100, 2) AS change_24h,
       ROUND(((stock_price_history.price_tday - stock_price_history.price_7d) / stock_price_history.price_7d) * 100, 2) AS change_7d
 
@@ -856,7 +856,32 @@ async calculateTotalRealizedGain(userId) {
   return gain !== null && gain !== undefined ? gain : 0;
 }
 
+async findTopUnrealizedGains(user_id) {
+  const query = `
+    SELECT 
+      portfolios_stocks.ticker,
+      stocks.company_name,
+      portfolios.name AS portfolio_name,
+      portfolios_stocks.volume,
+      portfolios_stocks.purchase_price,
+      stock_price_history.price_tday AS last_price,
+      (stock_price_history.price_tday - portfolios_stocks.purchase_price) * portfolios_stocks.volume AS unrealized_gain,
+      (stock_price_history.price_tday * portfolios_stocks.volume) AS current_value
+    FROM portfolios_stocks
+    JOIN portfolios ON portfolios_stocks.portfolio_id = portfolios.portfolio_id
+    JOIN stock_price_history ON portfolios_stocks.ticker = stock_price_history.ticker
+    JOIN stocks ON portfolios_stocks.ticker = stocks.ticker
+    WHERE portfolios.user_id = @user_id
+    AND portfolios_stocks.action = 'BUY'
+    ORDER BY unrealized_gain DESC
+    OFFSET 0 ROWS FETCH NEXT 5 ROWS ONLY;
+  `;
+  const request = this.poolConnection.request();
+  request.input('user_id', sql.UniqueIdentifier, user_id);
 
+  const result = await request.query(query);
+  return result.recordset;
+}
 
 async calculateTotalUnrealizedGain(userId) {
   const query = `
@@ -883,6 +908,46 @@ async getAllCompanies() {
     .query('SELECT DISTINCT ticker FROM stock_price_history'); 
   return result.recordset.map(row => row.ticker);
 }
+
+async findStatsForPortfolio(user_id) {
+  const portfolios = await this.findPortfoliosByUser(user_id);
+  const resultList = [];
+
+  for (const portfolio of portfolios) {
+    const query = `
+      SELECT 
+        SUM(portfolios_stocks.volume * portfolios_stocks.purchase_price) AS total_purchase_value,
+        SUM(portfolios_stocks.volume * stock_price_history.price_tday) AS total_current_value,
+
+        ROUND(
+          ((SUM(portfolios_stocks.volume * stock_price_history.price_tday) - 
+            SUM(portfolios_stocks.volume * stock_price_history.price_ysday)) / 
+            NULLIF(SUM(portfolios_stocks.volume * stock_price_history.price_ysday), 0)) * 100, 
+          2
+        ) AS change_24h
+
+      FROM portfolios_stocks
+      JOIN stock_price_history ON portfolios_stocks.ticker = stock_price_history.ticker
+      WHERE portfolios_stocks.portfolio_id = @portfolio_id
+        AND portfolios_stocks.action = 'BUY';
+    `;
+
+    const request = this.poolConnection.request();
+    request.input('portfolio_id', sql.UniqueIdentifier, portfolio.portfolio_id);
+    const result = await request.query(query);
+
+    resultList.push({
+      portfolio_id: portfolio.portfolio_id,
+      name: portfolio.name,
+      account_id: portfolio.account_id,
+      created_at: portfolio.created_at,
+      ...result.recordset[0]
+    });
+  }
+
+  return resultList;
+}
+
 
 
 }

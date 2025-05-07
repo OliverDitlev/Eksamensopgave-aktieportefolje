@@ -1,7 +1,15 @@
+<!DOCTYPE html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PortofolioTracker</title>
     <%- include('partials/menu') %>
     <link rel="stylesheet" href="/css/style.css">
+
 </head>
+
+
 
 <body class="main" id="main">
     <h1>History and information</h1>
@@ -24,7 +32,7 @@
                         <td><%= new Date(item.date).toLocaleDateString() %></td>
                         <td><%= item.action || 'N/A' %></td>
                         <td><%= item.stock %></td>
-                        <td><%= item.price.toFixed(2) %> DKK</td>
+                        <td><%= item.price.toFixed(2) %> USD</td>
                         <td><%= item.quantity %></td>
                     </tr>
                 <% }); %>
@@ -50,7 +58,7 @@
                     <tr>
                         <td><%= item.company %></td>
                         <td><%= item.stock %></td>
-                        <td><%= item.average_price.toFixed(2) %> DKK</td>
+                        <td><%= item.average_price.toFixed(2) %> USD</td>
                         <td><%= item.total_volume %></td>
                     </tr>
                 <% }); %>
@@ -60,3 +68,4 @@
         <p>No average acquisition prices available.</p>
     <% } %>
 </body>
+</html>
