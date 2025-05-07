@@ -1,5 +1,5 @@
 const express = require('express')
-const {body, validationResult} = require('express-validator')
+
 
 const router = express.Router()
 
@@ -9,34 +9,16 @@ router.get('/dashboard', reqLogin, reqActive, async (req, res) => {
   const db = req.app.locals.db;
   const userId = req.session.user.user_id;
   console.log("User session ID:", req.session.user?.user_id);
-  
-  try {
-      const totalRealizedGain = await db.calculateTotalRealizedGain(userId);
+  const totalRealizedGain = await db.calculateTotalRealizedGain(userId);
+  const totalUnrealizedGain = await db.calculateTotalUnrealizedGain(userId);
+
+      console.log(totalUnrealizedGain, totalRealizedGain);
       console.log('Total Realized Gain:', totalRealizedGain);
       res.render('Dashboard', {
-          user: req.session.user,
-          totalRealizedGain: totalRealizedGain !== undefined && totalRealizedGain !== null ? totalRealizedGain : 0, // Ensure it's defined
+          user: req.session.user,totalUnrealizedGain,
+          totalRealizedGain: totalRealizedGain !== undefined && totalRealizedGain !== null ? totalRealizedGain : 0,
       });
-  } catch (err) {
-      console.error('Error fetching total realized gain:', err);
-      res.status(500).send('Internal Server Error');
-  }
+
 });
 
-router.get('/dashboard', reqLogin, reqActive, async (req, res) => {
-  const db = req.app.locals.db;
-  const userId = req.session.user.user_id;
-
-  try {
-      const totalUnrealizedGain = await db.calculateTotalUnrealizedGain(userId);
-      res.render('Dashboard', {
-          user: req.session.user,
-          totalUnrealizedGain, 
-      });
-  } catch (err) {
-      console.error('Error fetching total unrealized gain:', err);
-      res.status(500).send('Internal Server Error');
-  }
-});
-  
   module.exports = router;

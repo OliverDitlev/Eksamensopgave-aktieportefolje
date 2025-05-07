@@ -817,12 +817,17 @@ async calculateTotalUnrealizedGain(userId) {
   const query = `
     SELECT 
       SUM(
-        ps.volume * (stock_price_history.price_tday - ps.purchase_price)
+        ps.volume * (latest_price.price_tday - ps.purchase_price)
       ) AS total_unrealized_gain
     FROM portfolios p
     JOIN portfolios_stocks ps ON ps.portfolio_id = p.portfolio_id
-    JOIN stock_price_history ON ps.ticker = stock_price_history.ticker
-    WHERE p.user_id = @userId AND ps.action = 'BUY'
+    OUTER APPLY (
+      SELECT TOP 1 s.price_tday
+      FROM stock_price_history s
+      WHERE s.ticker = ps.ticker
+      ORDER BY s.price_date DESC
+    ) latest_price
+    WHERE p.user_id = @userId AND ps.action = 'buy'
   `;
 
   const request = this.poolConnection.request();
@@ -832,6 +837,7 @@ async calculateTotalUnrealizedGain(userId) {
   const gain = result.recordset[0]?.total_unrealized_gain;
   return gain !== null && gain !== undefined ? gain : 0;
 }
+
 
 }
 
