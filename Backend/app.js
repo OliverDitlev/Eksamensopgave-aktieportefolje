@@ -66,7 +66,7 @@ app.get('/portfolios', reqLogin, reqActive, async (req, res) => {
     
     const portfolios = await db.findPortfoliosByUser(user_id);
     const accounts = await db.findLedgerByUser(user_id);
-    const stocks = await db.findStocksByPortfolio(portfolio_id)
+    //const stocks = await db.findStocksByPortfolio(portfolio_id)
     console.log(portfolios)
 
     res.render('portfolios', {

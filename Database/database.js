@@ -466,7 +466,7 @@ async stocks() {
     });
 }
 
-async findAllStocks(user_id) {
+async findAllStocksForUser(user_id) {
   const query = `
 
 
@@ -588,7 +588,7 @@ async findStocksByPortfolio(portfolio_id){
     JOIN stock_price_history ON portfolios_stocks.ticker = stock_price_history.ticker
     JOIN stocks ON portfolios_stocks.ticker = stocks.ticker
     WHERE portfolios_stocks.portfolio_id = @portfolio_id
-    AND portfolios_stocks.action = 'BUY'; -- Kun aktier med action = 'BUY'
+    AND portfolios_stocks.action = 'BUY';
   `
   const request = this.poolConnection.request();
   request.input('portfolio_id', sql.UniqueIdentifier, portfolio_id);
