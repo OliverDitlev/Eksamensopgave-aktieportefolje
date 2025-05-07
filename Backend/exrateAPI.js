@@ -1,3 +1,4 @@
+
 async function getExchangeRates() {
     const API_KEY = '220e5fabffae324cddb94eb1';
     const baseCurrency = 'DKK';
@@ -17,11 +18,13 @@ async function getExchangeRates() {
         GBP: rates['GBP'],  
         USD: rates['USD']
       }
-
+      
       return result;
     } catch (error) {
       console.error('could not get exchange rates', error);
       return false;
     }
   }
+ 
   module.exports = { getExchangeRates }
+ 
