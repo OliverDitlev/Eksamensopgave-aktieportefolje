@@ -174,13 +174,13 @@ img {
   width: 300px;
   position: relative;
 }
-#closeformbtn, #closebalancebtn {
+#closeformbtn, #closeRegisterFormBtn, #closeSellFormBtn, #closebalancebtn {
   position: absolute;
   right: 15px;
   top: 15px;
   font-weight: bolder;
 }
-#closeformbtn:hover, #closebalancebtn:hover {
+#closeformbtn:hover, #closeRegisterFormBtn:hover, #closeSellFormBtn:hover, #closebalancebtn:hover {
   cursor: pointer;
   color: black;
   font-weight: bold;
@@ -221,6 +221,17 @@ img {
   width: 140px;
   height: 50px;
   top: 20px;
+}
+
+#sellTradeBtn{
+  border: none;
+  border-radius: 5px;
+  background: #8a8a8a;
+  color: #fff;
+  cursor: pointer;
+  font-size: 16px;
+  width: 80px;
+  height: 35px;
 }
 
 .accountswrap {
