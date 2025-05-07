@@ -3,10 +3,10 @@ const {body, validationResult} = require('express-validator')
 
 const router = express.Router()
 
-const { reqLogin, reqActive } = require('../middleware.js');
+const { reqLogin, reqActive } = require('../middleware.js'); // Bruges ikke i koden
 
 router.post('/createaccount', [
-// valider Input fra brugere med brug af express-validator
+// Valider Input fra brugere med brug af express-validator
 body('firstname')
 .notEmpty().withMessage('First name is required'),
 
