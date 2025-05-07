@@ -804,13 +804,15 @@ async findPortfolioHistory(portfolioId) {
   const result = await request.query(query);
   return result.recordset;
 }
+
 async calculateAverageAcquisitionPrice(portfolioId) {
   const query = `
     SELECT 
         ps.ticker AS stock,
         s.company_name AS company,
-        SUM(ps.purchase_price * ps.volume) / SUM(ps.volume) AS average_price, -- Weighted average formula
-        SUM(ps.volume) AS total_volume -- Total number of stocks purchased
+        SUM(CASE WHEN ps.action = 'BUY' AND ps.volume > 0 THEN ps.purchase_price * ps.volume ELSE 0 END) / 
+        SUM(CASE WHEN ps.action = 'BUY' AND ps.volume > 0 THEN ps.volume ELSE 0 END) AS average_price, -- Weighted average formula, considering only 'BUY' actions with volume > 0
+        SUM(CASE WHEN ps.action = 'BUY' AND ps.volume > 0 THEN ps.volume ELSE 0 END) AS total_volume -- Total number of shares purchased, considering only 'BUY' actions with volume > 0
     FROM portfolios_stocks ps
     JOIN stocks s ON ps.ticker = s.ticker
     WHERE ps.portfolio_id = @portfolioId
@@ -823,8 +825,10 @@ async calculateAverageAcquisitionPrice(portfolioId) {
   const result = await request.query(query);
 
   return result.recordset;
-
 }
+
+  
+
 async calculateTotalRealizedGain(userId) {
   const query = `
     SELECT 
