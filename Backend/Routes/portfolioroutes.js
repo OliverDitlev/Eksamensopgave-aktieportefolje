@@ -26,7 +26,11 @@ router.get('/portfolios', reqLogin, reqActive, async (req, res) => {
     const usdToDkkRate = exchangeRates['USD'];
     const total_purchase_value_usd = parseFloat(stocksStats.total_current_value || 0);
     const total_purchase_value_dkk = (total_purchase_value_usd / usdToDkkRate).toFixed(0);
-    console.log(stocksStats, total_purchase_value_dkk)
+   console.log(
+    portfolios,
+    accounts,
+    stocksStats,
+    total_purchase_value_dkk,)
 
     res.render('portfolios', {
       user: req.session.user,
