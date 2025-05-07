@@ -17,4 +17,5 @@ async function updateAllStockData(db) {
   }
 }
 
+
 module.exports = { updateAllStockData };

@@ -21,22 +21,23 @@ router.get('/portfolios', reqLogin, reqActive, async (req, res) => {
     const portfolios = await db.findPortfoliosByUser(user_id);
     const accounts = await db.findLedgerByUser(user_id);
     const stocksStats = await db.findAllStocksForUser(user_id)
+    const stats = await db.findStatsForPortfolio(user_id)
     
     const exchangeRates = await getExchangeRates()
     const usdToDkkRate = exchangeRates['USD'];
     const total_purchase_value_usd = parseFloat(stocksStats.total_current_value || 0);
     const total_purchase_value_dkk = (total_purchase_value_usd / usdToDkkRate).toFixed(0);
+
+
    console.log(
-    portfolios,
-    accounts,
-    stocksStats,
-    total_purchase_value_dkk,)
+    portfolios, stats)
 
     res.render('portfolios', {
       user: req.session.user,
       portfolios,
       accounts,
       stocksStats,
+      stats,
       total_purchase_value_dkk,
       errors: []
     });
@@ -58,14 +59,21 @@ router.get('/portfolios/:portfolio_id', async (req, res) => {
     const portfolio = await db.findPortfoliosById(portfolio_id)
     const monthlyHistory = await db.getPortfolioHistory(portfolio_id)
 
-    // Henter aktierne i porteføljen
+
     const stocks = await db.findStocksByPortfolio(portfolio_id)
     const ledger = accounts.find(account => account.account_id === portfolio.account_id);
-    const availBalance = ledger.available_balance
+
 
     const exchangeRates = await getExchangeRates()
     const usdToDkkRate = exchangeRates['USD']
     const gbpToDkkRate = exchangeRates['GBP']
+
+    let availBalance = Number(ledger.available_balance);
+    if (ledger.currency === 'DKK') {
+      availBalance = availBalance * exchangeRates['USD'];
+    } else if (ledger.currency === 'GBP') {
+      availBalance = availBalance * (exchangeRates['GBP'] * exchangeRates['USD']);
+    }
 
 const totalValueAfterEX = stocks.reduce((acc, stock) => {
       let stockValueDKK = 0
@@ -148,7 +156,7 @@ router.post('/portfolios', [
     res.redirect('/portfolios');
 });
 
-// Sletter en portefølje. ikke færdig
+// Sletter en portefølje. 
 router.delete('/deleteportfolio', async (req, res) => {
     const db = req.app.locals.db;
     const { portfolioID } = req.body;

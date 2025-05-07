@@ -21,15 +21,24 @@
         <div class="portfolioboxes">
           <div class="box" id="portofoliovalue">
             <h3>Total value in DKK</h3>
-            <p> <%= total_purchase_value_dkk %> DKK</p>
-            <p>total change <%=stocksStats.total_growth_percent %> </p>
+            <p class="valueamount"><%= total_purchase_value_dkk > 0 ?'positive' : 'negative' %> DKK</p>
+            <p>Total change: </p>
+            <p class="valuechange <%= stocksStats.total_growth_percent > 0 ? 'positive' : 'negative' %>">
+              <%= stocksStats.total_growth_percent %>%
+            </p>
           </div>
       
           <div class="box" id="portofoliochange">
             <h3>Changes</h3>
-            <p><b>24 hours</b><br> <%= stocksStats.change_24h %>%</p>
-            <p><b>7 days</b><br><%= stocksStats.change_7d %>%</p>
-            <p><b>30 days</b><br><%= stocksStats.change_30d %>%</p>
+            <p class="<%= stocksStats.change_24h > 0 ? 'positive' : 'negative' %>">
+                <b>24 hours:</b> <%= stocksStats.change_24h %>%
+              </p>
+              <p class="<%= stocksStats.change_7d > 0 ? 'positive' : 'negative' %>">
+                <b>7 days:</b> <%= stocksStats.change_7d %>%
+              </p>
+              <p class="<%= stocksStats.change_30d > 0 ? 'positive' : 'negative' %>">
+                <b>30 days:</b> <%= stocksStats.change_30d %>%
+              </p>
           </div>
         </div>
       
@@ -45,7 +54,7 @@
                     <th>Portfolio name</th>
                     <th>Account</th>
                     <th>Creation</th>
-                    <th>Portfolio value</th>
+                    <th>purchase price</th>
                     <th>24h change</th>
                     <th>Available balance</th>
                     <th>Samlet Urealiseret Gevinst/Tab</th>
@@ -55,15 +64,16 @@
             <tbody>
                 <% if (portfolios && portfolios.length > 0) { %>
                     <% portfolios.forEach(function(portfolio) { %>
+                        <% const stat = stats.find(stat => stat.account_id === portfolio.account_id) %>
                         <% const account = accounts.find(account => account.account_id === portfolio.account_id); %>
                         <tr>
                             <td><%= portfolio.name %></td>
                             <td><%= account.name %> </td>
                             <td><%= new Date(portfolio.created_at).toLocaleDateString() %></td>
-                            <td><%= account.balance %></td>
-                            <td></td>
-                            <td><%= account.available_balance %> </td>
-                            <td></td>
+                            <td><%= stat?.total_purchase_value || 0 %></td>
+                            <td><%= stat.change_24h || 0 %>%</td>
+                            <td><%= account.available_balance %> <%= account.currency %> </td>
+                            <td><%= (stat.total_current_value - stat.total_purchase_value).toFixed() %></td>
                             <td>
                                 <a class="accountbtn" href="/portfolios/<%= portfolio.portfolio_id %>">Se detaljer</a>
                             </td>

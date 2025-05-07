@@ -884,6 +884,46 @@ async getAllCompanies() {
   return result.recordset.map(row => row.ticker);
 }
 
+async findStatsForPortfolio(user_id) {
+  const portfolios = await this.findPortfoliosByUser(user_id);
+  const resultList = [];
+
+  for (const portfolio of portfolios) {
+    const query = `
+      SELECT 
+        SUM(portfolios_stocks.volume * portfolios_stocks.purchase_price) AS total_purchase_value,
+        SUM(portfolios_stocks.volume * stock_price_history.price_tday) AS total_current_value,
+
+        ROUND(
+          ((SUM(portfolios_stocks.volume * stock_price_history.price_tday) - 
+            SUM(portfolios_stocks.volume * stock_price_history.price_ysday)) / 
+            NULLIF(SUM(portfolios_stocks.volume * stock_price_history.price_ysday), 0)) * 100, 
+          2
+        ) AS change_24h
+
+      FROM portfolios_stocks
+      JOIN stock_price_history ON portfolios_stocks.ticker = stock_price_history.ticker
+      WHERE portfolios_stocks.portfolio_id = @portfolio_id
+        AND portfolios_stocks.action = 'BUY';
+    `;
+
+    const request = this.poolConnection.request();
+    request.input('portfolio_id', sql.UniqueIdentifier, portfolio.portfolio_id);
+    const result = await request.query(query);
+
+    resultList.push({
+      portfolio_id: portfolio.portfolio_id,
+      name: portfolio.name,
+      account_id: portfolio.account_id,
+      created_at: portfolio.created_at,
+      ...result.recordset[0]
+    });
+  }
+
+  return resultList;
+}
+
+
 
 }
 

@@ -526,5 +526,11 @@ button[disabled] {
   margin-top: -50px;
   height: auto;
   margin-left: 80px;
+}
+.positive {
+  color: #4caf50;
+}
 
+.negative {
+  color: #f44336;
 }
