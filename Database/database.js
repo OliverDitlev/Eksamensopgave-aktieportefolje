@@ -321,9 +321,6 @@ async findTransactionByUser(user_id) {
 return request.recordset;
 }
 
-
-
-
 async findPortfoliosByAccountId(account_id) {
   const query = `
     SELECT *
@@ -377,6 +374,20 @@ async createPortfolios() {
       console.log("Portfolios table created");
     });
 }
+
+async insertPortfolio(user_id, name, account_id) {
+  const query = `
+      INSERT INTO portfolios (user_id, name, account_id, created_at)
+      VALUES (@user_id, @name, @account_id, GETDATE())
+  `;
+  const request = this.poolConnection.request();
+  request.input('user_id', sql.UniqueIdentifier, user_id);
+  request.input('name', sql.VarChar, name);
+  request.input('account_id', sql.UniqueIdentifier, account_id);
+  
+  await request.query(query);
+}
+
 
 async findPortfoliosByUser(user_id) {
   try {
@@ -454,6 +465,12 @@ async stocks() {
       console.log("Stock table created");
     });
 }
+
+async findAllStocks(user_id) {
+  const query = `
+
+
+`};
 
 
 async saveStockData(ticker, companyName, currency, daily, monthly) {
@@ -726,9 +743,6 @@ this.executeQuery(query)
 
   return result.recordset.map(({ history, value }) => ({ history, value }));
 }
-  
-
-
 
 async findPortfolioHistory(portfolioId) {
   const query = `

@@ -42,29 +42,28 @@
         <table>
             <thead>
                 <tr>
-                    <th>Portefølje Navn</th>
-                    <th>Konto tilknyttet</th>
-                    <th>Oprettelsesdato</th>
-                    <th>Samlet Erhvervelsespris</th>
-                    <th>Samlet Forventet Værdi</th>
+                    <th>Portfolio name</th>
+                    <th>Account</th>
+                    <th>Creation</th>
+                    <th>Portfolio value</th>
+                    <th>24h change</th>
+                    <th>Available balance</th>
                     <th>Samlet Urealiseret Gevinst/Tab</th>
-                    
                     <th>Handlinger</th>
                 </tr>
             </thead>
             <tbody>
                 <% if (portfolios && portfolios.length > 0) { %>
                     <% portfolios.forEach(function(portfolio) { %>
+                        <% const account = accounts.find(account => account.account_id === portfolio.account_id); %>
                         <tr>
                             <td><%= portfolio.name %></td>
-                            <td>
-                                <%= (accounts.find(account => account.account_id === portfolio.account_id).name) %>
-                              </td>
-                              
+                            <td><%= account.name %> </td>
                             <td><%= new Date(portfolio.created_at).toLocaleDateString() %></td>
-                            <td><%= portfolio.totalAcquisitionPrice?.toFixed(2) || "0.00" %> DKK</td>
-                            <td><%= portfolio.totalExpectedValue?.toFixed(2) || "0.00" %> DKK</td>
-                            <td><%= portfolio.totalUnrealizedProfitLoss?.toFixed(2) || "0.00" %> DKK</td>
+                            <td></td>
+                            <td></td>
+                            <td><%= account.available_balance %> </td>
+                            <td></td>
                             <td>
                                 <a class="accountbtn" href="/portfolios/<%= portfolio.portfolio_id %>">Se detaljer</a>
                             </td>

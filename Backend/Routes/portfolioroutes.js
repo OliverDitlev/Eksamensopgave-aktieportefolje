@@ -12,6 +12,10 @@ const request = require('request');
 const API_KEY = '5QA9YSDJVYM03SXE'
 
 const router = express.Router();
+/*
+router.get('/portfolios', reqLogin, reqActive, async (req, res) => {
+    const db = req.app.locals.db;
+*/
 
 // Henter brugerens porteføljer, konti og tilhørende aktier
 router.get('/portfolios/:portfolio_id', async (req, res) => {
@@ -61,7 +65,7 @@ const totalValueAfterEX = stocks.reduce((acc, stock) => {
         value: valueDKK,
       }
     });
-
+    console.log('portfolio', portfolio, 'accounts', accounts, 'stocks', stocks)
     // Sender alle informationerne til portfoliodetails.ejs
     res.render('portfoliodetails', {
         user: req.session.user,
@@ -91,10 +95,15 @@ router.post('/portfolios', [
     const db = req.app.locals.db;
     const errors = validationResult(req);
     const user_id = req.session.user.user_id;
+   
 
-    const { portfolioName, accountId } = req.body;
+    const portfolioName = req.body.portfolioName;
+    const accountId  = req.body.accountId;
+    console.log('accountId', accountId, portfolioName)
+
 
     const accounts = await db.findLedgerByUser(user_id);
+
     // Hvis validering fejler, vises fejl
     if (!errors.isEmpty()) {
         const portfolios = await db.findPortfoliosByAccountId(accountId);
