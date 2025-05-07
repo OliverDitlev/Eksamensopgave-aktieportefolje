@@ -804,7 +804,7 @@ async findPortfolioHistory(portfolioId) {
   const result = await request.query(query);
   return result.recordset;
 }
-/*
+
 async calculateAverageAcquisitionPrice(portfolioId) {
   const query = `
     SELECT 
@@ -827,7 +827,7 @@ async calculateAverageAcquisitionPrice(portfolioId) {
   return result.recordset;
 }
 
-  */
+  
 
 async calculateTotalRealizedGain(userId) {
   const query = `
