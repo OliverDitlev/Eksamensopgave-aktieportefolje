@@ -21,7 +21,7 @@
         <div class="portfolioboxes">
           <div class="box" id="portofoliovalue">
             <h3>Total value in DKK</h3>
-            <p><%= portfolios.reduce((sum, p) => sum + (p.totalExpectedValue || 0), 0).toFixed(0) %> DKK</p>
+            <p> <%= total_purchase_value_dkk %> <%=stocksStats.total_growth_percent %> DKK</p>
           </div>
       
           <div class="box" id="portofoliochange">

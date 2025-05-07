@@ -468,10 +468,51 @@ async stocks() {
 
 async findAllStocksForUser(user_id) {
   const query = `
+    SELECT 
+      SUM(portfolios_stocks.volume * portfolios_stocks.purchase_price) AS total_purchase_value,
+      SUM(portfolios_stocks.volume * stock_price_history.price_tday) AS total_current_value,
 
+      ROUND(
+        ((SUM(portfolios_stocks.volume * stock_price_history.price_tday) - 
+          SUM(portfolios_stocks.volume * portfolios_stocks.purchase_price)) / 
+          NULLIF(SUM(portfolios_stocks.volume * portfolios_stocks.purchase_price), 0)) * 100, 
+        2
+      ) AS total_growth_percent,
 
-`};
+      ROUND(
+        ((SUM(portfolios_stocks.volume * stock_price_history.price_tday) - 
+          SUM(portfolios_stocks.volume * stock_price_history.price_ysday)) / 
+          NULLIF(SUM(portfolios_stocks.volume * stock_price_history.price_ysday), 0)) * 100, 
+        2
+      ) AS change_24h,
 
+      ROUND(
+        ((SUM(portfolios_stocks.volume * stock_price_history.price_tday) - 
+          SUM(portfolios_stocks.volume * stock_price_history.price_7d)) / 
+          NULLIF(SUM(portfolios_stocks.volume * stock_price_history.price_7d), 0)) * 100, 
+        2
+      ) AS change_7d,
+
+      ROUND(
+        ((SUM(portfolios_stocks.volume * stock_price_history.price_tday) - 
+          SUM(portfolios_stocks.volume * stock_price_history.price_1m)) / 
+          NULLIF(SUM(portfolios_stocks.volume * stock_price_history.price_1m), 0)) * 100, 
+        2
+      ) AS change_30d
+
+    FROM portfolios_stocks
+    JOIN portfolios ON portfolios_stocks.portfolio_id = portfolios.portfolio_id
+    JOIN stock_price_history ON portfolios_stocks.ticker = stock_price_history.ticker
+    WHERE portfolios.user_id = @user_id
+      AND portfolios_stocks.action = 'BUY';
+`
+const request = this.poolConnection.request();
+request.input('user_id', sql.UniqueIdentifier, user_id);
+
+const result = await request.query(query);
+if (!result.recordset) return [];
+return result.recordset[0];
+}
 
 async saveStockData(ticker, companyName, currency, daily, monthly) {
   const pool = this.poolConnection;
