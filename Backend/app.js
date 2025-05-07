@@ -60,27 +60,6 @@ app.get('/login',(req, res) => {
   });
 });
 
-app.get('/portfolios', reqLogin, reqActive, async (req, res) => {
-  try {
-    const user_id = req.session.user.user_id;
-    
-    const portfolios = await db.findPortfoliosByUser(user_id);
-    const accounts = await db.findLedgerByUser(user_id);
-    //const stocks = await db.findStocksByPortfolio(portfolio_id)
-    console.log(portfolios)
-
-    res.render('portfolios', {
-      user: req.session.user,
-      portfolios,
-      accounts,
-      errors: []
-    });
-  } catch (err) {
-    console.error('Error fetching portfolios:', err);
-    res.status(500).send('Internal Server Error');
-  }
-});
-
 app.get('/createaccount', (req, res) => {
   res.render('createaccount', {
     errors: [],

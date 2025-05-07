@@ -12,10 +12,35 @@ const request = require('request');
 const API_KEY = '5QA9YSDJVYM03SXE'
 
 const router = express.Router();
-/*
+
 router.get('/portfolios', reqLogin, reqActive, async (req, res) => {
+  try {
     const db = req.app.locals.db;
-*/
+    const user_id = req.session.user.user_id;
+    
+    const portfolios = await db.findPortfoliosByUser(user_id);
+    const accounts = await db.findLedgerByUser(user_id);
+    const stocksStats = await db.findAllStocksForUser(user_id)
+    
+    const exchangeRates = await getExchangeRates()
+    const usdToDkkRate = exchangeRates['USD'];
+    const total_purchase_value_usd = parseFloat(stocksStats.total_current_value || 0);
+    const total_purchase_value_dkk = (total_purchase_value_usd / usdToDkkRate).toFixed(0);
+    console.log(stocksStats, total_purchase_value_dkk)
+
+    res.render('portfolios', {
+      user: req.session.user,
+      portfolios,
+      accounts,
+      stocksStats,
+      total_purchase_value_dkk,
+      errors: []
+    });
+  } catch (err) {
+    console.error('Error fetching portfolios:', err);
+  }
+});
+
 
 // Henter brugerens porteføljer, konti og tilhørende aktier
 router.get('/portfolios/:portfolio_id', async (req, res) => {
@@ -154,8 +179,6 @@ router.get('/api/stockinfo', async (req, res) => {
     res.json(result);
   });
 
-  
-
 // Registrer et køb af aktier i en portefølje
 router.post('/registerTrade', async (req, res) => {
   const db = req.app.locals.db;
@@ -245,8 +268,6 @@ router.post('/sellTrade', async (req, res) => {
   }
 });
   
-
-
 router.get('/api/portfolioHistory', async (req, res) =>{
   const db = req.app.locals.db;
   const history = await db.getPortfolioHistory(req.query.portfolioId);
@@ -272,6 +293,5 @@ router.get('/api/symbols', async (req, res) => {
       res.json(out);
     });
   });
-
 
 module.exports = router;
