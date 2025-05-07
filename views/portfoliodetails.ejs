@@ -66,13 +66,20 @@
             <td><%= (value.last_price * value.volume).toFixed(1) %> <%= value.currency %></td>
             <td>
               <button
+                id="sellTradeBtn"
                 class="popupform" 
                 data-ticker="<%= value.ticker %>" 
                 data-company="<%= value.company_name %>" 
                 data-volume="<%= value.volume %>" 
                 data-price="<%= value.last_price %>" 
                 data-currency="<%= value.currency %>"
-                onclick="openSellTrade()"
+                onclick="openSellTrade(
+                  '<%= value.ticker %>',
+                  '<%= value.company_name %>',
+                  <%= value.volume %>,
+                  <%= value.last_price %>,
+                  '<%= value.currency %>'
+                )"
               >Sell
               </button>
             </td>
@@ -82,7 +89,7 @@
     
     <div id="registertrade" class="popup hidden">
       <div id="formAddportfolio">
-          <span id="closeformbtn" onclick="closeRegisterTrade()">X</span>
+          <span id="closeRegisterFormBtn" onclick="closeRegisterTrade()">X</span>
           <h2>Register trade</h2>
           <form action="/registerTrade" method="POST">
             <label>Find company</label>
@@ -111,7 +118,7 @@
 
 <div id="selltrade" class="popup hidden">
     <div id="formSellTrade">
-        <span id="closeformbtn" onclick="closeSellTrade()">X</span>
+        <span id="closeSellFormBtn" onclick="closeSellTrade()">X</span>
         <h2>Sell Trade</h2>
         <form action="/sellTrade" method="POST">
             <input type="hidden" name="portfolio_id" value="<%= portfolio.portfolio_id %>">
