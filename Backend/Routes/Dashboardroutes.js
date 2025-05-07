@@ -11,7 +11,7 @@ router.get('/dashboard', reqLogin, reqActive, async (req, res) => {
   console.log("User session ID:", req.session.user?.user_id);
   const totalRealizedGain = await db.calculateTotalRealizedGain(userId);
   const totalUnrealizedGain = await db.calculateTotalUnrealizedGain(userId);
-  const stocksStats = await db.findStocksByUser(userId);
+  const stocksStats = await db.findAllStocksForUser(userId);
       console.log(totalUnrealizedGain, totalRealizedGain);
       console.log('Total Realized Gain:', totalRealizedGain);
       res.render('Dashboard', {
