@@ -21,19 +21,19 @@
         <div class="portfolioboxes">
           <div class="box" id="portofoliovalue">
             <h3>Total value in DKK</h3>
-            <p> <%= total_purchase_value_dkk %> <%=stocksStats.total_growth_percent %> DKK</p>
+            <p> <%= total_purchase_value_dkk %> DKK</p>
+            <p>total change <%=stocksStats.total_growth_percent %> </p>
           </div>
       
           <div class="box" id="portofoliochange">
             <h3>Changes</h3>
-            <p>1.4% 24 hours</p>
-            <p>1.4% 7 days</p>
-            <p>1.4% 30 days</p>
+            <p><b>24 hours</b><br> <%= stocksStats.change_24h %>%</p>
+            <p><b>7 days</b><br><%= stocksStats.change_7d %>%</p>
+            <p><b>30 days</b><br><%= stocksStats.change_30d %>%</p>
           </div>
         </div>
       
         <div class="box" id="portofoliopie">
-          <h3>Distrubution of value in portfolios</h3>
           <div id="portfolioDonut"></div>
         </div>
       </div>
@@ -60,7 +60,7 @@
                             <td><%= portfolio.name %></td>
                             <td><%= account.name %> </td>
                             <td><%= new Date(portfolio.created_at).toLocaleDateString() %></td>
-                            <td></td>
+                            <td><%= account.balance %></td>
                             <td></td>
                             <td><%= account.available_balance %> </td>
                             <td></td>
