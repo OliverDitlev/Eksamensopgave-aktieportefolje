@@ -9,7 +9,7 @@ const request = require('request');
 
 
 // Nøgle til API'en
-const API_KEY = 'KCV7VR1WLC10CL57'
+const API_KEY = 'FH5DKLT4OSQOAZ9T'
 
 const router = express.Router();
 
@@ -93,9 +93,10 @@ const totalValueAfterEX = stocks.reduce((acc, stock) => {
       let stockValueDKK = 0
 
     if (stock.currency === 'USD') {
-        stockValueDKK = Number(stock.value) * usdToDkkRate
+      
+        stockValueDKK = Number(stock.value) / exchangeRates['USD']
       } else if (stock.currency === 'GBP') {
-        stockValueDKK = Number(stock.value) * gbpToDkkRate
+        stockValueDKK = Number(stock.value) / exchangeRates['GBP']
       } else {
         stockValueDKK = Number(stock.value)
       }
