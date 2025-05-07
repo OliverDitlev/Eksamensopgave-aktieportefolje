@@ -534,3 +534,23 @@ button[disabled] {
 .negative {
   color: #f44336;
 }
+.unrealized-gains-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 10px;
+}
+
+.unrealized-gains-table th, .unrealized-gains-table td {
+  border: 1px solid #ffffff;
+  padding: 8px;
+  text-align: left;
+}
+
+.unrealized-gains-table th {
+  background-color: #000000;
+  font-weight: bold;
+}
+
+.unrealized-gains-table tr {
+  background-color: #6c6c6c;
+}

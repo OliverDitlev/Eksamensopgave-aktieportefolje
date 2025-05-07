@@ -63,11 +63,34 @@
   <!-- To bokse under diagrammet -->
 <div class="bottom-boxes">
   <div class="box">
-    <h2>Seneste køb</h2>
+    <h2>Top 5 Unrealized Gains</h2>
     <ul>
-      <li>15/04/2025 – 5 stk Novo Nordisk</li>
-      <li>12/04/2025 – 3 stk Tesla</li>
-      <li>10/04/2025 – 2 stk Amazon</li>
+      <% if (topUnrealizedGains && topUnrealizedGains.length > 0) { %>
+        <table class="unrealized-gains-table">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Stock</th>
+              <th>Portfolio</th>
+              <th>Total Value</th>
+              <th>Unrealized Gain</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% topUnrealizedGains.forEach((stock, index) => { %>
+              <tr>
+                <td><%= index + 1 %></td>
+                <td><%= stock.company_name %> (<%= stock.ticker %>)</td>
+                <td><%= stock.portfolio_name %></td>
+                <td><%= stock.current_value.toLocaleString('da-DK', { style: 'currency', currency: 'DKK' }) %></td>
+                <td><%= stock.unrealized_gain.toLocaleString('da-DK', { style: 'currency', currency: 'DKK' }) %></td>
+              </tr>
+            <% }) %>
+          </tbody>
+        </table>
+      <% } else { %>
+        <li>No data available</li>
+      <% } %>
     </ul>
   </div>
   <div class="box">
