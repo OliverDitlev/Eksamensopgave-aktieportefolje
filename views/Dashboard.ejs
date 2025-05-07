@@ -26,12 +26,14 @@
       </p>
   </div>
   <div class="box">
-    <h2>Afkast</h2>
+    <h2>Total realized gains</h2>
     <p style="color: green;">+2.024,55 kr (+3,7%)</p>
   </div>
   <div class="box">
-    <h2>Investeringer</h2>
-    <p>10 aktier</p>
+    <h2>Total unrealized gains</h2>
+    <p>
+      <%= totalUnrealizedGain.toLocaleString('da-DK', { style: 'currency', currency: 'DKK' }) %>
+    </p>
   </div>
 </div>
 

@@ -23,5 +23,20 @@ router.get('/dashboard', reqLogin, reqActive, async (req, res) => {
   }
 });
 
+router.get('/dashboard', reqLogin, reqActive, async (req, res) => {
+  const db = req.app.locals.db;
+  const userId = req.session.user.user_id;
+
+  try {
+      const totalUnrealizedGain = await db.calculateTotalUnrealizedGain(userId);
+      res.render('Dashboard', {
+          user: req.session.user,
+          totalUnrealizedGain, 
+      });
+  } catch (err) {
+      console.error('Error fetching total unrealized gain:', err);
+      res.status(500).send('Internal Server Error');
+  }
+});
   
   module.exports = router;
