@@ -702,11 +702,16 @@ async findStocksByPortfolio(portfolio_id){
   return result.recordset;
 }
 
-async findStockInPortfolio(portfolio_id, ticker) {
+async findStockInPortfolioForSelling(portfolio_id, ticker) {
   const query = `
-      SELECT *
-      FROM portfolios_stocks
-      WHERE portfolio_id = @portfolio_id AND ticker = @ticker AND action = 'BUY';
+    SELECT 
+      ps.*,
+      p.account_id
+      s.currency AS stock_currency
+    FROM portfolios_stocks ps
+    JOIN portfolios p ON ps.portfolio_id = p.portfolio_id
+    JOIN stocks s ON ps.ticker = s.ticker
+    WHERE ps.portfolio_id = @portfolio_id AND ps.ticker = @ticker AND ps.action = 'BUY';
   `;
   const request = this.poolConnection.request();
   request.input('portfolio_id', sql.UniqueIdentifier, portfolio_id);
@@ -740,7 +745,6 @@ async removeStockFromPortfolio(portfolio_id, ticker, volume, sell_price) {
   `;
   const sellResult = await request.query(checkSellQuery);
 
-
       // Hvis der ikke findes en post med action = SELL, opret en ny
       const insertSellQuery = `
           INSERT INTO portfolios_stocks (portfolio_id, ticker, action, volume, purchase_price)
@@ -764,7 +768,7 @@ async addFundsToAccount(account_id, amount) {
   request.input('amount', sql.Decimal(12, 2), amount);
 
   const result = await request.query(query);
-  return result.rowsAffected[0];
+  return result.rowsAffected[0] > 0;
 }
 
 async createStockPriceHistory(){
