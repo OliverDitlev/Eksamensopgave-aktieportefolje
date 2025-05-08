@@ -20,19 +20,20 @@
 <div class="top-boxes">
   <div class="box">
     <h2>Total realized gains</h2>
-    
-      <p>
-        <%= (totalRealizedGain !== undefined && totalRealizedGain !== null ? totalRealizedGain : 0) %> DKK
-      </p>
+    <p>
+      <%= parseFloat(totalRealizedGain).toLocaleString('da-DK', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) %> DKK
+    </p>
   </div>
   <div class="box">
     <h2>Total unrealized gains</h2>
-    <p><%= (totalUnrealizedGain !== undefined && totalUnrealizedGain !== null ? totalUnrealizedGain.toLocaleString('da-DK') : '0,00') %> DKK</p>
+    <p>
+      <%= parseFloat(totalUnrealizedGain).toLocaleString('da-DK', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) %> DKK
+    </p>
   </div>
   <div class="box">
     <h2>Total value</h2>
     <p>
-      <%= stocksStats.total_current_value %> DKK
+      <%= parseFloat(stocksStats.total_current_value).toLocaleString('da-DK', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) %> DKK
     </p>
     <p> <%= stocksStats.total_growth_percent %> %</p>
   </div>
@@ -83,7 +84,7 @@
               <th>Stock</th>
               <th>Portfolio</th>
               <th>Total Value</th>
-              <th>Value</th>
+              <th>Value Per Stock</th>
             </tr>
           </thead>
           <tbody>
