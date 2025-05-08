@@ -22,16 +22,13 @@ router.get('/portfolios', reqLogin, reqActive, async (req, res) => {
     const accounts = await db.findLedgerByUser(user_id);
     const stocksStats = await db.findAllStocksForUser(user_id)
     const stats = await db.findStatsForPortfolio(user_id)
+    const pieData = await db.findPieDataForPortfolio(user_id)
+    console.log('PieData:', pieData)
     
     const exchangeRates = await getExchangeRates()
     const usdToDkkRate = exchangeRates['USD'];
     const total_purchase_value_usd = parseFloat(stocksStats.total_current_value || 0);
     const total_purchase_value_dkk = (total_purchase_value_usd / usdToDkkRate).toFixed(0);
-    console.log(      portfolios,
-      accounts,
-      stocksStats,
-      stats,
-      total_purchase_value_dkk,)
 
     res.render('portfolios', {
       user: req.session.user,
@@ -40,6 +37,7 @@ router.get('/portfolios', reqLogin, reqActive, async (req, res) => {
       stocksStats,
       stats,
       total_purchase_value_dkk,
+      pieData,
       errors: []
     });
   } catch (err) {

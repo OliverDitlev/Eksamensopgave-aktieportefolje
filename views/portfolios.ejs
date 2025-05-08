@@ -7,6 +7,7 @@
 
     <%- include('partials/menu') %>
     <link rel="stylesheet" href="/css/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.6.0/dist/echarts.min.js"></script>
 </head>
 <body id="main" class="main">
 
@@ -45,11 +46,13 @@
             </div>
           </div>
         </div>
-      
-        <div class="box" id="portofoliopie">
-          <div id="portfolioDonut"></div>
+      <div id = "portofoliochart">
+        <div class="box" id="portofoliopie"></div>
         </div>
-      </div>
+        </div>
+      <script>
+        const pieData = <%- JSON.stringify(pieData) %>;
+      </script>
     
     <div class="accounttable">
         <table>
@@ -74,7 +77,7 @@
                             <td><%= portfolio.name %></td>
                             <td><%= account.name %> </td>
                             <td><%= new Date(portfolio.created_at).toLocaleDateString() %></td>
-                            <td><%= stat?.total_purchase_value || 0 %></td>
+                            <td><%= stat?.total_purchase_value || 0 %> <%= account.currency %></td>
                             <td><%= stat.change_24h || 0 %>%</td>
                             <td><%= account.available_balance %> <%= account.currency %> </td>
                             <td><%= (stat.total_current_value - stat.total_purchase_value).toFixed() %></td>
@@ -112,6 +115,6 @@
         </div>
     </div>
 
-<script src="/js/generel.js"></script>
+<script src="/js/portfolios.js"></script>
 </body>
 </html>
