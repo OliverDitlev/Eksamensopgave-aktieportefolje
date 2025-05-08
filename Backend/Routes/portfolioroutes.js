@@ -27,6 +27,11 @@ router.get('/portfolios', reqLogin, reqActive, async (req, res) => {
     const usdToDkkRate = exchangeRates['USD'];
     const total_purchase_value_usd = parseFloat(stocksStats.total_current_value || 0);
     const total_purchase_value_dkk = (total_purchase_value_usd / usdToDkkRate).toFixed(0);
+    console.log(      portfolios,
+      accounts,
+      stocksStats,
+      stats,
+      total_purchase_value_dkk,)
 
     res.render('portfolios', {
       user: req.session.user,
@@ -247,11 +252,9 @@ router.get('/portfolios/:portfolio_id/history', reqLogin, reqActive, async (req,
       console.log(history)
 
       const averagePrices = await db.calculateAverageAcquisitionPrice(portfolioId);
-
       res.render('history', {
           user: req.session.user,
           history,
-          averagePrices,
       });
   } catch (err) {
       console.error('Error fetching portfolio history:', err)
@@ -330,13 +333,15 @@ router.get('/users/:portfolioId/stocks/:ticker', reqLogin, reqActive, async (req
     //find aktie fra navn i portefølje
     const stock = await db.findStockInPortfolio(portfolio_id, ticker);
     const chartData = await db.getStockPriceHistoryByTicker(stock.ticker);
+    const averagePrices = await db.calculateAverageAcquisitionPrice(portfolio_id, ticker);
 
-    console.log("stockHistory", stock);
+
 
 
     res.render('stockdetails', {
       user: req.session.user,
       stock,
+      averagePrices,
       chartData
     });
   });

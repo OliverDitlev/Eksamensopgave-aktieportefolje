@@ -856,9 +856,9 @@ async findPortfolioHistory(portfolioId) {
   return result.recordset;
 }
 
-async calculateAverageAcquisitionPrice(portfolioId) {
+async calculateAverageAcquisitionPrice(portfolioId, ticker) {
   const query = `
-    SELECT 
+  SELECT 
         ps.ticker AS stock,
         s.company_name AS company,
         SUM(CASE WHEN ps.action = 'BUY' AND ps.volume > 0 THEN ps.purchase_price * ps.volume ELSE 0 END) / 
@@ -866,16 +866,18 @@ async calculateAverageAcquisitionPrice(portfolioId) {
         SUM(CASE WHEN ps.action = 'BUY' AND ps.volume > 0 THEN ps.volume ELSE 0 END) AS total_volume 
     FROM portfolios_stocks ps
     JOIN stocks s ON ps.ticker = s.ticker
-    WHERE ps.portfolio_id = @portfolioId
+    WHERE ps.portfolio_id = @portfolioId AND ps.ticker = @ticker
     GROUP BY ps.ticker, s.company_name
     ORDER BY s.company_name
   `;
 
+
   const request = this.poolConnection.request();
   request.input('portfolioId', sql.UniqueIdentifier, portfolioId);
+  request.input('ticker', sql.VarChar, ticker);
   const result = await request.query(query);
 
-  return result.recordset;
+  return result.recordset[0];
 } 
 
 async calculateTotalRealizedGain(userId) {

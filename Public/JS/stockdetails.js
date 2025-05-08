@@ -22,19 +22,33 @@ document.addEventListener('DOMContentLoaded', () => {
   const chart = echarts.init(chartContainer);
   chart.setOption({
     title: {
-      text: 'Udvikling – sidste 12 måneder',
-      left: 'left',
-      textStyle: { color: '#ffffff', fontSize: 18 }
-    },
-    tooltip: { trigger: 'axis' },
-    xAxis: { type: 'category', data: labels,      axisLabel: { color: '#ffffff' } },
-    yAxis: { type: 'value',    axisLabel: { color: '#ffffff' } },
-    series: [{
-      data: values,
-      type: 'line',
-      smooth: true,
-      itemStyle: { color: '#0059ff' }
-    }]
+        text: 'Stock devolpment last 12 months',
+        left: 'left',
+        top: 15,
+        textStyle: {
+          color: '#ffffff',
+          fontSize: 20,
+          top: 10
+        }
+      },
+      tooltip: {
+        trigger: 'axis'
+      },
+      xAxis: {
+        type: 'category',
+        data: labels,
+        axisLabel: { color: '#ffffff' }
+      },
+      yAxis: {
+        type: 'value',
+        axisLabel: { color: '#ffffff' }
+      },
+      series: [{
+        data: values,
+        type: 'line',
+        smooth: true,
+        itemStyle: { color: '#0059ff' }
+      }]
   });
 
   window.addEventListener('resize', () => chart.resize());
