@@ -93,12 +93,37 @@
       <% } %>
     </ul>
   </div>
+
   <div class="box">
-    <h2>Notifikationer</h2>
+    <h2>Top 5 Most Valuable Stocks</h2>
     <ul>
-      <li>🔔 Tesla er steget med 5%</li>
-      <li>🔔 Udbetaling af udbytte fra Mærsk</li>
-      <li>🔔 Nordnet opdaterer deres priser</li>
+      <% if (topValuedStocks && topValuedStocks.length > 0) { %>
+        <table class="top-valued-table">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Stock</th>
+              <th>Portfolio</th>
+              <th>Total Value</th>
+              <th>Value</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            <% topValuedStocks.forEach((stock, index) => { %>
+              <tr>
+                <td><%= index + 1 %></td>
+                <td><%= stock.company_name %> (<%= stock.ticker %>)</td>
+                <td><%= stock.portfolio_name %></td>
+                <td><%= stock.current_value.toLocaleString('da-DK', { style: 'currency', currency: 'DKK' }) %></td>
+                <td><%= stock.last_price.toLocaleString('da-DK', { style: 'currency', currency: 'DKK' }) %></td>
+              </tr>
+            <% }) %>
+          </tbody>
+        </table>
+      <% } else { %>
+        <li>No data available</li>
+      <% } %>
     </ul>
   </div>
 </div>

@@ -936,6 +936,31 @@ async findTopUnrealizedGains(user_id) {
   return result.recordset;
 }
 
+async findTopValuedStocks(user_id) {
+  const query = `
+    SELECT 
+      portfolios_stocks.ticker,
+      stocks.company_name,
+      portfolios.name AS portfolio_name,
+      portfolios_stocks.volume,
+      stock_price_history.price_tday AS last_price,
+      (stock_price_history.price_tday * portfolios_stocks.volume) AS current_value
+    FROM portfolios_stocks
+    JOIN portfolios ON portfolios_stocks.portfolio_id = portfolios.portfolio_id
+    JOIN stock_price_history ON portfolios_stocks.ticker = stock_price_history.ticker
+    JOIN stocks ON portfolios_stocks.ticker = stocks.ticker
+    WHERE portfolios.user_id = @user_id
+    AND portfolios_stocks.action = 'BUY'
+    ORDER BY last_price DESC
+    OFFSET 0 ROWS FETCH NEXT 5 ROWS ONLY;
+  `;
+  const request = this.poolConnection.request();
+  request.input('user_id', sql.UniqueIdentifier, user_id);
+
+  const result = await request.query(query);
+  return result.recordset;
+}
+
 async calculateTotalUnrealizedGain(userId) {
   const query = `
     SELECT 

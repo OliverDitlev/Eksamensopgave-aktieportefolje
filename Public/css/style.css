@@ -538,24 +538,24 @@ button[disabled] {
 .negative {
   color: #f44336;
 }
-.unrealized-gains-table {
+.unrealized-gains-table, .top-valued-table {
   width: 100%;
   border-collapse: collapse;
   margin-top: 10px;
 }
 
-.unrealized-gains-table th, .unrealized-gains-table td {
+.unrealized-gains-table th, .unrealized-gains-table td, .top-valued-table th, .top-valued-table td {
   border: 1px solid #ffffff;
   padding: 8px;
   text-align: left;
 }
 
-.unrealized-gains-table th {
+.unrealized-gains-table th, .top-valued-table th {
   background-color: #000000;
   font-weight: bold;
 }
 
-.unrealized-gains-table tr {
+.unrealized-gains-table tr, .top-valued-table tr {
   background-color: #6c6c6c;
 }
 
