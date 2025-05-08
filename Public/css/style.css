@@ -442,11 +442,19 @@ img {
 }
 
 #portofoliopie {
-  width: 600px;
+  width: 100%;
+  max-width: 600px;
   height: 400px;
-  margin: 0 auto;
+  margin: -40px;
+  border-radius: 16px;
+  padding: 16px;
+
 }
-portofoliochart
+#portofoliochart{
+  width: 155%;
+  height: 300px;
+  margin-left:-250px;
+}
 
 #registertrade, #selltrade {  
   margin-left: 400px;

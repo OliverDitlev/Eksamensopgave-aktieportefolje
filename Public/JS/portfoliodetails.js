@@ -93,24 +93,63 @@ document.addEventListener('DOMContentLoaded', () => {
   if (pie) {
     const chart = echarts.init(pie);
     chart.setOption({
-        title: {
-            text: `Distrubution in portfolio`,
-            left: 'left',
-            top: 5,
-            textStyle: {
-                color: '#ffffff',
-                fontSize: 20
+      backgroundColor: '#2e2e2e', // mørk baggrund
+      title: {
+        text: `Distribution in Portfolio`,
+        left: 'center',
+        top: 10,
+        textStyle: {
+          color: '#ffffff',
+          fontSize: 22,
+          fontWeight: 'bold'
+        }
+      },
+      tooltip: {
+        trigger: 'item',
+        formatter: '{b}: {c} DKK ({d}%)',
+        backgroundColor: '#444',
+        textStyle: {
+          color: '#fff'
+        }
+      },
+      legend: {
+        show: true,
+        orient: 'vertical',
+        right: 20,
+        top: 60,
+        textStyle: {
+          color: '#ffffff',
+          fontSize: 14
+        }
+      },
+      series: [
+        {
+          name: 'Portfolios',
+          type: 'pie',
+          radius: ['40%', '70%'], // donut
+          center: ['50%', '55%'],
+          data: pieChartData,
+          label: {
+            formatter: '{b}: {d}%',
+            color: '#fff',
+            fontSize: 14
+          },
+          labelLine: {
+            length: 20,
+            length2: 10,
+            lineStyle: {
+              color: '#999'
             }
-        },
-      tooltip: { trigger: 'item', formatter: '{b}: {c} ({d}%)' },
-      series: [{
-        type: 'pie',
-        radius : ['35%', '60%'],
-        data: pieChartData,
-        label: { formatter: '{b}: {d}%' },
-        top: 30,
-        left:-100,
-      }]
+          },
+          emphasis: {
+            itemStyle: {
+              shadowBlur: 15,
+              shadowOffsetX: 0,
+              shadowColor: 'rgba(0, 0, 0, 0.4)'
+            }
+          }
+        }
+      ]
     });
   }
 
