@@ -32,7 +32,7 @@
                         <td><%= new Date(item.trade_time).toLocaleDateString() %></td>
                         <td><%= item.action %></td>
                         <td><%= item.ticker %></td>
-                        <td><%= item.price.toFixed(1) %> USD</td>
+                        <td><%= item.price.toFixed(1) %> <%= portfolio.currency %> </td>
                         <td><%= item.volume %></td>
                     </tr>
                 <% }); %>

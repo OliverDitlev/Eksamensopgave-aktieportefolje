@@ -38,28 +38,6 @@
   </div>
 </div>
 
- <!-- Diagrammet (bare med tilfældige tal) -->
-  <div id="main" style="width: 1200px; height: 400px;"></div>
-
-  <script type="text/javascript">
-    var myChart = echarts.init(document.getElementById('main'));
-
-    var option = {
-      xAxis: {
-        data: ['Jan', 'Feb', 'Mar', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
-      },
-      yAxis: {},
-      series: [
-        {
-          data: [10, 22, 28, 23, 19, 22, 52, 72, 68, 88, 85, 100],
-          type: 'line',
-          smooth: true
-        }
-      ]
-    };
-    myChart.setOption(option);
-  </script>
-
   <!-- To bokse under diagrammet -->
 <div class="bottom-boxes">
   <div class="box">

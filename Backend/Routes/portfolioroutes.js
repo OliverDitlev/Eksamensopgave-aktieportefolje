@@ -10,6 +10,7 @@ const request = require('request');
 
 // Nøgle til API'en
 const { API_KEY } = require('../api');
+const { map } = require('mssql');
 
 const router = express.Router();
 
@@ -197,7 +198,7 @@ router.delete('/deleteportfolio', async (req, res) => {
 });
 
 // Renderer portfoliodetails med et tomt resultat
-router.get('/searchstock', (req, res) => {
+router.get('/searchstock', reqLogin, reqActive, (req, res) => {
     res.render('portfoliodetails', { result: null });
 });
 
@@ -246,20 +247,41 @@ router.get('/portfolios/:portfolio_id/history', reqLogin, reqActive, async (req,
   const portfolioId = req.params.portfolio_id;
 
   try {
-      const history = await db.findTradeHistoryByPortfolio(portfolioId);
-      console.log(history)
 
-      const averagePrices = await db.calculateAverageAcquisitionPrice(portfolioId);
-      res.render('history', {
-          user: req.session.user,
-          history,
-      });
+    const history = await db.findTradeHistoryByPortfolio(portfolioId);
+    const portfolio = await db.findLedgerByPorfolioId(portfolioId);
+
+    const exchangeRates = await getExchangeRates();
+    const usdToDkkRate = exchangeRates['USD'];
+    const usdToGbpRate = exchangeRates['GBP'];
+
+    const historyAfterEx = history.map((trade, index) => {
+      let price = Number(trade.price);
+      
+
+      if (portfolio.currency === 'DKK') {
+        price = price / usdToDkkRate;
+      } else if (portfolio.currency === 'GBP') {
+        price = price / usdToGbpRate;
+      }
+
+      return {
+        ...trade,
+        price,
+      };
+    });
+
+    res.render('history', {
+      user: req.session.user,
+      history: historyAfterEx,
+      portfolio,
+    });
+
   } catch (err) {
-      console.error('Error fetching portfolio history:', err)
-      res.status(500).send('Internal Server Error');
+    console.error('Error fetching portfolio history:', err);
+    res.status(500).send('Internal Server Error');
   }
 });
-
 // Registrer et salg af aktier i en portefølje
 router.post('/sellTrade', async (req, res) => {
   const db = req.app.locals.db;
@@ -271,13 +293,8 @@ router.post('/sellTrade', async (req, res) => {
   } = req.body;
 
   try {
-    console.log('Portfolio ID:', portfolio_id);
-    console.log('Ticker:', ticker);
-    console.log('Volume:', volume);
-    console.log('Price:', price);
     // Hent aktien fra porteføljen
     const stock = await db.findStockInPortfolioForSelling(portfolio_id, ticker);
-    console.log('Stock:', stock);
 
     await db.insertTradeHistory(portfolio_id, ticker, 'SELL', parseInt(volume, 10), parseFloat(price))
 
@@ -293,9 +310,6 @@ router.post('/sellTrade', async (req, res) => {
       const totalAmount = parseFloat(volume) * parseFloat(price);
       const account_id = stock.account_id;
       const stockCurrency = stock.stock_currency;
-      console.log('Account ID:', account_id);
-      console.log('Total Amount: (før vi konverterer til DKK)', totalAmount);
-      console.log('Stock Currency:', stockCurrency);
 
       // Konverter beløbet til DKK, hvis nødvendigt
       let amountInDKK = totalAmount;
