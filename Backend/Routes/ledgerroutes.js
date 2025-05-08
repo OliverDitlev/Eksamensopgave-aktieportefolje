@@ -3,7 +3,7 @@ const {body, validationResult} = require('express-validator')
 
 const router = express.Router()
 
-const { reqLogin, reqActive } = require('../middleware.js');
+const { reqLogin, reqActive, accountValidators, } = require('../middleware.js');
 
 // Henter brugerens konti/ledger
 router.get('/accounts', reqLogin, reqActive, async(req,res) => {
@@ -11,6 +11,8 @@ router.get('/accounts', reqLogin, reqActive, async(req,res) => {
     const user_id = req.session.user.user_id
 
     const accounts = await db.findLedgerByUser(user_id)
+      // Henter konti fra databasen forventet out: 
+      // [{accountID, name, bank, currency, balance, available_balance, ledger_created, ledger_Active}, 
     res.render('accounts', {
         user: req.session.user, 
         accounts, 
@@ -19,26 +21,24 @@ router.get('/accounts', reqLogin, reqActive, async(req,res) => {
 })
 
 // Opretter en ny konto til brugeren
-router.post('/accounts', [
-    body('name')
-    .trim().notEmpty().withMessage('Name required'),
+router.post('/accounts', reqLogin, reqActive, accountValidators, async (req, res) => {
 
-    body('balance')
-    .trim().isNumeric().withMessage('Enter valid number')
-], async (req, res) => {
     const db = req.app.locals.db
     const errors = validationResult(req);
     const user_id = req.session.user.user_id;
+
     const accounts = await db.findLedgerByUser(user_id)
+    // Henter konti fra databasen forventet output: 
+    // [{accountID, name, bank, currency, balance, available_balance, ledger_created, ledger_Active}, 
 
     if(!errors.isEmpty()){
-        const ledger = await db.findLedgerByUser(user_id)
         return res.status(400).render('accounts',{
             user: req.session.user, accounts,
             errors: errors.array()
         })
     }
     const{name, bank, currency, balance} = req.body
+    // Kalder funktionen til at oprette en konto i databasen
     await db.insertLedger(user_id, name, bank, currency, balance)
     res.redirect('/accounts')
 })
@@ -51,7 +51,7 @@ router.delete('/deleteaccount', async (req, res) =>{
     try {
         // Forsøger at slette kontoen fra databasen udfra accountID
         const deleted = await db.deleteLedger(accountID); 
-  
+      // håndterer hvis kontoen ikke findes
         if (!deleted) {
           return res.status(404).send('Account not found');
         }
@@ -73,12 +73,12 @@ router.post('/addTransaction', async(req, res)=>{
 })
 
 // Ændrer balancen på en konto
-router.post('/changebalance', async (req, res) => {
+router.put('/changebalance', async (req, res) => {
     const db = req.app.locals.db
     const { accountId, amount, action } = req.body;
   
     try {
-    // Kalder funktion til at ændre balancen og samtidig en til at tilføje en transaktion til databasen
+    // Kalder funktion til at ændre balancen og bagefter en til at tilføje en transaktion til databasen
       await db.changeBalance(accountId, parseFloat(amount), action);
       await db.addTransaction(accountId, parseFloat(amount), action)
       res.redirect('/accounts'); 
@@ -87,20 +87,5 @@ router.post('/changebalance', async (req, res) => {
       res.status(500).send('Failed to update balance');
     }
   });
-/*
-  router.get('/transactions', async (req, res) => {
-    const db = req.app.locals.db;
-    const user_id = req.session.user.user_id;
-  
-    // Hent alle transaktioner fra databasen
-    const transactions = await db.getAllTransactionsByUser(user_id);
-  
-    // Send dem videre til siden
-    res.render('transactions', {
-      user: req.session.user,
-      transactions
-    });
-  });
-  */
 
 module.exports = router
