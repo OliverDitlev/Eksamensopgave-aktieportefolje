@@ -2,7 +2,7 @@
 const request = require('request');
 const sql = require('mssql')
 
-const API_KEY = 'TEM2OF1161Q4KNDL'; 
+const API_KEY = 'TVZIJ2A6X9LGONQP'; 
 
 function getStockData(companyName , db = null) {
 
@@ -87,4 +87,4 @@ function getStockData(companyName , db = null) {
 
 
 
-module.exports = {getStockData}
+module.exports = {getStockData, API_KEY};
