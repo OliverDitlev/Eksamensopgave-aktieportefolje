@@ -18,8 +18,12 @@
   
     <div class="stock‐detail‐wrapper">
       <div class="box" id="stockInfoBox">
+        <h1>STATS <%= stock.ticker %></h1>
         <p>Stocks owned: <%= stock.volume %></p>
-        <p>GAK:</p>
+        <p>Average acquisition Price: <%= averagePrices.average_price %> <%= stock.currency %></p>
+        <p>Total acquisition price <%= (averagePrices.average_price * stock.volume).toFixed(0) %> <%= stock.currency %> </p>
+        <p>Current value: <%= (chartData.price_tday * stock.volume).toFixed(0) %> <%= stock.currency %></p>
+        <p>Total unrealized gain/loss: <%= ((chartData.price_tday - averagePrices.average_price) * stock.volume).toFixed(0) %> <%= stock.currency %></p>
         <p>Price today: <%= chartData.price_tday %> <%= stock.currency %></p>
         <p>Last update: <%= (stock.last_updated).toLocaleDateString() %></p>
       </div>

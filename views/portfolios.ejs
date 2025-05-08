@@ -7,6 +7,7 @@
 
     <%- include('partials/menu') %>
     <link rel="stylesheet" href="/css/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.6.0/dist/echarts.min.js"></script>
 </head>
 <body id="main" class="main">
 
@@ -20,13 +21,16 @@
       <div class="portfoliotop">
         <div class="portfolioboxes">
           <div class="box" id="portofoliovalue">
-            <h3>Total value in DKK</h3>
+
+            <h4>Total value in DKK</h4>
             <p class="valueamount"><%= total_purchase_value_dkk %> DKK</p>
-            <p>Total change: </p>
+
+            <h4>Total change: </h4>
             <p class="valuechange <%= stocksStats.total_growth_percent > 0 ? 'positive' : 'negative' %>">
               <%= stocksStats.total_growth_percent %>%
             </p>
           </div>
+          
       
           <div class="box" id="portofoliochange">
             <div id = "changesportfolio">
@@ -42,11 +46,13 @@
             </div>
           </div>
         </div>
-      
-        <div class="box" id="portofoliopie">
-          <div id="portfolioDonut"></div>
+      <div id = "portofoliochart">
+        <div class="box" id="portofoliopie"></div>
         </div>
-      </div>
+        </div>
+      <script>
+        const pieData = <%- JSON.stringify(pieData) %>;
+      </script>
     
     <div class="accounttable">
         <table>
@@ -71,12 +77,12 @@
                             <td><%= portfolio.name %></td>
                             <td><%= account.name %> </td>
                             <td><%= new Date(portfolio.created_at).toLocaleDateString() %></td>
-                            <td><%= stat?.total_purchase_value || 0 %></td>
+                            <td><%= stat?.total_purchase_value || 0 %> <%= account.currency %></td>
                             <td><%= stat.change_24h || 0 %>%</td>
                             <td><%= account.available_balance %> <%= account.currency %> </td>
                             <td><%= (stat.total_current_value - stat.total_purchase_value).toFixed() %></td>
                             <td>
-                                <a class="accountbtn" href="/portfolios/<%= portfolio.portfolio_id %>">Se detaljer</a>
+                                <a class="accountbtnportfolio"  href="/portfolios/<%= portfolio.portfolio_id %>">Se detaljer</a>
                             </td>
                         </tr>
                     <% }); %>
@@ -109,6 +115,6 @@
         </div>
     </div>
 
-<script src="/js/generel.js"></script>
+<script src="/js/portfolios.js"></script>
 </body>
 </html>

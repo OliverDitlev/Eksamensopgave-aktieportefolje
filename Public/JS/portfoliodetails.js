@@ -114,8 +114,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-
-
 const history12mo = window.history12
 
 const chartContainer = document.getElementById('historyChart')

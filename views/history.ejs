@@ -41,31 +41,5 @@
     <% } else { %>
         <p>No transactions found for this portfolio.</p>
     <% } %>
-
-    <% if (averagePrices && averagePrices.length > 0) { %>
-        <h2>Average Acquisition Prices</h2>
-        <table border="1">
-            <thead class="main" id="main">
-                <tr>
-                    <th>Company</th>
-                    <th>Stock</th>
-                    <th>Average Acquisition Price</th>
-                    <th>Total Volume</th>
-                </tr>
-            </thead>
-            <tbody class="main" id="main">
-                <% averagePrices.forEach(item => { %>
-                    <tr>
-                        <td><%= item.company %></td>
-                        <td><%= item.stock %></td>
-                        <td><%= item.average_price.toFixed(2) %> USD</td>
-                        <td><%= item.total_volume %></td>
-                    </tr>
-                <% }); %>
-            </tbody>
-        </table>
-    <% } else { %>
-        <p>No average acquisition prices available.</p>
-    <% } %>
 </body>
 </html>

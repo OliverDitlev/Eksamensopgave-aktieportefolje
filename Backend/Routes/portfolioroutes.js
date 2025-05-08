@@ -9,7 +9,7 @@ const request = require('request');
 
 
 // Nøgle til API'en
-const API_KEY = 'TEM2OF1161Q4KNDL'
+const { API_KEY } = require('../api');
 
 const router = express.Router();
 
@@ -22,6 +22,8 @@ router.get('/portfolios', reqLogin, reqActive, async (req, res) => {
     const accounts = await db.findLedgerByUser(user_id);
     const stocksStats = await db.findAllStocksForUser(user_id)
     const stats = await db.findStatsForPortfolio(user_id)
+    const pieData = await db.findPieDataForPortfolio(user_id)
+    console.log('PieData:', pieData)
     
     const exchangeRates = await getExchangeRates()
     const usdToDkkRate = exchangeRates['USD'];
@@ -35,6 +37,7 @@ router.get('/portfolios', reqLogin, reqActive, async (req, res) => {
       stocksStats,
       stats,
       total_purchase_value_dkk,
+      pieData,
       errors: []
     });
   } catch (err) {
@@ -247,11 +250,9 @@ router.get('/portfolios/:portfolio_id/history', reqLogin, reqActive, async (req,
       console.log(history)
 
       const averagePrices = await db.calculateAverageAcquisitionPrice(portfolioId);
-
       res.render('history', {
           user: req.session.user,
           history,
-          averagePrices,
       });
   } catch (err) {
       console.error('Error fetching portfolio history:', err)
@@ -270,8 +271,14 @@ router.post('/sellTrade', async (req, res) => {
   } = req.body;
 
   try {
+    console.log('Portfolio ID:', portfolio_id);
+    console.log('Ticker:', ticker);
+    console.log('Volume:', volume);
+    console.log('Price:', price);
     // Hent aktien fra porteføljen
-    const stock = await db.findStockInPortfolio(portfolio_id, ticker);
+    const stock = await db.findStockInPortfolioForSelling(portfolio_id, ticker);
+    console.log('Stock:', stock);
+
     await db.insertTradeHistory(portfolio_id, ticker, 'SELL', parseInt(volume, 10), parseFloat(price))
 
       // Tjek om der er nok aktier til at sælge
@@ -285,7 +292,24 @@ router.post('/sellTrade', async (req, res) => {
       // Tilføj pengene til den tilknyttede konto
       const totalAmount = parseFloat(volume) * parseFloat(price);
       const account_id = stock.account_id;
-      await db.addFundsToAccount(account_id, totalAmount);
+      const stockCurrency = stock.stock_currency;
+      console.log('Account ID:', account_id);
+      console.log('Total Amount: (før vi konverterer til DKK)', totalAmount);
+      console.log('Stock Currency:', stockCurrency);
+
+      // Konverter beløbet til DKK, hvis nødvendigt
+      let amountInDKK = totalAmount;
+      if (stockCurrency !== 'DKK') {
+        const exchangeRates = await getExchangeRates(); // Hent valutakurser
+        const rate = exchangeRates[stockCurrency];
+        if (!rate) {
+          return res.status(500).send(`Valutakurs for ${stockCurrency} ikke fundet`);
+        }
+        amountInDKK = totalAmount / rate;
+      }
+      console.log('Total Amount (in DKK):', amountInDKK);
+
+      await db.addFundsToAccount(account_id, amountInDKK);
 
       // Redirect til porteføljeoversigten
       res.redirect(`/portfolios/${portfolio_id}`);
@@ -330,13 +354,15 @@ router.get('/users/:portfolioId/stocks/:ticker', reqLogin, reqActive, async (req
     //find aktie fra navn i portefølje
     const stock = await db.findStockInPortfolio(portfolio_id, ticker);
     const chartData = await db.getStockPriceHistoryByTicker(stock.ticker);
+    const averagePrices = await db.calculateAverageAcquisitionPrice(portfolio_id, ticker);
 
-    console.log("stockHistory", stock);
+
 
 
     res.render('stockdetails', {
       user: req.session.user,
       stock,
+      averagePrices,
       chartData
     });
   });

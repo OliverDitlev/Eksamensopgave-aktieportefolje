@@ -702,18 +702,23 @@ async findStocksByPortfolio(portfolio_id){
   return result.recordset;
 }
 
-async findStockInPortfolio(portfolio_id, ticker) {
+async findStockInPortfolioForSelling(portfolio_id, ticker) {
   const query = `
-      SELECT *
-      FROM portfolios_stocks
-      WHERE portfolio_id = @portfolio_id AND ticker = @ticker AND action = 'BUY';
+    SELECT 
+      ps.*,
+      p.account_id,
+      s.currency AS stock_currency
+    FROM portfolios_stocks ps
+    JOIN portfolios p ON ps.portfolio_id = p.portfolio_id
+    JOIN stocks s ON ps.ticker = s.ticker
+    WHERE ps.portfolio_id = @portfolio_id AND ps.ticker = @ticker AND ps.action = 'BUY';
   `;
   const request = this.poolConnection.request();
   request.input('portfolio_id', sql.UniqueIdentifier, portfolio_id);
   request.input('ticker', sql.VarChar(20), ticker);
 
   const result = await request.query(query);
-  return result.recordset[0]; // Returnér den første post, hvis den findes
+  return result.recordset[0];
 }
 
 // Hent en aktie fra en portefølje
@@ -731,6 +736,13 @@ async removeStockFromPortfolio(portfolio_id, ticker, volume, sell_price) {
       WHERE portfolio_id = @portfolio_id AND ticker = @ticker AND action = 'BUY' AND volume >= @volume;
   `;
   await request.query(updateBuyQuery);
+  //sletter hvis volumen er 0
+  const deleteZeroVolumeQuery = `
+  DELETE FROM portfolios_stocks
+  WHERE portfolio_id = @portfolio_id AND ticker = @ticker AND action = 'BUY' AND volume = 0;
+  `;
+  await request.query(deleteZeroVolumeQuery);
+
 
   // Tjek om der allerede findes en post med action = SELL for denne aktie
   const checkSellQuery = `
@@ -739,7 +751,6 @@ async removeStockFromPortfolio(portfolio_id, ticker, volume, sell_price) {
       WHERE portfolio_id = @portfolio_id AND ticker = @ticker AND action = 'SELL';
   `;
   const sellResult = await request.query(checkSellQuery);
-
 
       // Hvis der ikke findes en post med action = SELL, opret en ny
       const insertSellQuery = `
@@ -764,7 +775,7 @@ async addFundsToAccount(account_id, amount) {
   request.input('amount', sql.Decimal(12, 2), amount);
 
   const result = await request.query(query);
-  return result.rowsAffected[0];
+  return result.rowsAffected[0] > 0;
 }
 
 async createStockPriceHistory(){
@@ -856,26 +867,28 @@ async findPortfolioHistory(portfolioId) {
   return result.recordset;
 }
 
-async calculateAverageAcquisitionPrice(portfolioId) {
+async calculateAverageAcquisitionPrice(portfolioId, ticker) {
   const query = `
-    SELECT 
+  SELECT 
         ps.ticker AS stock,
         s.company_name AS company,
         SUM(CASE WHEN ps.action = 'BUY' AND ps.volume > 0 THEN ps.purchase_price * ps.volume ELSE 0 END) / 
-        SUM(CASE WHEN ps.action = 'BUY' AND ps.volume > 0 THEN ps.volume ELSE 0 END) AS average_price, 
+        NULLIF(SUM(CASE WHEN ps.action = 'BUY' AND ps.volume > 0 THEN ps.volume ELSE 0 END), 0) AS average_price, 
         SUM(CASE WHEN ps.action = 'BUY' AND ps.volume > 0 THEN ps.volume ELSE 0 END) AS total_volume 
     FROM portfolios_stocks ps
     JOIN stocks s ON ps.ticker = s.ticker
-    WHERE ps.portfolio_id = @portfolioId
+    WHERE ps.portfolio_id = @portfolioId AND ps.ticker = @ticker
     GROUP BY ps.ticker, s.company_name
     ORDER BY s.company_name
   `;
 
+
   const request = this.poolConnection.request();
   request.input('portfolioId', sql.UniqueIdentifier, portfolioId);
+  request.input('ticker', sql.VarChar, ticker);
   const result = await request.query(query);
 
-  return result.recordset;
+  return result.recordset[0];
 } 
 
 async calculateTotalRealizedGain(userId) {
@@ -892,7 +905,7 @@ async calculateTotalRealizedGain(userId) {
       SELECT 
         portfolio_id, 
         ticker, 
-        SUM(purchase_price * volume) / SUM(volume) AS avg_price
+        SUM(purchase_price * volume) / NULLIF(SUM(volume), 0) AS avg_price
       FROM portfolios_stocks
       WHERE action = 'BUY'
       GROUP BY portfolio_id, ticker
@@ -1049,6 +1062,7 @@ async getStockPriceHistoryByTicker(ticker) {
            price_10m, price_11m, price_12m
     FROM stock_price_history
     WHERE ticker = @ticker
+    GRoup BY ps.ticker
   `;
 
   const request = this.poolConnection.request();
@@ -1058,6 +1072,24 @@ async getStockPriceHistoryByTicker(ticker) {
   return result.recordset[0];
 }
 
+
+async findPieDataForPortfolio(user_id){
+  const query = `
+    SELECT 
+      p.portfolio_id,
+      p.name AS portfolio_name,
+      SUM(ps.volume * sph.price_tday) AS total_current_value
+    FROM portfolios_stocks ps
+    JOIN portfolios p ON ps.portfolio_id = p.portfolio_id
+    JOIN stock_price_history sph ON ps.ticker = sph.ticker
+    WHERE p.user_id = @user_id AND ps.action = 'BUY'
+    GROUP BY p.portfolio_id, p.name;
+  `;
+  const request = this.poolConnection.request();
+  request.input('user_id', sql.UniqueIdentifier, user_id);
+  const result = await request.query(query);
+  return result.recordset
+}
 
 }
 
