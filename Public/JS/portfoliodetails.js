@@ -89,67 +89,32 @@ document.addEventListener('DOMContentLoaded', () => {
   
     validate(); // Kør ved load
   });
-  const pie = document.getElementById('portofoliopie');
+  const pie = document.getElementById('portfoliopiestocks');
   if (pie) {
     const chart = echarts.init(pie);
     chart.setOption({
-      backgroundColor: '#2e2e2e', // mørk baggrund
       title: {
-        text: `Distribution in Portfolio`,
-        left: 'center',
-        top: 10,
+        text: 'Portfolio distribution',
+        left: 0,
+        top: 15,
         textStyle: {
           color: '#ffffff',
-          fontSize: 22,
-          fontWeight: 'bold'
+          fontSize: 20,
+          top: 10
         }
       },
-      tooltip: {
-        trigger: 'item',
-        formatter: '{b}: {c} DKK ({d}%)',
-        backgroundColor: '#444',
-        textStyle: {
-          color: '#fff'
-        }
+      tooltip: { 
+        trigger: 'item', 
+        formatter: '{b}: {c} ({d}%)' 
       },
-      legend: {
-        show: true,
-        orient: 'vertical',
-        right: 20,
-        top: 60,
-        textStyle: {
-          color: '#ffffff',
-          fontSize: 14
-        }
-      },
-      series: [
-        {
-          name: 'Portfolios',
-          type: 'pie',
-          radius: ['40%', '70%'], // donut
-          center: ['50%', '55%'],
-          data: pieChartData,
-          label: {
-            formatter: '{b}: {d}%',
-            color: '#fff',
-            fontSize: 14
-          },
-          labelLine: {
-            length: 20,
-            length2: 10,
-            lineStyle: {
-              color: '#999'
-            }
-          },
-          emphasis: {
-            itemStyle: {
-              shadowBlur: 15,
-              shadowOffsetX: 0,
-              shadowColor: 'rgba(0, 0, 0, 0.4)'
-            }
-          }
-        }
-      ]
+      series: [{
+        type: 'pie',
+        radius: ['35%', '60%'],
+        data: pieChartData,
+        label: { formatter: '{b}: {d}%' },
+        top: 30,
+        left: -100
+      }]
     });
   }
 

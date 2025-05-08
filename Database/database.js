@@ -206,6 +206,7 @@ async deleteLedger(account_id){
   .request()
   .input('account_id', sql.UniqueIdentifier, account_id)
   await request.query('DELETE FROM [dbo].[ledgertransactions] WHERE account_id = @account_id')
+  await request.query('DELETE FROM [dbo].[tradehistory] WHERE portfolio_id IN(SELECT portfolio_id from dbo.portfolios where account_id = @account_id)')
   await request.query('DELETE FROM [dbo].[portfolios_stocks] WHERE portfolio_id IN(SELECT portfolio_id from dbo.portfolios where account_id = @account_id)')
   await request.query('DELETE FROM [dbo].[portfolios] WHERE account_id = @account_id')
   const result = await request.query('DELETE FROM [dbo].[userledger] WHERE account_id = @account_id')
@@ -1077,7 +1078,6 @@ async getStockPriceHistoryByTicker(ticker) {
            price_10m, price_11m, price_12m
     FROM stock_price_history
     WHERE ticker = @ticker
-    GRoup BY ps.ticker
   `;
 
   const request = this.poolConnection.request();
@@ -1104,6 +1104,20 @@ async findPieDataForPortfolio(user_id){
   request.input('user_id', sql.UniqueIdentifier, user_id);
   const result = await request.query(query);
   return result.recordset
+}
+
+async findLedgerByPorfolioId(portfolio_id) {
+  const query = `
+    SELECT 
+      ul.*
+    FROM userledger ul
+    JOIN portfolios p ON ul.account_id = p.account_id
+    WHERE p.portfolio_id = @portfolio_id
+  `;
+  const request = this.poolConnection.request();
+  request.input('portfolio_id', sql.UniqueIdentifier, portfolio_id);
+  const result = await request.query(query);
+  return result.recordset[0];
 }
 
 }
