@@ -22,7 +22,7 @@
         <div class="portfolioboxes">
           <div class="box" id="portofoliovalue">
 
-            <h4>Total value in DKK</h4>
+            <h4>Total value in DKK:</h4>
             <p class="valueamount"><%= total_purchase_value_dkk %> DKK</p>
 
             <h4>Total change: </h4>
@@ -34,6 +34,10 @@
       
           <div class="box" id="portofoliochange">
             <div id = "changesportfolio">
+              <h4>Change in value:</h4>
+              <p class="<%= stocksStats.change_1h > 0 ? 'positive' : 'negative' %>">
+                <b>1 hour:</b> <%= stocksStats.change_1h %>%
+              </p>
             <p class="<%= stocksStats.change_24h > 0 ? 'positive' : 'negative' %>">
                 <b>24 hours:</b> <%= stocksStats.change_24h %>%
               </p>
@@ -47,9 +51,9 @@
           </div>
         </div>
       <div class="box" id = "portofoliochart">
-        <div  id="portofoliopie"></div>
-        </div>
-        </div>
+        <div id="portofoliopie"></div>
+      </div>
+    </div>
       <script>
         const pieData = <%- JSON.stringify(pieData) %>;
       </script>
