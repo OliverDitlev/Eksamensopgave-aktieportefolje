@@ -9,7 +9,7 @@
 </head>
 
 <body id="main" class="main">
-    <h1>Transaction history for</h1>
+    <h1>Transaction history</h1>
 
     <table  id = "transactiontable" class="accounttable">
         <tr class="thtable">
@@ -30,12 +30,12 @@
                 <%= value.action === 'Withdraw' ? '-' : '+' %><%= value.amount %>
               </td>
               <td><%= value.currency %></td>
-              <td><%= value.account_balance %></td>
+              <td><%= value.balance_after %> <%= value.currency %></td>
               <td><%= new Date(value.transaction_time).toLocaleString() %></td>
             </tr>
           <% }) %>
         <% } else { %>
-          <tr><td colspan="5">No transactions found.</td></tr>
+          <tr><td colspan="6">No transactions found.</td></tr>
         <% } %>
       </table>
       <a href="/accounts" id = "gotoaccount">Go back to account overview</a>

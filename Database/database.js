@@ -225,13 +225,14 @@ async createTransactions(){
       [account_id] UNIQUEIDENTIFIER NOT NULL REFERENCES userledger(account_id),
       [action] VARCHAR(15) NOT NULL CHECK(action IN('Deposit', 'Withdraw')),
       [amount] DECIMAL(12,1),
+      [balance_after] DECIMAL(12, 1),
       [transaction_time] DATETIME DEFAULT GETDATE()
     )
     END
   `
   this.executeQuery(query)
   .then(() => {
-    console.log("Transactions created ");
+    console.log("Transactions table created ");
   })
   
   
@@ -289,14 +290,27 @@ async changeBalance(account_id, amount, action) {
 async addTransaction(accountId, amount, action){
   const pool = await sql.connect();
 
-    await pool.request()
-    .input('accountId', sql.UniqueIdentifier, accountId)
-    .input('amount', sql.Decimal(12,1), amount)
-    .input('action', sql.VarChar(10), action)
-    .query(`
-      INSERT INTO ledgertransactions (account_id, amount, action)
-      VALUES(@accountId, @amount, @action)
-      `)
+  // Henter den opdaterede balance efter transaktionen
+  const queryBalance = `
+    SELECT available_balance
+    FROM userledger
+    WHERE account_id = @accountId
+  `;
+  const balanceResult = await pool.request()
+  .input('accountId', sql.UniqueIdentifier, accountId)
+  .query(queryBalance);
+
+  const availableBalance = balanceResult.recordset[0].available_balance;
+
+  await pool.request()
+  .input('accountId', sql.UniqueIdentifier, accountId)
+  .input('amount', sql.Decimal(12,1), amount)
+  .input('action', sql.VarChar(10), action)
+  .input('availableBalance', sql.Decimal(12,1), availableBalance)
+  .query(`
+    INSERT INTO ledgertransactions (account_id, amount, action, balance_after)
+    VALUES(@accountId, @amount, @action, @availableBalance)
+  `)
 }
 
 async findTransactionByUser(user_id) {
@@ -305,6 +319,7 @@ async findTransactionByUser(user_id) {
       ledgertransaction.transaction_id,
       ledgertransaction.amount,
       ledgertransaction.action,
+      ledgertransaction.balance_after,
       ledgertransaction.transaction_time,
       ledger.name AS account_name,
       ledger.currency
