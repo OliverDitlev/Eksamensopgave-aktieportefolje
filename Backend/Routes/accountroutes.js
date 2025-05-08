@@ -117,7 +117,7 @@ try{
 })
 
 // Opdaterer brugerens informationer med nyt indtastet input på /manageaccounts
-router.post('/changeInfo',[
+router.post('/changeInfo', [
 body('firstname')
 .notEmpty().withMessage('First name is required'),
 
@@ -149,10 +149,6 @@ body('repeatpassword')
   const db = req.app.locals.db
   const errors = validationResult(req);
 
-  // Hvis brugeren ikke er logget ind, send dem til login-siden
-  if(!req.session.user){
-    return res.redirect('/login')
-  }
   // Hvis der er valideringsfejl, vis formularen med fejl og tidligere input
   if (!errors.isEmpty()) {
     return res.render('manageaccount', {
@@ -166,7 +162,6 @@ body('repeatpassword')
   const {firstname, lastname, email, password} = req.body
 
   try {  
-
 
     // Brugerens nye informationer bliver opdateret i databasen
     await db.changeInfo(req.session.user.user_id, firstname, lastname, email, password)

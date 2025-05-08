@@ -11,6 +11,7 @@ const request = require('request');
 // Nøgle til API'en
 const { API_KEY } = require('../api');
 const { map } = require('mssql');
+const { number } = require('echarts');
 
 const router = express.Router();
 
@@ -61,6 +62,8 @@ router.get('/portfolios/:portfolio_id', async (req, res) => {
 
     const stocks = await db.findStocksByPortfolio(portfolio_id)
     const ledger = accounts.find(account => account.account_id === portfolio.account_id);
+    console.log('Ledger:', ledger)
+    console.log(ledger.currency)
 
 
     const exchangeRates = await getExchangeRates()
@@ -74,8 +77,6 @@ router.get('/portfolios/:portfolio_id', async (req, res) => {
      purchasePrice: stocks.map(price => Number(price.purchase_price)),
      value: stocks.map(val => Number(val.value))
     }
-
-    console.log(prices)
   
     if (ledger.currency === 'DKK') {
       availBalance = availBalance * exchangeRates['USD'];
@@ -214,23 +215,46 @@ router.get('/api/stockinfo', async (req, res) => {
 // Registrer et køb af aktier i en portefølje
 router.post('/registerTrade', async (req, res) => {
   const db = req.app.locals.db;
+  const user_id = req.session.user.user_id;
+
+
   const { 
     portfolio_id, 
     ticker, 
     volume,
     price, 
     company, 
-    currency = 'USD' 
   } = req.body
+
   try{
-    getStockData(company?? ticker, db)
+    const exchangeRates = await getExchangeRates()
+
+    const accounts = await db.findLedgerByUser(user_id);
+
+    const portfolio = await db.findPortfoliosById(portfolio_id);
+
+    const ledger = accounts.find(account => account.account_id === portfolio.account_id);
+
+
+    let convertedPrice = parseFloat(price);
+
+
+    if (ledger.currency === 'DKK') {
+      convertedPrice = convertedPrice / exchangeRates['USD'];
+
+    } else if (ledger.currency === 'GBP') {
+      convertedPrice = convertedPrice / exchangeRates['GBP'] 
+
+    }
+
+    getStockData(company ?? ticker, db)
 
     // Tilføjer aktiedataen til porteføljen i databasen
     await db.insertStockToPortfolio(
         portfolio_id,
         ticker,
         parseInt(volume, 10),
-        parseFloat(price)
+        parseFloat(convertedPrice)
     );
 
     await db.insertTradeHistory(portfolio_id, ticker, 'BUY', parseInt(volume, 10), parseFloat(price))
@@ -314,7 +338,7 @@ router.post('/sellTrade', async (req, res) => {
       // Konverter beløbet til DKK, hvis nødvendigt
       let amountInDKK = totalAmount;
       if (stockCurrency !== 'DKK') {
-        const exchangeRates = await getExchangeRates(); // Hent valutakurser
+        const exchangeRates = await getExchangeRates();
         const rate = exchangeRates[stockCurrency];
         if (!rate) {
           return res.status(500).send(`Valutakurs for ${stockCurrency} ikke fundet`);

@@ -19,7 +19,7 @@ async function convertCurrency(req, res, next) {
     // Henter valutakurser
     const rates = await getExchangeRates();
     if (!rates) {
-      throw new Error('Kunne ikke hente valutakurser.');
+      throw new Error('Kunne ikke hente valutakurser. Anskaf nye API-nøgle.');
     }
 
     // Funktion til at omregne til DKK
