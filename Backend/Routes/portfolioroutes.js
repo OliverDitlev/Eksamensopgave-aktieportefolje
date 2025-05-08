@@ -338,7 +338,7 @@ router.post('/sellTrade', async (req, res) => {
       // Konverter beløbet til DKK, hvis nødvendigt
       let amountInDKK = totalAmount;
       if (stockCurrency !== 'DKK') {
-        const exchangeRates = await getExchangeRates(); // Hent valutakurser
+        const exchangeRates = await getExchangeRates();
         const rate = exchangeRates[stockCurrency];
         if (!rate) {
           return res.status(500).send(`Valutakurs for ${stockCurrency} ikke fundet`);
