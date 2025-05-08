@@ -466,6 +466,69 @@ async stocks() {
     });
 }
 
+async createTradeHistory() {
+  const query = `
+   IF NOT EXISTS (
+    SELECT * FROM INFORMATION_SCHEMA.TABLES 
+    WHERE TABLE_NAME = 'userledger'
+  )
+    BEGIN 
+      CREATE TABLE [dbo].[tradehistory](
+      [trade_id] UNIQUEIDENTIFIER PRIMARY KEY DEFAULT NEWID(),
+      portfolio_id UNIQUEIDENTIFIER NOT NULL REFERENCES portfolios(portfolio_id),
+      ticker VARCHAR(20) NOT NULL REFERENCES stocks(ticker),
+      action VARCHAR(10) NOT NULL CHECK(action IN('BUY', 'SELL')),
+      volume INT NOT NULL,
+      price DECIMAL(12, 2) NOT NULL,
+      trade_time DATETIME DEFAULT GETDATE()
+    )
+    END
+  `;
+  this.executeQuery(query)
+  .then(() => {
+    console.log("Tradehistory created ");
+  })
+}
+
+async findTradeHistoryByPortfolio(portfolio_id) {
+  const query = `
+    SELECT 
+    tradehistory.trade_id,
+    tradehistory.portfolio_id,
+    tradehistory.ticker AS ticker,
+    tradehistory.action,
+    tradehistory.volume,
+    tradehistory.price,
+    tradehistory.trade_time,
+    stocks.company_name,
+    stocks.currency,
+    stocks.last_updated
+    FROM tradehistory
+    JOIN stocks ON tradehistory.ticker = stocks.ticker
+    WHERE tradehistory.portfolio_id = @portfolio_id
+    ORDER BY trade_time DESC
+  `;
+  const request = this.poolConnection.request();
+  request.input('portfolio_id', sql.UniqueIdentifier, portfolio_id);
+  const result = await request.query(query);
+  return result.recordset;
+}
+
+async insertTradeHistory(portfolio_id, ticker, action, volume, price) {
+  const query = `
+    INSERT INTO tradehistory (portfolio_id, ticker, action, volume, price)
+    VALUES (@portfolio_id, @ticker, @action, @volume, @price)
+  `;
+  const request = this.poolConnection.request();
+  request.input('portfolio_id', sql.UniqueIdentifier, portfolio_id);
+  request.input('ticker', sql.VarChar(20), ticker);
+  request.input('action', sql.VarChar(10), action);
+  request.input('volume', sql.Int, volume);
+  request.input('price', sql.Decimal(12, 2), price);
+
+  await request.query(query);
+}
+
 async findAllStocksForUser(user_id) {
   const query = `
     SELECT 
@@ -677,26 +740,14 @@ async removeStockFromPortfolio(portfolio_id, ticker, volume, sell_price) {
   `;
   const sellResult = await request.query(checkSellQuery);
 
-  if (sellResult.recordset.length > 0) {
-      // Hvis der allerede findes en post med action = SELL, opdater volumen
-      const updateSellQuery = `
-          UPDATE portfolios_stocks
-          SET volume = volume + @volume
-          WHERE stock_id = @stock_id;
-      `;
-      const sellStockId = sellResult.recordset[0].stock_id;
-      const sellRequest = this.poolConnection.request();
-      sellRequest.input('stock_id', sql.UniqueIdentifier, sellStockId);
-      sellRequest.input('volume', sql.Decimal(12, 2), volume);
-      await sellRequest.query(updateSellQuery);
-  } else {
+
       // Hvis der ikke findes en post med action = SELL, opret en ny
       const insertSellQuery = `
           INSERT INTO portfolios_stocks (portfolio_id, ticker, action, volume, purchase_price)
           VALUES (@portfolio_id, @ticker, 'SELL', @volume, @sell_price);
       `;
       await request.query(insertSellQuery);
-    }
+    
 
     return true;
 }
@@ -825,9 +876,7 @@ async calculateAverageAcquisitionPrice(portfolioId) {
   const result = await request.query(query);
 
   return result.recordset;
-}
-
-  
+} 
 
 async calculateTotalRealizedGain(userId) {
   const query = `
@@ -952,6 +1001,39 @@ async findStatsForPortfolio(user_id) {
   return resultList;
 }
 
+async findStockInPortfolio(portfolio_id, ticker) {
+  const query = `
+  SELECT stock.*, portfoliostock.volume, portfoliostock.purchase_price
+  FROM stocks stock
+  JOIN portfolios_stocks portfoliostock ON portfoliostock.ticker = stock.ticker
+  WHERE portfoliostock.portfolio_id = @portfolio_id AND stock.ticker = @ticker AND portfoliostock.action = 'BUY'
+  `;
+
+const request = this.poolConnection.request();
+  request.input('portfolio_id', sql.UniqueIdentifier, portfolio_id);
+  request.input('ticker', sql.VarChar, ticker);
+
+  const result = await request.query(query);
+  return result.recordset[0];
+}
+
+async getStockPriceHistoryByTicker(ticker) {
+  const query = `
+    SELECT price_tday, price_1m, price_2m, price_3m,
+           price_4m, price_5m, price_6m, price_7m, price_8m, price_9m,
+           price_10m, price_11m, price_12m
+    FROM stock_price_history
+    WHERE ticker = @ticker
+  `;
+
+  const request = this.poolConnection.request();
+  request.input('ticker', sql.VarChar, ticker);
+
+  const result = await request.query(query);
+  return result.recordset[0];
+}
+
+
 }
 
 
@@ -966,6 +1048,7 @@ const createDatabaseConnection = async (passwordConfig) => {
   await database.createPortfolios_stocks();
   await database.stocks();
   await database.createStockPriceHistory();
+  await database.createTradeHistory()
 
   return database;
 };

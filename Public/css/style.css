@@ -408,16 +408,20 @@ img {
   justify-content: center;
 }
 
-#portofoliochange {
-  width: 80%;
-  height: auto;
 
+#portofoliochange {
+  width: 220px;
+  padding: 16px;
+  color: white;
 }
 
-#portofoliochange {
+#changesportfolio p {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  padding: 6px ;
+  margin: 1;
+  font-size: 15px;
 }
 
 
@@ -554,3 +558,30 @@ button[disabled] {
 .unrealized-gains-table tr {
   background-color: #6c6c6c;
 }
+
+#stocklink {
+  color: #ffffff;
+  text-decoration: none;
+  font-weight: 500;
+  transition: color 0.2s ease;
+}
+
+#stocklink:hover {
+  color: #8b1dca;
+  text-decoration: underline;
+}
+
+.stock‐detail‐wrapper {
+  display: flex;
+  align-items: flex-start;
+  gap: 20px;
+  flex-wrap: wrap;
+  margin-top: 20px;
+}
+#chart{
+  width: 100%;
+  height: 400px;
+  margin-top: 20px;
+}
+
+

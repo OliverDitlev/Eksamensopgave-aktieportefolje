@@ -21,7 +21,7 @@
         <div class="portfolioboxes">
           <div class="box" id="portofoliovalue">
             <h3>Total value in DKK</h3>
-            <p class="valueamount"><%= total_purchase_value_dkk > 0 ?'positive' : 'negative' %> DKK</p>
+            <p class="valueamount"><%= total_purchase_value_dkk %> DKK</p>
             <p>Total change: </p>
             <p class="valuechange <%= stocksStats.total_growth_percent > 0 ? 'positive' : 'negative' %>">
               <%= stocksStats.total_growth_percent %>%
@@ -29,7 +29,7 @@
           </div>
       
           <div class="box" id="portofoliochange">
-            <h3>Changes</h3>
+            <div id = "changesportfolio">
             <p class="<%= stocksStats.change_24h > 0 ? 'positive' : 'negative' %>">
                 <b>24 hours:</b> <%= stocksStats.change_24h %>%
               </p>
@@ -39,6 +39,7 @@
               <p class="<%= stocksStats.change_30d > 0 ? 'positive' : 'negative' %>">
                 <b>30 days:</b> <%= stocksStats.change_30d %>%
               </p>
+            </div>
           </div>
         </div>
       

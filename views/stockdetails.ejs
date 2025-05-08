@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PortfolioTracker</title>
+    
+    <%- include('partials/menu') %>
+
+    <link rel="stylesheet" href="/css/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/echarts/dist/echarts.min.js"></script>
+</head>
+<body class="main" id="main">
+    <div>
+      <h1><%= stock.company_name %></h1>
+      <h3><%= stock.ticker %></h3>
+    </div>
+  
+    <div class="stock‐detail‐wrapper">
+      <div class="box" id="stockInfoBox">
+        <p>Stocks owned: <%= stock.volume %></p>
+        <p>GAK:</p>
+        <p>Price today: <%= chartData.price_tday %> <%= stock.currency %></p>
+        <p>Last update: <%= (stock.last_updated).toLocaleDateString() %></p>
+      </div>
+    
+      <div class="box" id="stockPriceChangeBox">
+        <div id="chart"></div>
+        <script>
+          window.chartData = <%- JSON.stringify(chartData) %>;
+        </script>
+      </div>
+    </div>
+  
+    <script src="/js/stockdetails.js" defer></script>
+  </body>
+  
+</html>

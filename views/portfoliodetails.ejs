@@ -37,7 +37,9 @@
       
           <div class="box" id="portofoliovalue">
             <p>Total value</p>
-            <h2><%= totalValueAfterEX.toFixed(0) %> <%= accounts.curreny %> </h2>
+            <% const curr = accounts.find(acc => acc.account_id === portfolio.account_id); %> 
+            <h2><%= totalValueAfterEX.toFixed(0) %> <%= curr ? curr.currency : 'N/A' %> </h2>
+              
           </div>
         </div>
       </div>
@@ -53,19 +55,25 @@
             <th>Current Price</th>
             <th>Purchase Price</th>
             <th>Expected value</th>
+            <th>Unrealized gain/loss</th>
         </tr>
     
         <% let i = 0; %>
         <% stocks.forEach(value => { %>
           <% const account = accounts.find(acc => acc.account_id === portfolio.account_id); %>
           <tr>
-          <td><%= value.company_name %></td>
+            <td>
+              <a id = "stocklink" href="/users/<%= portfolio.portfolio_id %>/stocks/<%= value.ticker %>">
+                <%= value.company_name %>
+              </a>
+            </td>
           <td><%= value.volume %></td>
           <td><%= value.change_24h ? (value.change_24h > 0 ? '+' : '') + value.change_24h.toFixed(2) + '%' : '-' %></td>
           <td><%= value.change_7d ? (value.change_7d > 0 ? '+' : '') + value.change_7d.toFixed(2) + '%' : '-' %></td>
           <td><%= prices.lastprice[i].toFixed(1) %> <%= account.currency %></td>
           <td><%= prices.purchasePrice[i].toFixed(1) %> <%= account.currency %></td>
           <td><%= prices.value[i].toFixed(1) %> <%= account.currency %></td>
+          <td><%= ((prices.lastprice[i] - prices.purchasePrice[i])* value.volume).toFixed() %> <%= account.currency %></td>
           <td>
               <button
                 id="sellTradeBtn"

@@ -29,11 +29,11 @@
             <tbody class="main" id="main">
                 <% history.forEach(item => { %>
                     <tr>
-                        <td><%= new Date(item.date).toLocaleDateString() %></td>
-                        <td><%= item.action || 'N/A' %></td>
-                        <td><%= item.stock %></td>
-                        <td><%= item.price.toFixed(2) %> USD</td>
-                        <td><%= item.quantity %></td>
+                        <td><%= new Date(item.trade_time).toLocaleDateString() %></td>
+                        <td><%= item.action %></td>
+                        <td><%= item.ticker %></td>
+                        <td><%= item.price.toFixed(1) %> USD</td>
+                        <td><%= item.volume %></td>
                     </tr>
                 <% }); %>
             </tbody>
