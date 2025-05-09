@@ -124,7 +124,6 @@ chart.setOption(option);
 });
 
 
-//dashboard
 
   
 
