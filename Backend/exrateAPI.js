@@ -1,10 +1,6 @@
 // Funktion, som henter valutakurser fra API'et
 async function getExchangeRates() {
-<<<<<<< Updated upstream
   const API_KEY = '4d66b3a94abb837c72eb8b0b';
-=======
-  const API_KEY = 'bdf47e180f3ebacc2ee791a1';
->>>>>>> Stashed changes
   const baseCurrency = 'DKK';
   const url = `https://v6.exchangerate-api.com/v6/${API_KEY}/latest/${baseCurrency}`;
 
