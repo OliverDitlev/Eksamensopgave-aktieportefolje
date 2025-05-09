@@ -22,13 +22,13 @@ router.get('/dashboard', reqLogin, reqActive, convertCurrency, async (req, res) 
     ...stocksStats,
     total_current_value: req.convertToDKK(stocksStats.total_current_value, 'USD'),
   };
-
+  // Omregner topUnrealizedGains og topValuedStocks til DKK 
   const topUnrealizedGainsInDKK = topUnrealizedGains.map(stock => ({
     ...stock,
     unrealized_gain: req.convertToDKK(stock.unrealized_gain, 'USD'),
     current_value: req.convertToDKK(stock.current_value, 'USD'),
   }));
-
+// Omregner til DKK
   const topValuedStocksInDKK = topValuedStocks.map(stock => ({
     ...stock,
     last_price: req.convertToDKK(stock.last_price, 'USD'),

@@ -1,37 +1,19 @@
 const express = require('express')
-const {body, validationResult} = require('express-validator')
+const {body, validationResult} = require('express-validator');
+const { 
+  reqActive, 
+  reqLogin, 
+  createAccountValidators, 
+  loginValidators, 
+  changeInfoValidators 
+} = require('../middleware');
 
 const router = express.Router()
 
-const { reqLogin, reqActive } = require('../middleware.js'); // Bruges ikke i koden
 
-router.post('/createaccount', [
-// Valider Input fra brugere med brug af express-validator
-body('firstname')
-.notEmpty().withMessage('First name is required'),
+//Route til at oprrette en ny bruger
+router.post('/createaccount', createAccountValidators, async (req, res) => {
 
-body('lastname')
-.notEmpty().withMessage('Last name is required'),
-
-body('email')
-.isEmail().withMessage('A valid email is required'),
-
-body('password')
-.trim()
-.isLength({ min: 8 }).withMessage('Password must be at least 8 characters long')
-.matches(/[A-Z]/).withMessage('Password must contain at least one uppercase letter')
-.matches(/[a-z]/).withMessage('Password must contain at least one lowercase letter'),
-
-body('repeatpassword')
-.trim()
-.custom((value, { req }) => {
-  if (value !== req.body.password) {
-    throw new Error('Passwords do not match');
-  }
-  return true;
-})
-
-], async (req, res) => {
     const db = req.app.locals.db;
 
     const errors = validationResult(req);
@@ -48,27 +30,18 @@ body('repeatpassword')
 
 // Gemmer den nye bruger i databasen
 const { firstname, lastname, email, password } = req.body;
-const userId = db.insertUser({
+// Kalder funktionen i databasen, der opretter brugeren
+const userId = await db.insertUser({
   firstname,
   lastname,
   email,
   password,
 });
 
-// Redirecter til forsiden efter oprettelse
 res.redirect('/');
 });
 
-router.post('/login', [
-// Validerer inputtet til login
-  body('email')
-  .trim()
-  .notEmpty(). withMessage('Email required'),
-  body('password')
-  .trim()
-  .notEmpty().withMessage('Password required')
-
-], async (req, res) =>{
+router.post('/login', loginValidators, async (req, res) =>{
   const errors = validationResult(req);
   const db = req.app.locals.db
   // Bruges til at opsamle fejl fra både validator og db
@@ -77,14 +50,14 @@ router.post('/login', [
   // Viser loginsiden igen, hvis valideringen giver fejl
   if(!errors.isEmpty()){
       return res.render('login',{
-        errors: errors.errorList,
+        errors: errorList,
         oldInput: req.body
       })
     }
     
 const{email, password} = req.body;
 try{
-  // Forsøger at finde brugeren i databasen
+  // Forsøger at finde brugeren i databasen hvor email og password matcher
   const user = await db.findUserEmailAndPassword(email, password)
 
   // Hvis brugeren ikke findes, vis fejl
@@ -104,7 +77,6 @@ try{
         firstname: user.firstname,
         lastname: user.lastname,
         email: user.email, 
-        password: user.password,
         created: user.created,
         active: user.active
       }
@@ -117,42 +89,10 @@ try{
 })
 
 // Opdaterer brugerens informationer med nyt indtastet input på /manageaccounts
-router.post('/changeInfo',[
-body('firstname')
-.notEmpty().withMessage('First name is required'),
-
-body('lastname')
-.notEmpty().withMessage('Last name is required'),
-
-body('email')
-.isEmail().withMessage('A valid email is required'),
-
-body('password')
-.optional({checkFalsy: true})
-.trim()
-.isLength({ min: 8 }).withMessage('Password must be at least 8 characters long')
-.matches(/[A-Z]/).withMessage('Password must contain at least one uppercase letter')
-.matches(/[a-z]/).withMessage('Password must contain at least one lowercase letter'),,
-
-// repeatpassword skal matche med password
-body('repeatpassword')
-.optional({checkFalsy: true})
-.trim()
-.custom((value, { req }) => {
-    
-  if (value !== req.body.password) {
-    throw new Error('Passwords do not match');
-  }
-  return true;
-})
-], async(req, res)=>{
+router.put('/changeInfo', reqLogin, reqActive, changeInfoValidators, async(req, res)=>{
   const db = req.app.locals.db
   const errors = validationResult(req);
 
-  // Hvis brugeren ikke er logget ind, send dem til login-siden
-  if(!req.session.user){
-    return res.redirect('/login')
-  }
   // Hvis der er valideringsfejl, vis formularen med fejl og tidligere input
   if (!errors.isEmpty()) {
     return res.render('manageaccount', {
@@ -162,11 +102,10 @@ body('repeatpassword')
 
     });
   }
-
+  // Gemmer de nye informationer fra brugeren
   const {firstname, lastname, email, password} = req.body
 
   try {  
-
 
     // Brugerens nye informationer bliver opdateret i databasen
     await db.changeInfo(req.session.user.user_id, firstname, lastname, email, password)
@@ -177,7 +116,6 @@ body('repeatpassword')
        firstname,
        lastname,
        email,
-       password 
       };
 
     res.redirect('/');
@@ -190,7 +128,7 @@ body('repeatpassword')
 })
 
 // Aktiverer bruger
-router.post('/activateaccount',async (req, res) =>{
+router.patch('/activateaccount',async (req, res) =>{
   const db = req.app.locals.db;
   // Kalder funktion i databasen, som sætter brugeres 'active' status til værdien 1
   await db.activateUser(req.session.user.user_id)
@@ -206,11 +144,11 @@ router.post('/activateaccount',async (req, res) =>{
   })
 
 // Deaktiverer bruger
-router.post('/disabledaccount', async(req, res)=>{
+router.patch('/disabledaccount', async(req, res)=>{
   const db = req.app.locals.db;
   // Kalder en funktion i databasen, der sætter brugerens 'active' status til værdien 0
   await db.deactivateUser(req.session.user.user_id)
-  
+  // Stopper sessionen og sender brugeren til login-siden
   req.session.destroy(err =>{
     if(err){
       console.error('Error with logout', err);

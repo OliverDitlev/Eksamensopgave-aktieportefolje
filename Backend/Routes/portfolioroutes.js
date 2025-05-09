@@ -11,6 +11,7 @@ const request = require('request');
 // Nøgle til API'en
 const { API_KEY } = require('../api');
 const { map } = require('mssql');
+const { number } = require('echarts');
 
 const router = express.Router();
 
@@ -18,19 +19,27 @@ router.get('/portfolios', reqLogin, reqActive, async (req, res) => {
   try {
     const db = req.app.locals.db;
     const user_id = req.session.user.user_id;
-    
+
+    // Henter brugerens porteføljer 
     const portfolios = await db.findPortfoliosByUser(user_id);
+    // Henter brugerens konti/ledger
     const accounts = await db.findLedgerByUser(user_id);
+    // Henter statistiker som aktierne i porteføljen, som visualiseres 
     const stocksStats = await db.findAllStocksForUser(user_id)
+    // Henter statistikker for porteføljen, som visualiseres
     const stats = await db.findStatsForPortfolio(user_id)
+    // Henter data til pie chart, som visualiseres
     const pieData = await db.findPieDataForPortfolio(user_id)
-    console.log('PieData:', pieData)
-    
+
+    // Henter valutakurser fra API'en
     const exchangeRates = await getExchangeRates()
+   //finder rate for USD til DKK
     const usdToDkkRate = exchangeRates['USD'];
+    //finder den totale købsværdi(altid i USD) og konverterer til DKK
     const total_purchase_value_usd = parseFloat(stocksStats.total_current_value || 0);
     const total_purchase_value_dkk = (total_purchase_value_usd / usdToDkkRate).toFixed(0);
 
+    //sender alt tidligere data til portfolios.ejs
     res.render('portfolios', {
       user: req.session.user,
       portfolios,
@@ -53,16 +62,19 @@ router.get('/portfolios/:portfolio_id', async (req, res) => {
     const portfolio_id = req.params.portfolio_id    
 
     req.session.currentPortfolioId = portfolio_id
-
+    // Henter konti/ledger fra databasen
     const accounts = await db.findLedgerByUser(user_id); 
+    // Henter portefølje fra databasen
     const portfolio = await db.findPortfoliosById(portfolio_id)
+    // Henter porteføljens aktier fra databasen
     const monthlyHistory = await db.getPortfolioHistory(portfolio_id)
 
 
     const stocks = await db.findStocksByPortfolio(portfolio_id)
+    //finder korrekt ledger
     const ledger = accounts.find(account => account.account_id === portfolio.account_id);
 
-
+    // Henter valutakurser fra API'en
     const exchangeRates = await getExchangeRates()
     const usdToDkkRate = exchangeRates['USD']
     const gbpToDkkRate = exchangeRates['GBP']
@@ -74,9 +86,7 @@ router.get('/portfolios/:portfolio_id', async (req, res) => {
      purchasePrice: stocks.map(price => Number(price.purchase_price)),
      value: stocks.map(val => Number(val.value))
     }
-
-    console.log(prices)
-  
+    //omregner brugeres tal til relevante valuta
     if (ledger.currency === 'DKK') {
       availBalance = availBalance * exchangeRates['USD'];
 
@@ -93,6 +103,7 @@ router.get('/portfolios/:portfolio_id', async (req, res) => {
 
     }
 
+    //omregner brugeres aktier til relevant valuta
     let totalValueAfterEX = stocks.reduce((acc, stock) => {
       let valueDKK = 0;
     
@@ -106,8 +117,6 @@ router.get('/portfolios/:portfolio_id', async (req, res) => {
     
       return acc + valueDKK;
     }, 0);
-    
-    console.log(totalValueAfterEX);
 
     // Laver data til pie chart og omregner værdierne til DKK
     const pieData = stocks.map(stock => {
@@ -197,7 +206,7 @@ router.delete('/deleteportfolio', async (req, res) => {
     }
 });
 
-// Renderer portfoliodetails med et tomt resultat
+// Renderer portfoliodetails med et tomt resultat, bruges til søgning
 router.get('/searchstock', reqLogin, reqActive, (req, res) => {
     res.render('portfoliodetails', { result: null });
 });
@@ -214,25 +223,47 @@ router.get('/api/stockinfo', async (req, res) => {
 // Registrer et køb af aktier i en portefølje
 router.post('/registerTrade', async (req, res) => {
   const db = req.app.locals.db;
+  const user_id = req.session.user.user_id;
+
+
   const { 
     portfolio_id, 
     ticker, 
     volume,
     price, 
     company, 
-    currency = 'USD' 
   } = req.body
+
   try{
-    getStockData(company?? ticker, db)
+
+    const exchangeRates = await getExchangeRates()
+    const accounts = await db.findLedgerByUser(user_id);
+    const portfolio = await db.findPortfoliosById(portfolio_id);
+    //finder relevant ledger
+    const ledger = accounts.find(account => account.account_id === portfolio.account_id);
+
+    //gør price til variabl
+    let convertedPrice = parseFloat(price);
+
+
+    if (ledger.currency === 'DKK') {
+      convertedPrice = convertedPrice / exchangeRates['USD'];
+
+    } else if (ledger.currency === 'GBP') {
+      convertedPrice = convertedPrice / exchangeRates['GBP'] 
+
+    }
+    // Henter aktiedata fra API'en
+    getStockData(company ?? ticker, db)
 
     // Tilføjer aktiedataen til porteføljen i databasen
     await db.insertStockToPortfolio(
         portfolio_id,
         ticker,
         parseInt(volume, 10),
-        parseFloat(price)
+        parseFloat(convertedPrice)
     );
-
+    // Tilføjer aktien til porteføljen i databasen
     await db.insertTradeHistory(portfolio_id, ticker, 'BUY', parseInt(volume, 10), parseFloat(price))
     // Sender brugeren hen til siden for den relevante portefølje
     res.redirect(`/portfolios/${portfolio_id}`);
@@ -247,7 +278,7 @@ router.get('/portfolios/:portfolio_id/history', reqLogin, reqActive, async (req,
   const portfolioId = req.params.portfolio_id;
 
   try {
-
+    // Henter porteføljens handelsdata og porteføljeoplysninger
     const history = await db.findTradeHistoryByPortfolio(portfolioId);
     const portfolio = await db.findLedgerByPorfolioId(portfolioId);
 
@@ -255,16 +286,16 @@ router.get('/portfolios/:portfolio_id/history', reqLogin, reqActive, async (req,
     const usdToDkkRate = exchangeRates['USD'];
     const usdToGbpRate = exchangeRates['GBP'];
 
+    // omregner history til den relevante valuta
     const historyAfterEx = history.map((trade, index) => {
       let price = Number(trade.price);
       
-
       if (portfolio.currency === 'DKK') {
         price = price / usdToDkkRate;
       } else if (portfolio.currency === 'GBP') {
         price = price / usdToGbpRate;
       }
-
+      //returner opdateret trade
       return {
         ...trade,
         price,
@@ -314,14 +345,13 @@ router.post('/sellTrade', async (req, res) => {
       // Konverter beløbet til DKK, hvis nødvendigt
       let amountInDKK = totalAmount;
       if (stockCurrency !== 'DKK') {
-        const exchangeRates = await getExchangeRates(); // Hent valutakurser
+        const exchangeRates = await getExchangeRates();
         const rate = exchangeRates[stockCurrency];
         if (!rate) {
           return res.status(500).send(`Valutakurs for ${stockCurrency} ikke fundet`);
         }
         amountInDKK = totalAmount / rate;
       }
-      console.log('Total Amount (in DKK):', amountInDKK);
 
       await db.addFundsToAccount(account_id, amountInDKK);
 
@@ -334,6 +364,7 @@ router.post('/sellTrade', async (req, res) => {
 });
   
 router.get('/api/portfolioHistory', async (req, res) =>{
+  //henter historik fra portefølje og jsoner  til frontend
   const db = req.app.locals.db;
   const history = await db.getPortfolioHistory(req.query.portfolioId);
   res.json(history);
@@ -342,10 +373,11 @@ router.get('/api/portfolioHistory', async (req, res) =>{
 // Funktion til søgning af aktie
 router.get('/api/symbols', async (req, res) => {
     const query = req.query.query || '';
+    //søger efter 2 bogstaver 
     if (query.length < 2) return res.json([]);
-  
+   //kalder API'en 
     const url = `https://www.alphavantage.co/query?function=SYMBOL_SEARCH&keywords=${encodeURIComponent(query)}&apikey=${API_KEY}`;
-  
+    //søger udfra nedenstående
     request.get({ url, json: true }, (_err, _r, data) => {
       const out = (data.bestMatches || [])
         .filter(m => ['USD', 'DKK', 'GBP'].includes(m['8. currency']))
