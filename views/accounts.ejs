@@ -10,6 +10,7 @@
 </head>
 
 <body id="main" class="main">
+<!-- Logik til at beregne totale balancer i forksellige valutaer -->
 <%
 let totalDKK = 0;
 let totalUSD = 0;
@@ -27,8 +28,9 @@ accounts.forEach(acc => {
       <button class="popupform" id="historybtn" >See history</button>
       <button class="popupform" id="openformbtn">Add account</button>
     </div>
-  </div>
+</div>
 
+<!-- Popup til at oprette en ny konto -->
 <div id="popupform" class="popup hidden">
     <div id="insideform">       
         <span id="closeformbtn">X</span>
@@ -54,6 +56,7 @@ accounts.forEach(acc => {
     </div>
 </div>
 
+<!-- Popup til at ændre saldoen på en konto -->
 <div class="popup hidden" id="balancepopup">
     <div id="divbalancepopup">
         <span id="closebalancebtn">X</span>
@@ -72,13 +75,17 @@ accounts.forEach(acc => {
     </div>
 </div>
 
+<!-- Tabel til at vise informationer for konti -->
 <table class="accounttable">
     <tr class="thtable">
         <th>Name</th>
         <th>Bank</th>
         <th>Balance</th>
         <th>Available</th>
+<<<<<<< Updated upstream
 
+=======
+>>>>>>> Stashed changes
     </tr>
 
     <% accounts.forEach(value => { %>
@@ -87,7 +94,10 @@ accounts.forEach(acc => {
         <td><%= value.bank %></td>
         <td><%= value.balance %> <%= value.currency %></td>
         <td><%= value.available_balance %> <%= value.currency %></td>
+<<<<<<< Updated upstream
 
+=======
+>>>>>>> Stashed changes
 
         <td class="button-container">
             <button class="accountbtn" id="changebalancebtn" data-accountid="<%= value.account_id %>">Change balance</button>
@@ -97,6 +107,7 @@ accounts.forEach(acc => {
     <% }) %>
 </table>
 
+<!-- Viser balancen opdelt i forskellige valutaer -->
 <div class="accountsdash">
     <table class="halfaccounttable">
         <tr class="totalbalance">

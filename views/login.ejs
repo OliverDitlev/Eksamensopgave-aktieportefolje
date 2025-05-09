@@ -11,21 +11,24 @@
 </head>
 <body id="main" class="main">
 
-    <div class ="loginpage">
-    <h1>Login</h1>
-    <h4>Dont have an account yet? <br><a href="createaccount" id = "create account"> create one here</a> </h4>
-    <div class="errorList">
-        <% if (errors && errors.length > 0) { %>
-            
-              <ul class="error-list">
-                <% errors.forEach(error => { %>
-                  <li><%= error.msg %></li>
-                <% }) %>
-              </ul>
-            
-          <% } %>
-        </div>
-    <form action="/login" method="POST">
+<!-- Loginside -->
+<div class ="loginpage">
+  <h1>Login</h1>
+  <h4>Dont have an account yet? <br><a href="createaccount" id = "create account"> create one here</a> </h4>
+  <div class="errorList">
+    <% if (errors && errors.length > 0) { %>
+        
+      <ul class="error-list">
+        <% errors.forEach(error => { %>
+          <li><%= error.msg %></li>
+        <% }) %>
+      </ul>
+        
+    <% } %>
+  </div>
+
+  <!-- Formular til at logge ind -->
+  <form action="/login" method="POST">
     <input type="email" name="email" class="inputbruger" id="Mailbox" placeholder=" E-mail " >
     <br>
 
@@ -35,7 +38,8 @@
     <a href="createaccount" id="forgettenpassword">Forgot password?</a>
     <br>
     <button id = "loginbtn" class="loginbtn">LOGIN</button>
-    </div>
-    </form>
+  </form>
+</div>
+
 </body>
 </html>

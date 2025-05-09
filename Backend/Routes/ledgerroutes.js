@@ -73,7 +73,7 @@ router.post('/addTransaction', async(req, res)=>{
 })
 
 // Ændrer balancen på en konto
-router.put('/changebalance', async (req, res) => {
+router.post('/changebalance', async (req, res) => {
     const db = req.app.locals.db
     const { accountId, amount, action } = req.body;
   

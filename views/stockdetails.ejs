@@ -11,11 +11,25 @@
     <script src="https://cdn.jsdelivr.net/npm/echarts/dist/echarts.min.js"></script>
 </head>
 <body class="main" id="main">
-    <div>
-      <h1><%= stock.company_name %></h1>
-      <h3><%= stock.ticker %></h3>
+  <div>
+    <h1><%= stock.company_name %></h1>
+    <h3><%= stock.ticker %></h3>
+  </div>
+
+  <!-- Boks med information om aktien -->
+  <div class="stock‐detail‐wrapper">
+    <div class="box" id="stockInfoBox">
+      <h1>STATS <%= stock.ticker %></h1>
+      <p>Stocks owned: <%= stock.volume %></p>
+      <p>Average acquisition Price: <%= averagePrices.average_price %> <%= stock.currency %></p>
+      <p>Total acquisition price <%= (averagePrices.average_price * stock.volume).toFixed(0) %> <%= stock.currency %> </p>
+      <p>Current value: <%= (chartData.price_tday * stock.volume).toFixed(0) %> <%= stock.currency %></p>
+      <p>Total unrealized gain/loss: <%= ((chartData.price_tday - averagePrices.average_price) * stock.volume).toFixed(0) %> <%= stock.currency %></p>
+      <p>Price today: <%= chartData.price_tday %> <%= stock.currency %></p>
+      <p>Last update: <%= (stock.last_updated).toLocaleDateString() %></p>
     </div>
   
+<<<<<<< Updated upstream
     <div class="stock‐detail‐wrapper">
       <div class="box" id="stockInfoBox">
         <h1>STATS <%= stock.ticker %></h1>
@@ -31,9 +45,18 @@
           window.chartData = <%- JSON.stringify(chartData) %>;
         </script>
       </div>
+=======
+    <!-- Graf med ændringer i aktiekursen over 12 måneder -->
+    <div class="box" id="stockPriceChangeBox">
+      <div id="chart"></div>
+      <script>
+        window.chartData = <%- JSON.stringify(chartData) %>;
+      </script>
+>>>>>>> Stashed changes
     </div>
-  
-    <script src="/js/stockdetails.js" defer></script>
-  </body>
+  </div>
+
+  <script src="/js/stockdetails.js" defer></script>
+</body>
   
 </html>

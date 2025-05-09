@@ -1,76 +1,86 @@
-// portofoliodetails javascript
-let timer;
-function debounce (fn, wait=300) {
-    clearTimeout(timer);
-    timer = setTimeout(fn, wait);
-}    console.log(' generel.js er loadet1');
-function searchStock () {
-    const query = document.getElementById('searchstock').value.trim();
-    
-    const select = document.getElementById('stockOptions');
+// Portfoliodetails javascript
 
-    if (query.length < 2) {
-      select.style.display = 'none';       
-      return;
+let timer;
+
+// Funktion til at delaye kaldet til at søge efter aktier
+function debounce (fn, wait=300) {
+  clearTimeout(timer);
+  timer = setTimeout(fn, wait);
+}    console.log(' generel.js er loadet1');
+
+// Søger efter aktier baseret på input fra søgefeltet
+function searchStock () {
+  const query = document.getElementById('searchstock').value.trim();
+  
+  const select = document.getElementById('stockOptions');
+
+  if (query.length < 2) {
+    select.style.display = 'none';       
+    return;
+  }
+  
+  fetch('/api/symbols?query=' + encodeURIComponent(query))
+  .then(res => res.json())
+  .then(data => {
+    select.innerHTML = '';
+    if (data.length) {
+      data.forEach(stock => {
+        const option = document.createElement('option');
+        option.value = JSON.stringify(stock);
+        option.textContent = `${stock.name} (${stock.ticker})`
+        option.addEventListener('click', () => selectStock(option));
+        select.appendChild(option);
+      });
+      select.style.display = 'block';
+    } else {
+      select.style.display = 'none';
     }
-    
-      fetch('/api/symbols?query=' + encodeURIComponent(query))
-        .then(res => res.json())
-        .then(data => {
-          select.innerHTML = '';
-          if (data.length) {
-            data.forEach(stock => {
-              const option = document.createElement('option');
-              option.value = JSON.stringify(stock);
-              option.textContent = `${stock.name} (${stock.ticker})`
-              option.addEventListener('click', () => selectStock(option));
-              select.appendChild(option);
-            });
-            select.style.display = 'block';
-          } else {
-            select.style.display = 'none';
-          }
-        });
+  });
 };
   
-    console.log(' generel.js er loadet2');
-    async function selectStock(selectElement) {
- 
-    const selected = JSON.parse(selectElement.value);
-    document.getElementById('searchstock').value = selected.name;
-    document.getElementById('tickerField').value = selected.ticker;
-    document.getElementById('companyField').value = selected.name;
-    document.getElementById('currencyField').value = selected.currency;
-    document.getElementById('stockOptions').style.display = 'none';
+console.log(' generel.js er loadet2');
 
-    try{
+// Vælger aktien fra dropdown-menuen
+async function selectStock(selectElement) {
+
+  const selected = JSON.parse(selectElement.value);
+  document.getElementById('searchstock').value = selected.name;
+  document.getElementById('tickerField').value = selected.ticker;
+  document.getElementById('companyField').value = selected.name;
+  document.getElementById('currencyField').value = selected.currency;
+  document.getElementById('stockOptions').style.display = 'none';
+
+  try{
 
     const res = await fetch(`/api/stockinfo?company=${encodeURIComponent(selected.name)}`)
     const data = await res.json()
-      document.getElementById('dailyPrices').value = JSON.stringify(data.daily);
-      document.getElementById('monthlyPrices').value = JSON.stringify(data.monthly);
-    }catch(err){
-      console.error('Stock info error', err);
-    }
-  };
+    document.getElementById('dailyPrices').value = JSON.stringify(data.daily);
+    document.getElementById('monthlyPrices').value = JSON.stringify(data.monthly);
+  }catch(err){
+    console.error('Stock info error', err);
+  }
+};
 
-  
-
+// Åbner popup-formularen til at registrere aktier
 function openRegisterTrade() {
     document.getElementById('registertrade').classList.remove('hidden');
 }
+
+// Lukker popup-formularen til at registrere aktier
 function closeRegisterTrade() {
     document.getElementById('registertrade').classList.add('hidden');
 }
 console.log(' generel.js er loadet');
 
+// Laver eventlistener til at tage imod input fra registreringsformularen
 document.addEventListener('DOMContentLoaded', () => {
     const balance = Number(document.getElementById('avalbalance').dataset.availbalance);
   
     const volume = document.querySelector('#formAddportfolio input[name="volume"]');
     const price = document.querySelector('#formAddportfolio input[name="price"]');
     const submit = document.querySelector('#formAddportfolio button[type="submit"]');
-  
+
+    // Hvis prisen er højere end saldoen, så deaktiverer knappen
     function validate () {
       const vol = Number(volume.value);
       const priceup = Number(price.value);
@@ -89,6 +99,8 @@ document.addEventListener('DOMContentLoaded', () => {
   
     validate(); // Kør ved load
   });
+
+  // Laver pie chart til en portefølje
   const pie = document.getElementById('portfoliopiestocks');
   if (pie) {
     const chart = echarts.init(pie);
@@ -127,6 +139,7 @@ const labels = history12.map(entry => entry.history);
 
 const values = history12.map(entry => entry.value);
 
+// Laver graf til porteføljens aktiers udvikling
 const option = {
   title: {
     text: 'Portfolio devolpment last 12 months',

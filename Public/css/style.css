@@ -1,5 +1,5 @@
 body {
-  background: rgb(32, 0, 75);
+  background: rgb(0, 0, 0);
   font-family: 'Inter', sans-serif;
 }
 .main {
@@ -69,7 +69,7 @@ img {
 .loginpage {
   position: fixed;
   top: 40px;
-  left: 20%;
+  left: 40%;
   width: 350px;
   padding: 20px;
   background: #130029d2;

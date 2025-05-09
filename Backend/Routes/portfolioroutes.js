@@ -363,7 +363,7 @@ router.post('/sellTrade', async (req, res) => {
 });
   
 router.get('/api/portfolioHistory', async (req, res) =>{
-  //henter historik fra portefølje og jsoner  til frontend
+  // Henter historik fra portefølje og jsoner  til frontend
   const db = req.app.locals.db;
   const history = await db.getPortfolioHistory(req.query.portfolioId);
   res.json(history);
@@ -372,11 +372,11 @@ router.get('/api/portfolioHistory', async (req, res) =>{
 // Funktion til søgning af aktie
 router.get('/api/symbols', async (req, res) => {
     const query = req.query.query || '';
-    //søger efter 2 bogstaver 
+    // Søger efter 2 bogstaver 
     if (query.length < 2) return res.json([]);
-   //kalder API'en 
+   // Kalder API'en 
     const url = `https://www.alphavantage.co/query?function=SYMBOL_SEARCH&keywords=${encodeURIComponent(query)}&apikey=${API_KEY}`;
-    //søger udfra nedenstående
+    // Søger udfra nedenstående
     request.get({ url, json: true }, (_err, _r, data) => {
       const out = (data.bestMatches || [])
         .filter(m => ['USD', 'DKK', 'GBP'].includes(m['8. currency']))

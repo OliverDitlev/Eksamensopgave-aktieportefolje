@@ -11,27 +11,28 @@
 </head>
 <body id="main" class="main">
 
-    <div class="accountswrap">
-        <h1 class="accounth1">Mine Porteføljer</h1>
-        <div class="buttons">
-            <button class="popupform" id="openformbtn" onclick="openCreatePortfolio()">Opret Portefølje</button>
-        </div>
+  <div class="accountswrap">
+    <h1 class="accounth1">Mine Porteføljer</h1>
+    <div class="buttons">
+      <button class="popupform" id="openformbtn" onclick="openCreatePortfolio()">Opret Portefølje</button>
+    </div>
+  </div>
+
+  <!-- Bokse med samlet information for portefølger -->
+  <div class="portfoliotop">
+    <div class="portfolioboxes">
+      <div class="box" id="portofoliovalue">
+
+        <h4>Total value in DKK:</h4>
+        <p class="valueamount"><%= total_purchase_value_dkk %> DKK</p>
+
+        <h4>Total change: </h4>
+        <p class="valuechange <%= stocksStats.total_growth_percent > 0 ? 'positive' : 'negative' %>">
+          <%= stocksStats.total_growth_percent %>%
+        </p>
       </div>
-
-      <div class="portfoliotop">
-        <div class="portfolioboxes">
-          <div class="box" id="portofoliovalue">
-
-            <h4>Total value in DKK:</h4>
-            <p class="valueamount"><%= total_purchase_value_dkk %> DKK</p>
-
-            <h4>Total change: </h4>
-            <p class="valuechange <%= stocksStats.total_growth_percent > 0 ? 'positive' : 'negative' %>">
-              <%= stocksStats.total_growth_percent %>%
-            </p>
-          </div>
-          
       
+<<<<<<< Updated upstream
           <div class="box" id="portofoliochange">
             <div id = "changesportfolio">
               <h4>Change in value:</h4>
@@ -46,11 +47,28 @@
               </p>
             </div>
           </div>
+=======
+      <!-- Ændringer i værdi -->
+      <div class="box" id="portofoliochange">
+        <div id = "changesportfolio">
+          <h4>Change in value:</h4>
+          <p class="<%= stocksStats.change_1h > 0 ? 'positive' : 'negative' %>">
+            <b>1 hour:</b> <%= stocksStats.change_1h %>%
+          </p>
+        <p class="<%= stocksStats.change_24h > 0 ? 'positive' : 'negative' %>">
+            <b>24 hours:</b> <%= stocksStats.change_24h %>%
+          </p>
+          <p class="<%= stocksStats.change_7d > 0 ? 'positive' : 'negative' %>">
+            <b>7 days:</b> <%= stocksStats.change_7d %>%
+          </p>
+          <p class="<%= stocksStats.change_30d > 0 ? 'positive' : 'negative' %>">
+            <b>30 days:</b> <%= stocksStats.change_30d %>%
+          </p>
+>>>>>>> Stashed changes
         </div>
-      <div class="box" id = "portofoliochart">
-        <div id="portofoliopie"></div>
       </div>
     </div>
+<<<<<<< Updated upstream
       <script>
         const pieData = <%- JSON.stringify(pieData) %>;
       </script>
@@ -92,29 +110,79 @@
                 <% } %>
             </tbody>
         </table>
+=======
+    <div class="box" id = "portofoliochart">
+      <div id="portofoliopie"></div>
+>>>>>>> Stashed changes
     </div>
+  </div>
 
-    <!-- Opret portefølje popup -->
-    <div id="createPortfolioPopup" class="popup hidden">
-        <div id="insideform">
-            <span id="closeformbtn" onclick="closeCreatePortfolio()">X</span>
-            <h2>Opret ny portefølje</h2>
-            <form action="/portfolios" method="POST">
-                <input type="text" name="portfolioName" placeholder="Navn på portefølje" required>
-                
-                <!-- Vælg hvilken konto porteføljen skal høre til -->
-                <select name="accountId" required>
-                    <option value="">Vælg konto</option>
-                    <% if (accounts && accounts.length > 0) { %>
-                        <% accounts.forEach(function(account) { %>
-                            <option value="<%= account.account_id %>"><%= account.name %> - <%= account.account_number %></option>
-                        <% }); %>
-                    <% } %>
-                </select>
-                <button type="submit" class="greenbtn">Opret</button>
-            </form>
-        </div>
+  <!-- Pie chart over værdimæssig fordeling af porteføljer -->
+  <script>
+    const pieData = <%- JSON.stringify(pieData) %>;
+  </script>
+
+  <!-- Tabel over porteføljer -->
+  <div class="accounttable">
+    <table>
+        <thead>
+          <tr>
+            <th>Portfolio name</th>
+            <th>Account</th>
+            <th>Creation</th>
+            <th>purchase price</th>
+            <th>24h change</th>
+            <th>Available balance</th>
+            <th>Samlet Urealiseret Gevinst/Tab</th>
+            <th>Handlinger</th>
+          </tr>
+        </thead>
+      <tbody>
+        <% if (portfolios && portfolios.length > 0) { %>
+            <% portfolios.forEach(function(portfolio) { %>
+                <% const stat = stats.find(stat => stat.account_id === portfolio.account_id) %>
+                <% const account = accounts.find(account => account.account_id === portfolio.account_id); %>
+                <tr>
+                    <td><%= portfolio.name %></td>
+                    <td><%= account.name %> </td>
+                    <td><%= new Date(portfolio.created_at).toLocaleDateString() %></td>
+                    <td><%= stat?.total_purchase_value || 0 %> <%= account.currency %></td>
+                    <td><%= stat.change_24h || 0 %>%</td>
+                    <td><%= account.available_balance %> <%= account.currency %> </td>
+                    <td><%= (stat.total_current_value - stat.total_purchase_value).toFixed() %></td>
+                    <td>
+                        <a class="accountbtnportfolio"  href="/portfolios/<%= portfolio.portfolio_id %>">Se detaljer</a>
+                    </td>
+                </tr>
+            <% }); %>
+        <% } else { %>
+            <tr><td colspan="6">Ingen porteføljer fundet.</td></tr>
+        <% } %>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Opret portefølje popup -->
+  <div id="createPortfolioPopup" class="popup hidden">
+    <div id="insideform">
+      <span id="closeformbtn" onclick="closeCreatePortfolio()">X</span>
+      <h2>Opret ny portefølje</h2>
+      <form action="/portfolios" method="POST">
+        <input type="text" name="portfolioName" placeholder="Navn på portefølje" required>
+        
+        <!-- Vælg hvilken konto porteføljen skal høre til -->
+        <select name="accountId" required>
+          <option value="">Vælg konto</option>
+          <% if (accounts && accounts.length > 0) { %>
+            <% accounts.forEach(function(account) { %>
+              <option value="<%= account.account_id %>"><%= account.name %> - <%= account.account_number %></option>
+            <% }); %>
+          <% } %>
+        </select>
+        <button type="submit" class="greenbtn">Opret</button>
+      </form>
     </div>
+  </div>
 
 <script src="/js/portfolios.js"></script>
 </body>

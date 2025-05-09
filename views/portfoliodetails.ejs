@@ -12,144 +12,143 @@
  
 </head>
 <body id="main" class="main">
-    <div class="accountswrap">
-        <h1 class="accounth1"><%= portfolio.name %></h1>
-        <div class="buttons">
-          <a class="popupform" id="historybtn" href="/portfolios/<%= portfolio.portfolio_id %>/history">History & more</a>
-          <button class="popupform" id="registertradebtn"  onclick="openRegisterTrade()">Register trade</button>
-        </div>
-      </div>
-      <div class="portfoliotop" id = "portdetailsright" >
-        <div class="box" id = "portfoliotopdetails">
-          <div id="historyChart" data-portfolio-id="<%= portfolio.portfolio_id %>"></div>
-          
-        </div>
-      
-        <div class="portfolioboxes" id = "portfoliospie">
-            <div class="box" id="portfoliopiestocks"></div>
+  <div class="accountswrap">
+    <h1 class="accounth1"><%= portfolio.name %></h1>
+    <div class="buttons">
+      <a class="popupform" id="historybtn" href="/portfolios/<%= portfolio.portfolio_id %>/history">History & more</a>
+      <button class="popupform" id="registertradebtn"  onclick="openRegisterTrade()">Register trade</button>
+    </div>
+  </div>
+  <div class="portfoliotop" id = "portdetailsright" >
+    <div class="box" id = "portfoliotopdetails">
+      <div id="historyChart" data-portfolio-id="<%= portfolio.portfolio_id %>"></div>
+    </div>
+  
+    <div class="portfolioboxes" id = "portfoliospie">
+      <div class="box" id="portfoliopiestocks"></div>
 
-            <script>
-              const pieChartData = <%- JSON.stringify(pieData || {}) %>;
-              window.history12 = <%- JSON.stringify(monthlyHistory || []) %>;
-            </script>
-          </div>
-          
-      
-          <div class="box" id="portofoliovalue">
-            <p>Total value</p>
-            <% const curr = accounts.find(acc => acc.account_id === portfolio.account_id); %> 
-            <h2><%= totalValueAfterEX.toFixed(0) %> <%= curr ? curr.currency : 'N/A' %> </h2>
-              
-          </div>
-        </div>
-      </div>
-
-
-      <table class="accounttable" id = "accounttableportdet">
-        <h3 id="h3accountdet">Stocks in portfolio</h3>
-        <tr class="thtable">
-            <th>Name</th>
-            <th>Volume</th>
-            <th>24H change</th>
-            <th>7 day change</th>
-            <th>Current Price</th>
-            <th>Purchase Price</th>
-            <th>Expected value</th>
-            <th>Unrealized gain/loss</th>
-        </tr>
+      <!-- Pie chart over portfolio distribution og portfolio development last 12 months-->
+      <script>
+        const pieChartData = <%- JSON.stringify(pieData || {}) %>;
+        window.history12 = <%- JSON.stringify(monthlyHistory || []) %>;
+      </script>
+    </div>
     
-        <% let i = 0; %>
-        <% stocks.forEach(value => { %>
-          <% const account = accounts.find(acc => acc.account_id === portfolio.account_id); %>
-          <tr>
-            <td>
-              <a id = "stocklink" href="/users/<%= portfolio.portfolio_id %>/stocks/<%= value.ticker %>">
-                <%= value.company_name %>
-              </a>
-            </td>
-          <td><%= value.volume %></td>
-          <td><%= value.change_24h ? (value.change_24h > 0 ? '+' : '') + value.change_24h.toFixed(2) + '%' : '-' %></td>
-          <td><%= value.change_7d ? (value.change_7d > 0 ? '+' : '') + value.change_7d.toFixed(2) + '%' : '-' %></td>
-          <td><%= prices.lastprice[i].toFixed(1) %> <%= account.currency %></td>
-          <td><%= prices.purchasePrice[i].toFixed(1) %> <%= account.currency %></td>
-          <td><%= prices.value[i].toFixed(1) %> <%= account.currency %></td>
-          <td><%= ((prices.lastprice[i] - prices.purchasePrice[i])* value.volume).toFixed() %> <%= account.currency %></td>
-          <td>
-              <button
-                id="sellTradeBtn"
-                class="popupform" 
-                data-ticker="<%= value.ticker %>" 
-                data-company="<%= value.company_name %>" 
-                data-volume="<%= value.volume %>" 
-                data-price="<%= value.last_price %>" 
-                data-currency="<%= value.currency %>"
-                onclick="openSellTrade(
-                  '<%= value.ticker %>',
-                  '<%= value.company_name %>',
-                  <%= value.volume %>,
-                  <%= value.last_price %>,
-                  '<%= value.currency %>'
-                )"
-              >Sell
-              </button>
-            </td>
-        </tr>
-        <% i++ %>
-        <% }) %>
-    </table>
-    
-    <div id="registertrade" class="popup hidden">
-      <div id="formAddportfolio">
-          <span id="closeRegisterFormBtn" onclick="closeRegisterTrade()">X</span>
-          <h2>Register trade</h2>
-          <form action="/registerTrade" method="POST">
-            <label>Find company</label>
-            <input type="text" id="searchstock" oninput="searchStock()" autocomplete="off">
-            <select id="stockOptions" size="5" style="display:none" onchange="selectStock(this)"></select>
-
-
-            <input type="hidden" name = "portfolio_id" value = "<%= portfolio.portfolio_id %>">
-            <input type="hidden" name="ticker"   id="tickerField">
-            <input type="hidden" name="company"  id="companyField">
-            <input type="hidden" name="currency" id="currencyField">
-
-            <label>Stocks purchased</label>
-            <input type="number" name="volume" min="1" required><br>
-
-              <label>Purchase price</label>
-              <input type="number" name="price" id="priceField" required><br>
-
-          <button type="submit" class="greenbtn">Opret</button>
-          <p id="avalbalance" data-availbalance="<%= availBalance %>">
-              Available balance: <%= availBalance %> USD
-            </p>
-          </form>
-      </div>
+    <!-- Total værdi for portefølje -->
+    <div class="box" id="portofoliovalue">
+      <p>Total value</p>
+      <% const curr = accounts.find(acc => acc.account_id === portfolio.account_id); %> 
+      <h2><%= totalValueAfterEX.toFixed(0) %> <%= curr ? curr.currency : 'N/A' %> </h2>
+    </div>
   </div>
 
-<div id="selltrade" class="popup hidden">
-    <div id="formSellTrade">
-        <span id="closeSellFormBtn" onclick="closeSellTrade()">X</span>
-        <h2>Sell Trade</h2>
-        <form action="/sellTrade" method="POST">
-            <input type="hidden" name="portfolio_id" value="<%= portfolio.portfolio_id %>">
-            <input type="hidden" name="ticker" id="sellTickerField">
-            <input type="hidden" name="company" id="sellCompanyField">
-            <input type="hidden" name="currency" id="sellCurrencyField">
-            <input type="hidden" name="price" id="sellPriceField">
+  <!-- Tabel over aktier i portefølje -->
+  <table class="accounttable" id = "accounttableportdet">
+    <h3 id="h3accountdet">Stocks in portfolio</h3>
+    <tr class="thtable">
+        <th>Name</th>
+        <th>Volume</th>
+        <th>24H change</th>
+        <th>7 day change</th>
+        <th>Current Price</th>
+        <th>Purchase Price</th>
+        <th>Expected value</th>
+        <th>Unrealized gain/loss</th>
+    </tr>
 
-            <label for="sellVolumeField">Volume to sell</label>
-            <input type="number" name="volume" id="sellVolumeField" min="1" step="1" required>
+    <% let i = 0; %>
+    <% stocks.forEach(value => { %>
+      <% const account = accounts.find(acc => acc.account_id === portfolio.account_id); %>
+      <tr>
+        <td>
+          <a id = "stocklink" href="/users/<%= portfolio.portfolio_id %>/stocks/<%= value.ticker %>">
+            <%= value.company_name %>
+          </a>
+        </td>
+      <td><%= value.volume %></td>
+      <td><%= value.change_24h ? (value.change_24h > 0 ? '+' : '') + value.change_24h.toFixed(2) + '%' : '-' %></td>
+      <td><%= value.change_7d ? (value.change_7d > 0 ? '+' : '') + value.change_7d.toFixed(2) + '%' : '-' %></td>
+      <td><%= prices.lastprice[i].toFixed(1) %> <%= account.currency %></td>
+      <td><%= prices.purchasePrice[i].toFixed(1) %> <%= account.currency %></td>
+      <td><%= prices.value[i].toFixed(1) %> <%= account.currency %></td>
+      <td><%= ((prices.lastprice[i] - prices.purchasePrice[i])* value.volume).toFixed() %> <%= account.currency %></td>
+      <td>
+        <button
+          id="sellTradeBtn"
+          class="popupform" 
+          data-ticker="<%= value.ticker %>" 
+          data-company="<%= value.company_name %>" 
+          data-volume="<%= value.volume %>" 
+          data-price="<%= value.last_price %>" 
+          data-currency="<%= value.currency %>"
+          onclick="openSellTrade(
+            '<%= value.ticker %>',
+            '<%= value.company_name %>',
+            <%= value.volume %>,
+            <%= value.last_price %>,
+            '<%= value.currency %>'
+          )"
+        >Sell
+        </button>
+      </td>
+    </tr>
+    <% i++ %>
+    <% }) %>
+  </table>
+  
+  <!-- Opret handel popup -->
+  <div id="registertrade" class="popup hidden">
+    <div id="formAddportfolio">
+      <span id="closeRegisterFormBtn" onclick="closeRegisterTrade()">X</span>
+      <h2>Register trade</h2>
+      <form action="/registerTrade" method="POST">
+        <label>Find company</label>
+        <input type="text" id="searchstock" oninput="searchStock()" autocomplete="off">
+        <select id="stockOptions" size="5" style="display:none" onchange="selectStock(this)"></select>
 
-            <p>Current price: <span id="currentPriceDisplay"></span> <span id="currentCurrencyDisplay"></span></p>
 
-            <button type="submit" class="greenbtn">Sell</button>
-        </form>
+        <input type="hidden" name = "portfolio_id" value = "<%= portfolio.portfolio_id %>">
+        <input type="hidden" name="ticker"   id="tickerField">
+        <input type="hidden" name="company"  id="companyField">
+        <input type="hidden" name="currency" id="currencyField">
+
+        <label>Stocks purchased</label>
+        <input type="number" name="volume" min="1" required><br>
+
+          <label>Purchase price</label>
+          <input type="number" name="price" id="priceField" required><br>
+
+      <button type="submit" class="greenbtn">Opret</button>
+      <p id="avalbalance" data-availbalance="<%= availBalance %>">
+          Available balance: <%= availBalance %> USD
+        </p>
+      </form>
     </div>
-</div>
+  </div>
 
-    
-    <script src="/js/portfoliodetails.js"></script>
+  <!-- Popup til at sælge aktier -->
+  <div id="selltrade" class="popup hidden">
+    <div id="formSellTrade">
+      <span id="closeSellFormBtn" onclick="closeSellTrade()">X</span>
+      <h2>Sell Trade</h2>
+      <form action="/sellTrade" method="POST">
+          <input type="hidden" name="portfolio_id" value="<%= portfolio.portfolio_id %>">
+          <input type="hidden" name="ticker" id="sellTickerField">
+          <input type="hidden" name="company" id="sellCompanyField">
+          <input type="hidden" name="currency" id="sellCurrencyField">
+          <input type="hidden" name="price" id="sellPriceField">
+
+          <label for="sellVolumeField">Volume to sell</label>
+          <input type="number" name="volume" id="sellVolumeField" min="1" step="1" required>
+
+          <p>Current price: <span id="currentPriceDisplay"></span> <span id="currentCurrencyDisplay"></span></p>
+
+          <button type="submit" class="greenbtn">Sell</button>
+      </form>
+    </div>
+  </div>
+
+  <script src="/js/portfoliodetails.js"></script>
 
 
 </body>
