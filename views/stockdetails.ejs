@@ -29,7 +29,6 @@
       <p>Last update: <%= (stock.last_updated).toLocaleDateString() %></p>
     </div>
   
-<<<<<<< Updated upstream
     <div class="stock‐detail‐wrapper">
       <div class="box" id="stockInfoBox">
         <h1>STATS <%= stock.ticker %></h1>
@@ -45,14 +44,6 @@
           window.chartData = <%- JSON.stringify(chartData) %>;
         </script>
       </div>
-=======
-    <!-- Graf med ændringer i aktiekursen over 12 måneder -->
-    <div class="box" id="stockPriceChangeBox">
-      <div id="chart"></div>
-      <script>
-        window.chartData = <%- JSON.stringify(chartData) %>;
-      </script>
->>>>>>> Stashed changes
     </div>
   </div>
 
