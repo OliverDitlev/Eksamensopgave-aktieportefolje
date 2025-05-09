@@ -1,30 +1,33 @@
+// Denne fil er ansvarlig for at oprette serveren og forbinde til databasen. 
+// Den håndterer også routes og middleware.
+
 const express = require('express');
 const path = require('path');
 const session = require('express-session')
 const methodOverride = require('method-override');
 
-
-
-//const { getStockData } = require('./routes/api');
+// Opretter en forbindelse til databasen og henter routes fra andre filer
 const { passwordConfig } = require('../Database/config');
-const { database, createDatabaseConnection } = require('../Database/database');
+const { createDatabaseConnection } = require('../Database/database');
 const dashboardRoutes = require('./Routes/Dashboardroutes');
 const accountsroutes = require('./Routes/accountroutes');
 const ledgerRoutes = require('./Routes/ledgerroutes');
 const portfolioroutes = require('./Routes/portfolioroutes')
-const { reqLogin, reqActive, reqAccount } = require('./middleware');
+const { reqLogin, reqActive } = require('./middleware');
 
+// Laver en express app og sætter porten til 3000
 const app = express();
 const port = 3000;
 require('dotenv').config();
 const { updateAllStockData } = require('./UpdateAPI');
 const cron = require('node-cron')
 
+// henterer den statiske mappe og views og bruger ejs som templating engine til at generere HTML sider dynamisk
 app.set('view engine', 'ejs')
 app.set('views', path.join(__dirname, '../views'));
 app.use(express.static(path.join(__dirname, '../public')));
 
-
+// Middleware til at parse URL-encoded data og JSON-data fra formularer
 app.use(express.urlencoded({extended: true}));
 app.use(express.json());
 app.use(methodOverride('_method'));
@@ -35,7 +38,7 @@ app.use(session({
 }))
 
 
-//opretter en global forbindelse til database
+// Opretter en global forbindelse til database
 let db;
 createDatabaseConnection(passwordConfig).then((instance => {
   db = instance
@@ -46,16 +49,18 @@ createDatabaseConnection(passwordConfig).then((instance => {
   app.use('/', portfolioroutes)
   app.use('/', dashboardRoutes)
 
+  // Opdatere aktiedata dagligt kl. 12:00
   cron.schedule('0 12 * * *', async () => {
     await updateAllStockData(db);
     console.log('Opdateringsjob kørt kl. 12:00')
 })
 }))
 
-
+// Bruger get til at vise login siden og redirecter til dashboard, hvis brugeren allerede er logget ind
 app.get('/', reqLogin, reqActive, (req, res) => {
   res.redirect('/dashboard');
 });
+
 
 app.get('/login',(req, res) => {
   if (req.session.user) {

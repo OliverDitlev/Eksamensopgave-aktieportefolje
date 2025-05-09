@@ -2,13 +2,15 @@ const { getExchangeRates } = require('./exrateAPI');
 
 const { body } = require('express-validator');
 
+// Middleware til at tjekke om brugeren er logget ind. Går ind på /login hvis ikke
 function reqLogin(req, res, next){
   if(!req.session.user){
     return res.redirect('/login')
   } 
     next()
 }
-  
+
+// Middleware til at tjekke om brugeren har en aktiv konto. Går ind på /disabledaccount hvis ikke
 function reqActive(req, res, next){
   if(!req.session.user.active){
     return res.redirect('/disabledaccount')
@@ -16,6 +18,7 @@ function reqActive(req, res, next){
     next()
 }
 
+// Middleware til at konvertere valutaer til DKK, da basisvalutaen vises i DKK
 async function convertCurrency(req, res, next) {
   try {
     // Henter valutakurser
@@ -24,7 +27,7 @@ async function convertCurrency(req, res, next) {
       throw new Error('Kunne ikke hente valutakurser. Anskaf nye API-nøgle.');
     }
 
-    // Funktion til at omregne til DKK
+    // Funktion, som gemmer og omregner valutakurserne til DKK i req-objektet, så de kan bruges i andre ruter
     req.convertToDKK = (value, currency) => {
       if (!rates[currency]) {
         throw new Error(`Valutaen ${currency} kunne ikke hentes.`);
@@ -39,18 +42,20 @@ async function convertCurrency(req, res, next) {
   }
 }
 
+// Middleware til at validere input ved oprettelse af konto
 const accountValidators = [
   body('name').trim().notEmpty().withMessage('Name required'),
   body('balance').trim().isNumeric().withMessage('Enter valid number'),
 ];
 
+// Middleware til at validere input ved oprettelse af transaktioner
 const transactionValidators = [
   body('accountId').notEmpty().withMessage('Account ID required'),
   body('amount').isNumeric().withMessage('Amount must be a number'),
   body('action').isIn(['deposit', 'withdrawal']).withMessage('Invalid action'),
 ];
 
-
+// Middleware til at validere input ved oprettelse af en bruger
 const createAccountValidators = [
   body('firstname').notEmpty().withMessage('First name is required'),
   body('lastname').notEmpty().withMessage('Last name is required'),
@@ -70,11 +75,13 @@ const createAccountValidators = [
     })
 ];
 
+// Middleware til at validere input ved login
 const loginValidators = [
   body('email').trim().notEmpty().withMessage('Email required'),
   body('password').trim().notEmpty().withMessage('Password required')
 ];
 
+// Middleware til at validere input ved ændring af brugeroplysninger
 const changeInfoValidators = [
   body('firstname').notEmpty().withMessage('First name is required'),
   body('lastname').notEmpty().withMessage('Last name is required'),
@@ -96,8 +103,6 @@ const changeInfoValidators = [
     })
 ];
 
-
-  
 module.exports = {
   reqActive, 
   reqLogin, 
