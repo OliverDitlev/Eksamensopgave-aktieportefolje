@@ -1,6 +1,6 @@
 
 async function getExchangeRates() {
-  const API_KEY = '220e5fabffae324cddb94eb1';
+  const API_KEY = '4d66b3a94abb837c72eb8b0b';
   const baseCurrency = 'DKK';
   const url = `https://v6.exchangerate-api.com/v6/${API_KEY}/latest/${baseCurrency}`;
 

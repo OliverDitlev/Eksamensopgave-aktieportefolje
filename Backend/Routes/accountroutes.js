@@ -31,7 +31,7 @@ router.post('/createaccount', createAccountValidators, async (req, res) => {
 // Gemmer den nye bruger i databasen
 const { firstname, lastname, email, password } = req.body;
 // Kalder funktionen i databasen, der opretter brugeren
-const userId = await db.insertUser({
+await db.insertUser({
   firstname,
   lastname,
   email,
