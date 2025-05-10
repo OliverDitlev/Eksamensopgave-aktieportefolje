@@ -40,8 +40,10 @@ app.use(session({
 
 // Opretter en global forbindelse til database
 let db;
-createDatabaseConnection(passwordConfig).then((instance => {
+createDatabaseConnection(passwordConfig).then((async instance => {
   db = instance
+  await db.connect();   
+  db.pool = db.poolConnection; 
   app.locals.db = db;
 
   app.use('/', accountsroutes)
@@ -50,10 +52,11 @@ createDatabaseConnection(passwordConfig).then((instance => {
   app.use('/', dashboardRoutes)
 
   // Opdatere aktiedata dagligt kl. 12:00
-  cron.schedule('0 12 * * *', async () => {
+  cron.schedule('00 12 * * *', async () => {
     await updateAllStockData(db);
-    console.log('Opdateringsjob kørt kl. 12:00')
-})
+    console.log('Aktiedata opdateret');
+}, { timezone: 'Europe/Copenhagen' }   
+)
 }))
 
 // Bruger get til at vise login siden og redirecter til dashboard, hvis brugeren allerede er logget ind

@@ -626,8 +626,8 @@ class Database {
     const pool = this.poolConnection;
     // Tjekker om aktien findes. Hvis ikke, indsæt i stocks 
     await pool.request()
-      .input('ticker',   sql.VarChar, ticker)
-      .input('name',    sql.VarChar, companyName)
+      .input('ticker', sql.VarChar, ticker)
+      .input('name', sql.VarChar, companyName)
       .input('currency', sql.Char(3), currency)
       .query ( `
         MERGE stocks AS tgt
@@ -643,8 +643,8 @@ class Database {
       `)
 
       const request = pool.request()
-      request.input('ticker',   sql.VarChar, ticker)
-      request.input('currency',    sql.Char(3), currency)
+      request.input('ticker', sql.VarChar, ticker)
+      request.input('currency', sql.Char(3), currency)
       request.input('last_updated', sql.DateTime, new Date())
 
       request.input('daily0', sql.Decimal(18, 4), daily[0])
@@ -655,7 +655,7 @@ class Database {
         request.input(`month${i+1}`, sql.Decimal(18, 4), monthly[i])
       }
 
-      //
+      // Henter den sidste opdateringstidspunkt for aktien
       const query =`
       MERGE stock_price_history AS tgt
       USING (SELECT @ticker AS ticker) AS src
@@ -677,7 +677,6 @@ class Database {
           price_10m = @month10,
           price_11m = @month11,
           price_12m = @month12,
-          currency = @currency,
           last_updated = @last_updated
       WHEN NOT MATCHED THEN
         INSERT (ticker, price_tday, price_ysday, price_7d,
@@ -850,9 +849,10 @@ class Database {
   `
   this.executeQuery(query)
   .then(() => {
-    console.log("stock_price_history table created");
+    console.log("stock_price_history table created"); 
   });
   }
+
 
   // Henter historiske aktiekurser for en portefølje
   async getPortfolioHistory(portfolioId) {
