@@ -51,8 +51,8 @@ createDatabaseConnection(passwordConfig).then((async instance => {
   app.use('/', portfolioroutes)
   app.use('/', dashboardRoutes)
 
-  // Opdatere aktiedata dagligt kl. 14:00
-  cron.schedule('50 14 * * *', async () => {
+  // Opdatere aktiedata dagligt kl. 12:00
+  cron.schedule('00 12 * * *', async () => {
     await updateAllStockData(db);
     console.log('Aktiedata opdateret');
 }, { timezone: 'Europe/Copenhagen' }   
