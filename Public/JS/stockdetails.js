@@ -2,6 +2,7 @@ console.log("✅ stockdetails.js er loaded!");
 
 document.addEventListener('DOMContentLoaded', () => {
 
+  // Laver graf til aktiekursen de sidste 12 måneder
   const { price_tday, price_1m, price_2m, price_3m,
           price_4m, price_5m, price_6m, price_7m,
           price_8m, price_9m, price_10m, price_11m, price_12m } = window.chartData || {};
@@ -15,7 +16,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
   console.log("labels:", labels);
   console.log("values:", values);
-
 
   const chartContainer = document.getElementById('chart');
 

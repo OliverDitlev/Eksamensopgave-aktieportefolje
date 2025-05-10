@@ -1,96 +1,17 @@
-//portofolios javascript
+// Portfolios javascript
+
+// Åbner popup-formularen til at oprette en ny portefølje
 function openCreatePortfolio() {
     document.getElementById('createPortfolioPopup').classList.remove('hidden');
 }
+
+// Lukker popup-formularen til at oprette en ny portefølje
 function closeCreatePortfolio() {
     document.getElementById('createPortfolioPopup').classList.add('hidden');
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-    // Tilføjer eventlisteners til alle "Sell"-knapper
-    const sellButtons = document.querySelectorAll('button.popupform[onclick^="openSellTrade"]');
-    sellButtons.forEach(button => {
-        button.addEventListener('click', event => {
-            const ticker = button.getAttribute('data-ticker');
-            const company = button.getAttribute('data-company');
-            const maxVolume = button.getAttribute('data-volume');
-            const price = button.getAttribute('data-price');
-            const currency = button.getAttribute('data-currency');
-
-            openSellTrade(ticker, company, maxVolume, price, currency);
-        });
-    });
-
-    // Lukker popup, når der klikkes på "X"-knappen
-    const closeSellButton = document.getElementById('closeformbtn');
-    if (closeSellButton) {
-        closeSellButton.addEventListener('click', closeSellTrade);
-    }
-});
-
-// Åbner popup-formularen til at sælge aktier
-function openSellTrade(ticker, company, maxVolume, price, currency) {
-    document.getElementById('sellTickerField').value = ticker;
-    document.getElementById('sellCompanyField').value = company;
-    document.getElementById('sellVolumeField').max = maxVolume;
-    document.getElementById('sellPriceField').value = price;
-    document.getElementById('sellCurrencyField').value = currency;
-
-    document.getElementById('selltrade').classList.remove('hidden');
-}
-
-// Lukker popup-formularen til at sælge aktier
-function closeSellTrade() {
-    document.getElementById('selltrade').classList.add('hidden');
-}
-
-////portofolios javascript
-function openCreatePortfolio() {
-    document.getElementById('createPortfolioPopup').classList.remove('hidden');
-}
-function closeCreatePortfolio() {
-    document.getElementById('createPortfolioPopup').classList.add('hidden');
-}
-
-document.addEventListener('DOMContentLoaded', () => {
-    // Tilføjer eventlisteners til alle "Sell"-knapper
-    const sellButtons = document.querySelectorAll('button.popupform[onclick^="openSellTrade"]');
-    sellButtons.forEach(button => {
-        button.addEventListener('click', event => {
-            const ticker = button.getAttribute('data-ticker');
-            const company = button.getAttribute('data-company');
-            const maxVolume = button.getAttribute('data-volume');
-            const price = button.getAttribute('data-price');
-            const currency = button.getAttribute('data-currency');
-
-            openSellTrade(ticker, company, maxVolume, price, currency);
-        });
-    });
-
-    // Lukker popup, når der klikkes på "X"-knappen
-    const closeSellButton = document.getElementById('closeformbtn');
-    if (closeSellButton) {
-        closeSellButton.addEventListener('click', closeSellTrade);
-    }
-});
-
-// Åbner popup-formularen til at sælge aktier
-function openSellTrade(ticker, company, maxVolume, price, currency) {
-    document.getElementById('sellTickerField').value = ticker;
-    document.getElementById('sellCompanyField').value = company;
-    document.getElementById('sellVolumeField').max = maxVolume;
-    document.getElementById('sellPriceField').value = price;
-    document.getElementById('sellCurrencyField').value = currency;
-
-    document.getElementById('selltrade').classList.remove('hidden');
-}
-
-// Lukker popup-formularen til at sælge aktier
-function closeSellTrade() {
-    document.getElementById('selltrade').classList.add('hidden');
-}
-
-document.addEventListener('DOMContentLoaded', () => {
+    // Laver samlet pie chart til alle porteføljer
     const pie = document.getElementById('portofoliopie');
     if (!pie) return;
   

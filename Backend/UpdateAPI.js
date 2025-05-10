@@ -1,6 +1,6 @@
-const cron = require('node-cron');
 const { getStockData } = require('./api');
 
+// Funktion, som opdaterer aktiedata for alle virksomheder i databasen
 async function updateAllStockData(db) {
   try {
     const tickers = await db.getAllCompanies();

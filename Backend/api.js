@@ -2,12 +2,14 @@
 const request = require('request');
 const sql = require('mssql')
 
-const API_KEY = 'P8HUIXTH2ZGN091S'; 
+const API_KEY = 'AOJ90F4235K916JN'; 
 
+// Funktion, som henter aktiedata fra Alpha Vantage API'et
 function getStockData(companyName , db = null) {
 
   const searchUrl = `https://www.alphavantage.co/query?function=SYMBOL_SEARCH&keywords=${encodeURIComponent(companyName)}&apikey=${API_KEY}`;
-//Henter data fra URL
+  
+  //Henter data fra URL
   request.get({ url: searchUrl, json: true, headers: { 'User-Agent': 'request' }}, 
     async (err, res, searchData) => {
     if (err || !searchData.bestMatches || searchData.bestMatches.length === 0) {

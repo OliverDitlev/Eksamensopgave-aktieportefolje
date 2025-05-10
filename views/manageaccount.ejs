@@ -11,40 +11,37 @@
 </head>
 <body id="main" class="main">
     
-    <div class="loginpage">
+  <div class="loginpage">
     <h2> Change your info</h2>
 
-        <div class="errorList">
-    <% if (errors && errors.length > 0) { %>
+    <div class="errorList">
+      <% if (errors && errors.length > 0) { %>
         
-          <ul class="error-list">
-            <% errors.forEach(error => { %>
-              <li><%= error.msg %></li>
-            <% }) %>
-          </ul>
+        <ul class="error-list">
+          <% errors.forEach(error => { %>
+            <li><%= error.msg %></li>
+          <% }) %>
+        </ul>
         
       <% } %>
     </div>
-<form action="/changeInfo" method="POST">
-    
 
-    <input type="text" name="firstname" class="halfsizeinput" id="firstname" value="<%= oldInput?.firstname || user.firstname %>" required> 
-    <input type="text" name="lastname" class="halfsizeinput" id="lastname" value="<%= oldInput?.lastname ||user.lastname %>" required>
-    
-    <input type="email" name="email" class="inputbruger" id="email" value="<%= oldInput?.email||user.email %>" required>
-    
-    <div id="changepassword">
-    <input type="password" name="password" class="inputbruger" id="password" placeholder="New Password" >
-    <input type="password" name="repeatpassword" class="inputbruger" id="repeatpassword" placeholder="Repeat new password" >
-    </div>
-    <button type="submit" id="changeinfobtn" class="loginbtn">Change Info</button>
+    <!-- Formular til at ændre brugeroplysninger -->
+    <form action="/changeInfo" method="POST">
+      <input type="text" name="firstname" class="halfsizeinput" id="firstname" value="<%= oldInput?.firstname || user.firstname %>" required> 
+      <input type="text" name="lastname" class="halfsizeinput" id="lastname" value="<%= oldInput?.lastname ||user.lastname %>" required>
+      
+      <input type="email" name="email" class="inputbruger" id="email" value="<%= oldInput?.email||user.email %>" required>
+      
+      <div id="changepassword">
+      <input type="password" name="password" class="inputbruger" id="password" placeholder="New Password" >
+      <input type="password" name="repeatpassword" class="inputbruger" id="repeatpassword" placeholder="Repeat new password" >
+      </div>
+      <button type="submit" id="changeinfobtn" class="loginbtn">Change Info</button>
     </form>
-   <form action="/disabledaccount" method="post">
-        <button type="submit" id="deactivateAccountbtn" class="deleteAccountbtn" >Deactivate Account</button>
+    <form action="/disabledaccount" method="post">
+      <button type="submit" id="deactivateAccountbtn" class="deleteAccountbtn" >Deactivate Account</button>
     </form> 
-
-   
-    
-    </div>
+  </div>
 </body>
 </html>

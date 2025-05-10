@@ -61,7 +61,7 @@ app.get('/', reqLogin, reqActive, (req, res) => {
   res.redirect('/dashboard');
 });
 
-
+// Bruger get til at vise login siden og redirecter til manageaccount, hvis brugeren allerede er logget ind
 app.get('/login',(req, res) => {
   if (req.session.user) {
     return res.redirect('/manageaccount');
@@ -72,6 +72,7 @@ app.get('/login',(req, res) => {
   });
 });
 
+// Bruger get til at vise createaccount siden
 app.get('/createaccount', (req, res) => {
   res.render('createaccount', {
     errors: [],
@@ -79,6 +80,7 @@ app.get('/createaccount', (req, res) => {
   });
 });
 
+// Bruger get til at vise manageaccount siden
 app.get('/manageaccount', reqLogin, reqActive, (req, res) => {
   res.render('manageaccount', {
      user: req.session.user,
@@ -87,22 +89,26 @@ app.get('/manageaccount', reqLogin, reqActive, (req, res) => {
      });
 });
 
+// Bruger get til at vise disabledaccount siden
 app.get('/disabledaccount', reqLogin,(req,res)=>{
   res.render('disabledaccount',{
     user: req.session.user
   });
 });
 
+// Bruger get til at vise transactionhistory siden
 app.get('/transactionhistory', reqLogin, reqActive, async (req, res) => {
   const db = req.app.locals.db;
   const user_id = req.session.user.user_id;
 
+  // Henter transaktioner fra databasen
   const transactions = await db.findTransactionByUser(user_id);
 
   res.render('transactionhistory', {
     user: req.session.user, transactions
   });
 });
+
 app.listen(port, () =>{
     console.log(`Server listening on port:${port} `)
 })

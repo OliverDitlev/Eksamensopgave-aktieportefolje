@@ -1,5 +1,5 @@
 body {
-  background: rgb(32, 0, 75);
+  background: rgb(0, 0, 0);
   font-family: 'Inter', sans-serif;
 }
 .main {
@@ -69,7 +69,7 @@ img {
 .loginpage {
   position: fixed;
   top: 40px;
-  left: 20%;
+  left: 40%;
   width: 350px;
   padding: 20px;
   background: #130029d2;
@@ -441,6 +441,15 @@ img {
   grid-template-rows: auto auto;
 }
 
+.portfoliotop2 {
+  display: grid;
+  gap: 20px;
+  margin: 30px 37px;
+  display: grid;
+  grid-template-columns: 18% 40%;
+  grid-template-rows: auto auto;
+}
+
 .portfolioboxes {
   display: flex;
   flex-direction: column;
@@ -644,7 +653,8 @@ box-shadow: 0 0 15px rgba(0, 0, 0, 0.712);
   align-items: flex-start;
   gap: 20px;
   flex-wrap: wrap;
-  margin-top: 20px;
+  margin-top: 10px;
+  margin-left: 40px;
   height: 100%;
 }
 #chart{
