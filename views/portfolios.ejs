@@ -19,7 +19,7 @@
   </div>
 
   <!-- Bokse med samlet information for portefølger -->
-  <div class="portfoliotop">
+  <div class="portfoliotop2">
     <div class="portfolioboxes">
       <div class="box" id="portofoliovalue">
 
@@ -32,27 +32,34 @@
         </p>
       </div>
       
-          <div class="box" id="portofoliochange">
-            <div id = "changesportfolio">
-              <h4>Change in value:</h4>
-            <p class="<%= stocksStats.change_24h > 0 ? 'positive' : 'negative' %>">
-                <b>24 hours:</b> <%= stocksStats.change_24h %>%
-              </p>
-              <p class="<%= stocksStats.change_7d > 0 ? 'positive' : 'negative' %>">
-                <b>7 days:</b> <%= stocksStats.change_7d %>%
-              </p>
-              <p class="<%= stocksStats.change_30d > 0 ? 'positive' : 'negative' %>">
-                <b>30 days:</b> <%= stocksStats.change_30d %>%
-              </p>
-            </div>
-          </div>
+      <div class="box" id="portofoliochange">
+        <div id = "changesportfolio">
+          <h4>Change in value:</h4>
+        <p class="<%= stocksStats.change_24h > 0 ? 'positive' : 'negative' %>">
+            <b>24 hours:</b> <%= stocksStats.change_24h %>%
+          </p>
+          <p class="<%= stocksStats.change_7d > 0 ? 'positive' : 'negative' %>">
+            <b>7 days:</b> <%= stocksStats.change_7d %>%
+          </p>
+          <p class="<%= stocksStats.change_30d > 0 ? 'positive' : 'negative' %>">
+            <b>30 days:</b> <%= stocksStats.change_30d %>%
+          </p>
         </div>
       </div>
     </div>
-      <script>
-        const pieData = <%- JSON.stringify(pieData) %>;
-      </script>
-    
+    <div class="box" id = "portofoliochart">
+        <div id="portofoliopie"></div>
+    </div>
+  </div>
+
+  <!-- Pie chart over værdimæssig fordeling af porteføljer -->
+  <script>
+    const pieData = <%- JSON.stringify(pieData) %>;
+  </script>
+
+  
+
+  <!-- Tabel over porteføljer -->
     <div class="accounttable">
         <table>
             <thead>
@@ -91,51 +98,6 @@
             </tbody>
         </table>
     </div>
-  </div>
-
-  <!-- Pie chart over værdimæssig fordeling af porteføljer -->
-  <script>
-    const pieData = <%- JSON.stringify(pieData) %>;
-  </script>
-
-  <!-- Tabel over porteføljer -->
-  <div class="accounttable">
-    <table>
-        <thead>
-          <tr>
-            <th>Portfolio name</th>
-            <th>Account</th>
-            <th>Creation</th>
-            <th>purchase price</th>
-            <th>24h change</th>
-            <th>Available balance</th>
-            <th>Samlet Urealiseret Gevinst/Tab</th>
-            <th>Handlinger</th>
-          </tr>
-        </thead>
-      <tbody>
-        <% if (portfolios && portfolios.length > 0) { %>
-            <% portfolios.forEach(function(portfolio) { %>
-                <% const stat = stats.find(stat => stat.account_id === portfolio.account_id) %>
-                <% const account = accounts.find(account => account.account_id === portfolio.account_id); %>
-                <tr>
-                    <td><%= portfolio.name %></td>
-                    <td><%= account.name %> </td>
-                    <td><%= new Date(portfolio.created_at).toLocaleDateString() %></td>
-                    <td><%= stat?.total_purchase_value || 0 %> <%= account.currency %></td>
-                    <td><%= stat.change_24h || 0 %>%</td>
-                    <td><%= account.available_balance %> <%= account.currency %> </td>
-                    <td><%= (stat.total_current_value - stat.total_purchase_value).toFixed() %></td>
-                    <td>
-                        <a class="accountbtnportfolio"  href="/portfolios/<%= portfolio.portfolio_id %>">Se detaljer</a>
-                    </td>
-                </tr>
-            <% }); %>
-        <% } else { %>
-            <tr><td colspan="6">Ingen porteføljer fundet.</td></tr>
-        <% } %>
-      </tbody>
-    </table>
   </div>
 
   <!-- Opret portefølje popup -->

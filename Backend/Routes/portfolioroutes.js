@@ -86,18 +86,19 @@ router.get('/portfolios/:portfolio_id', async (req, res) => {
      purchasePrice: stocks.map(price => Number(price.purchase_price)),
      value: stocks.map(val => Number(val.value))
     }
-    console.log('prices', prices)
     //omregner brugeres tal til relevante valuta
     if (ledger.currency === 'DKK') {
       availBalance = availBalance * exchangeRates['USD'];
-      prices.lastprice = prices.lastprice.map(price => price / exchangeRates['USD']);
 
-      prices.value = prices.value.map(val => val * exchangeRates['USD']);
+      prices.lastprice = prices.lastprice.map(price => price / exchangeRates['USD']);
+      prices.purchasePrice = prices.purchasePrice.map(price => price / exchangeRates['USD']); 
+      prices.value = prices.value.map(val => val / exchangeRates['USD']);
 
     } else if (ledger.currency === 'GBP') {
       availBalance = availBalance * exchangeRates['GBP'] 
 
       prices.lastprice = prices.lastprice.map(price => price / exchangeRates['GBP']);
+      prices.purchasePrice = prices.purchasePrice.map(price => price / exchangeRates['GBP']); 
       prices.value = prices.value.map(val => val / exchangeRates['GBP']);
 
     }
@@ -363,7 +364,7 @@ router.post('/sellTrade', async (req, res) => {
 });
   
 router.get('/api/portfolioHistory', async (req, res) =>{
-  // Henter historik fra portefølje og jsoner  til frontend
+  // Henter historik fra portefølje og jsoner til frontend
   const db = req.app.locals.db;
   const history = await db.getPortfolioHistory(req.query.portfolioId);
   res.json(history);
@@ -400,24 +401,6 @@ router.get('/users/:portfolioId/stocks/:ticker', reqLogin, reqActive, async (req
     const stock = await db.findStockInPortfolio(portfolio_id, ticker);
     const chartData = await db.getStockPriceHistoryByTicker(stock.ticker);
     const averagePrices = await db.calculateAverageAcquisitionPrice(portfolio_id, ticker);
-    const accounts = await db.findLedgerByUser(user_id);
-
-      if (ledger.currency === 'DKK') {
-      availBalance = availBalance * exchangeRates['USD'];
-      prices.lastprice = prices.lastprice.map(price => price / exchangeRates['USD']);
-
-      prices.value = prices.value.map(val => val * exchangeRates['USD']);
-
-    } else if (ledger.currency === 'GBP') {
-
-    }
-
-console.log(
-      stock,
-      averagePrices,
-      chartData,
-      accounts)
-
 
     res.render('stockdetails', {
       user: req.session.user,

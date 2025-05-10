@@ -10,7 +10,6 @@ function closeCreatePortfolio() {
     document.getElementById('createPortfolioPopup').classList.add('hidden');
 }
 
-
 document.addEventListener('DOMContentLoaded', () => {
     // Laver samlet pie chart til alle porteføljer
     const pie = document.getElementById('portofoliopie');

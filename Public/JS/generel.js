@@ -98,15 +98,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const sumGBP = Number(chartElement.dataset.sumgbp);
     const totalValueDKK = sumDKK + (sumUSD * 7.5) + (sumGBP * 9);
 
-<<<<<<< Updated upstream
-});
-
-
-
-  
-
-  
-=======
     const chart = echarts.init(chartElement);
     const option = {
         title: {
@@ -132,4 +123,3 @@ document.addEventListener('DOMContentLoaded', () => {
     };
     chart.setOption(option);
 });
->>>>>>> Stashed changes
