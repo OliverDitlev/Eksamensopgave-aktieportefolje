@@ -1,4 +1,3 @@
-console.log("✅ stockdetails.js er loaded!");
 
 document.addEventListener('DOMContentLoaded', () => {
 

@@ -2,7 +2,7 @@
 const request = require('request');
 const sql = require('mssql')
 
-const API_KEY = 'AOJ90F4235K916JN'; 
+const API_KEY = 'EOH4FB2UV0R2XQIR'; 
 
 // Funktion, som henter aktiedata fra Alpha Vantage API'et
 function getStockData(companyName , db = null) {
