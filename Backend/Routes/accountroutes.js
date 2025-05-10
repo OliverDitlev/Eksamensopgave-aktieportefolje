@@ -128,7 +128,7 @@ router.put('/changeInfo', reqLogin, reqActive, changeInfoValidators, async(req, 
 })
 
 // Aktiverer bruger
-router.patch('/activateaccount',async (req, res) =>{
+router.post('/activateaccount',async (req, res) =>{
   const db = req.app.locals.db;
   // Kalder funktion i databasen, som sætter brugeres 'active' status til værdien 1
   await db.activateUser(req.session.user.user_id)
@@ -144,7 +144,7 @@ router.patch('/activateaccount',async (req, res) =>{
   })
 
 // Deaktiverer bruger
-router.patch('/disabledaccount', async(req, res)=>{
+router.post('/disabledaccount', async(req, res)=>{
   const db = req.app.locals.db;
   // Kalder en funktion i databasen, der sætter brugerens 'active' status til værdien 0
   await db.deactivateUser(req.session.user.user_id)
