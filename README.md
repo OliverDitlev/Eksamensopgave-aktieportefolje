@@ -16,9 +16,22 @@ Applikationen er udviklet af 4 studerende fra CBS HA(IT):
 
 Projektet køres via et defineret npm-script. Følg disse trin:
 
-1. **Åbn terminalen** Sørg for at åbne en ny "Git Bash" terminal (eller anden, som ikke er powershell) og at befinder dig i projektets rodmappe: (/Documents/GitHub/Eksamensopgave-aktieportefolje)
+1. **Åbn terminalen** 
+Sørg for at åbne en "Git Bash" terminal (eller anden, som ikke er powershell) og at befinder dig i projektets rodmappe: 
+(/Documents/GitHub/Eksamensopgave-aktieportefolje)
 
-2. **Kør npm scriptet** Kør nedenstående npm-kommando for at starte programmet:
+2. **Kør npm scriptet** 
+Kør nedenstående npm-kommando for at starte programmet:
+
 ```bash
 npm run eksamen
 ```
+
+3. **Tilgå appen i browseren** 
+Når appen er inisialiseret, og der i terminalen står "Server listening on port:3000" efterfulgt af oprettelsen af en række forskellige tables, kan appen tilgås i browseren på: localhost:3000
+
+4. **Login** 
+Vi har lavet en bruger, som på forhånd har konti og porteføljer oprettet samt aktier købt. Herved kan applikationen testes, selv hvis der skulle opstå problemer API'et (hvis den er løbet tør for tokens). Brugeren har følgende login:
+
+Email: test@test.dk
+Password: Test1234
