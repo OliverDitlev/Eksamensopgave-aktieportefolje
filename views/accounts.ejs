@@ -76,12 +76,13 @@ accounts.forEach(acc => {
 </div>
 
 <!-- Tabel til at vise informationer for konti -->
-<table class="accounttable">
+<table class="accounttable" id="accounttableaccounts">
     <tr class="thtable">
         <th>Name</th>
         <th>Bank</th>
         <th>Balance</th>
         <th>Available</th>
+        <th>Created</th>
     </tr>
 
     <% accounts.forEach(value => { %>
@@ -90,6 +91,8 @@ accounts.forEach(acc => {
         <td><%= value.bank %></td>
         <td><%= value.balance %> <%= value.currency %></td>
         <td><%= value.available_balance %> <%= value.currency %></td>
+
+        <td><%= new Date(value.ledger_created).toLocaleDateString('da-DK') %></td>
 
         <td class="button-container">
             <button class="accountbtn" id="changebalancebtn" data-accountid="<%= value.account_id %>">Change balance</button>

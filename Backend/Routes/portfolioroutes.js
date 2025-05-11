@@ -39,6 +39,8 @@ router.get('/portfolios', reqLogin, reqActive, async (req, res) => {
     const total_purchase_value_usd = parseFloat(stocksStats.total_current_value || 0);
     const total_purchase_value_dkk = (total_purchase_value_usd / usdToDkkRate).toFixed(0);
 
+
+
     //sender alt tidligere data til portfolios.ejs
     res.render('portfolios', {
       user: req.session.user,
@@ -89,16 +91,15 @@ router.get('/portfolios/:portfolio_id', async (req, res) => {
     //omregner brugeres tal til relevante valuta
     if (ledger.currency === 'DKK') {
       availBalance = availBalance * exchangeRates['USD'];
-
+      //prices.purchasePrice = prices.purchasePrice.map(price => price / exchangeRates['USD']);
       prices.lastprice = prices.lastprice.map(price => price / exchangeRates['USD']);
-      prices.purchasePrice = prices.purchasePrice.map(price => price / exchangeRates['USD']); 
       prices.value = prices.value.map(val => val / exchangeRates['USD']);
 
     } else if (ledger.currency === 'GBP') {
       availBalance = availBalance * exchangeRates['GBP'] 
 
+      //prices.purchasePrice = prices.purchasePrice.map(price => price / exchangeRates['USD']);
       prices.lastprice = prices.lastprice.map(price => price / exchangeRates['GBP']);
-      prices.purchasePrice = prices.purchasePrice.map(price => price / exchangeRates['GBP']); 
       prices.value = prices.value.map(val => val / exchangeRates['GBP']);
 
     }
@@ -131,7 +132,7 @@ router.get('/portfolios/:portfolio_id', async (req, res) => {
         value: valueDKK,
       }
     });
-
+    console.log(prices)
     // Sender alle informationerne til portfoliodetails.ejs
     res.render('portfoliodetails', {
         user: req.session.user,

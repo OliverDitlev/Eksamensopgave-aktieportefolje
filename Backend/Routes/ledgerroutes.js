@@ -30,7 +30,6 @@ router.post('/accounts', reqLogin, reqActive, accountValidators, async (req, res
     const accounts = await db.findLedgerByUser(user_id)
     // Henter konti fra databasen forventet output: 
     // [{accountID, name, bank, currency, balance, available_balance, ledger_created, ledger_Active}, 
-
     if(!errors.isEmpty()){
         return res.status(400).render('accounts',{
             user: req.session.user, accounts,

@@ -616,6 +616,7 @@ class Database {
   const request = this.poolConnection.request();
   request.input('user_id', sql.UniqueIdentifier, user_id);
 
+
   const result = await request.query(query);
   if (!result.recordset) return [];
   return result.recordset[0];

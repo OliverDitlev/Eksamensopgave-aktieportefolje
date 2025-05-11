@@ -26,10 +26,6 @@
         <h4>Total value in DKK:</h4>
         <p class="valueamount"><%= total_purchase_value_dkk %> DKK</p>
 
-        <h4>Total change: </h4>
-        <p class="valuechange <%= stocksStats.total_growth_percent > 0 ? 'positive' : 'negative' %>">
-          <%= stocksStats.total_growth_percent %>%
-        </p>
       </div>
       
       <div class="box" id="portofoliochange">
@@ -70,7 +66,7 @@
                     <th>purchase price</th>
                     <th>24h change</th>
                     <th>Available balance</th>
-                    <th>Samlet Urealiseret Gevinst/Tab</th>
+                    <th>Total Unrealized Gain/Loss</th>
                     <th>Handlinger</th>
                 </tr>
             </thead>

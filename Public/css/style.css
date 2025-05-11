@@ -296,6 +296,9 @@ img {
   border-bottom: 1px solid black;
   color: #fff;
 }
+#accounttableaccounts th, #accounttableaccountstd{
+  min-width: 80PX;
+}
 .accountbtn, #deletebtn, #choseaccount {
   padding: 1px 10px;
   margin: 1px;

@@ -89,7 +89,7 @@ try{
 })
 
 // Opdaterer brugerens informationer med nyt indtastet input på /manageaccounts
-router.put('/changeInfo', reqLogin, reqActive, changeInfoValidators, async(req, res)=>{
+router.post('/changeInfo', reqLogin, reqActive, changeInfoValidators, async(req, res)=>{
   const db = req.app.locals.db
   const errors = validationResult(req);
 
